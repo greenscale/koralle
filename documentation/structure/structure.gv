@@ -1,0 +1,63 @@
+digraph
+{
+	graph [fontname="Monospace"];
+	
+	node [fontname="Monospace" style="filled" fillcolor="0+0+0.8"];
+	node_project [shape="box" label="project\n--\nname" fillcolor="0.4+0.8+0.8"];
+	node_task [shape="box" label="task\n--\nname\ninputs\ntargets" fillcolor="0.4+0.8+0.8"];
+	node_task_group [shape="box" label="task_group"];
+	node_task_typescript [shape="box" label="task_typescript"];
+	node_task_lesscss [shape="box" label="task_lesscss"];
+	node_action [shape="box" label="action" fillcolor="0.4+0.8+0.8"];
+	node_action_adhoc [shape="box" label="action_adhoc" fillcolor="0.4+0.8+0.8"];
+	node_action_mkdir [shape="box" label="action_mkdir"];
+	node_action_tsc [shape="box" label="action_tsc"];
+	node_action_lessc [shape="box" label="action_lessc"];
+	node_target [shape="box" label="target" fillcolor="0.4+0.8+0.8"];
+	node_target_ant [shape="box" label="target_ant"];
+	node_target_gnumake [shape="box" label="target_gnumake"];
+	/*
+	node_target_script [shape="box" label="target_script"];
+	node_target_nodejs [shape="box" label="target_nodejs"];
+	 */
+	/*
+	node_measurement [shape="box" label="measurement" fillcolor="0.4+0.8+0.8"];
+	node_measurement_ant [shape="box" label="measurement_ant"];
+	node_measurement_shell [shape="box" label="measurement_shell"];
+	node_measurement_shell_unix [shape="box" label="measurement_shell_unix"];
+	node_measurement_shell_win [shape="box" label="measurement_shell_win"];
+	node_measurement_nodejs [shape="box" label="measurement_nodejs"];
+	 */
+	
+	edge [fontname="Monospace"];
+	node_task -> node_project [arrowhead="diamond" label="roottask"];
+	node_action -> node_task [arrowhead="odiamond" label="generates*"];
+	node_action_adhoc -> node_action [arrowhead="onormal"];
+	node_action_mkdir -> node_action_adhoc [arrowhead="onormal"];
+	node_action_tsc -> node_action_adhoc [arrowhead="onormal"];
+	node_action_lessc -> node_action_adhoc [arrowhead="onormal"];
+	node_task_group -> node_task [arrowhead="onormal"];
+	node_task_typescript -> node_task [arrowhead="onormal"];
+	node_task_lesscss -> node_task [arrowhead="onormal"];
+	node_task -> node_task [arrowhead="diamond" label="sub*"];
+	node_action_adhoc -> node_target [arrowhead="normal" linestyle="dotted" label="compilation"];
+	node_target_ant -> node_target [arrowhead="onormal"];
+	node_target_gnumake -> node_target [arrowhead="onormal"];
+	/*
+	node_target_script -> node_target [arrowhead="onormal"];
+	node_target_nodejs -> node_target [arrowhead="onormal"];
+	 */
+	/*
+	node_measurement -> node_action [arrowhead="normal" label="compiles"];
+	node_measurement_ant -> node_measurement [arrowhead="onormal"];
+	node_measurement_shell -> node_measurement [arrowhead="onormal"];
+	node_measurement_nodejs -> node_measurement [arrowhead="onormal"];
+	node_measurement_shell_unix -> node_measurement_shell [arrowhead="onormal"];
+	node_measurement_shell_win -> node_measurement_shell [arrowhead="onormal"];
+	node_target -> node_measurement [arrowhead="normal" label="uses"];
+	 */
+	node_target -> node_action [arrowhead="normal" label="compiles"];
+	node_target -> node_task [arrowhead="normal" label="compiles"];
+	node_target -> node_project [arrowhead="normal" label="compiles"];
+}
+
