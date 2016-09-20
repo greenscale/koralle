@@ -1,7 +1,8 @@
 /*
 	
 	Build system abstractor "Koralle"
-    Copyright (C) 2016	Fenris Wolf (fenris@greenscale.de)
+    Copyright (C) 2016	Fenris Wolf, Christian Neubauer
+		(fenris@greenscale.de, neubauer@greenscale.de)
 	
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
