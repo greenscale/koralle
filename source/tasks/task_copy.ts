@@ -89,6 +89,51 @@ class class_task_copy extends class_task {
 		];
 	}
 	
+	
+	/**
+	 * @author fenris
+	 */
+	public static make(parameters : Object) : Object {
+		let input : string = object_fetch<string>(
+			parameters,
+			"input",
+			null,
+			2
+		);
+		let output : string = object_fetch<string>(
+			parameters,
+			"output",
+			null,
+			2
+		);
+		let folder : boolean = object_fetch<boolean>(
+			parameters,
+			"folder",
+			false,
+			0
+		);
+		let input_ : lib_path.class_filepointer = lib_path.class_filepointer.read(input);
+		let output_ : lib_path.class_filepointer = lib_path.class_filepointer.read(output);
+		return {
+			"inputs": [
+				input_
+			],
+			"outputs": [
+				output_
+			],
+			"actions": [
+				new class_action_mkdir(
+					output.location
+				),
+				new class_action_copy(
+					input,
+					output,
+					folder
+				),
+			]
+		};
+	}
+	
 }
 
 class_task.register("copy", /*(name, sub, active, parameters) => */class_task_copy.create/*(name, sub, active, parameters)*/);
