@@ -26,10 +26,10 @@ class class_target_gnumake extends class_target_regular<string> {
 	) : Array<lib_gnumake.class_rule> {
 		let path_ : Array<string> = /*path.concat(*/[task.name_get()]/*)*/;
 		let logging_begin : class_action = new class_action_echo(
-			(new class_message("processing \"" + path_.join("-") + "\" ...", {"type": "log", "depth": depth, "prefix": prefix})).generate()
+			(new class_message("processing '" + path_.join("-") + "' ...", {"type": "log", "depth": depth, "prefix": prefix})).generate()
 		);
 		let logging_end : class_action = new class_action_echo(
-			(new class_message("... finished \"" + path_.join("-") + "\"", {"type": "log", "depth": depth, "prefix": prefix})).generate()
+			(new class_message("... finished '" + path_.join("-") + "'", {"type": "log", "depth": depth, "prefix": prefix})).generate()
 		);
 		let rules_core : Array<lib_gnumake.class_rule> = [];
 		{

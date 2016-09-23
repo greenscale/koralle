@@ -94,6 +94,7 @@ class class_task_copy extends class_task {
 	 * @author fenris
 	 */
 	public static make(parameters : Object) : Object {
+		/*
 		let input : string = object_fetch<string>(
 			parameters,
 			"input",
@@ -132,6 +133,8 @@ class class_task_copy extends class_task {
 				),
 			]
 		};
+		 */
+		return null;
 	}
 	
 }

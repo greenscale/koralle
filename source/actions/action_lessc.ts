@@ -33,7 +33,8 @@ class class_action_lessc extends class_action_adhoc {
 		switch (target_identifier) {
 			case "gnumake": {
 				switch (configuration["system"]) {
-					case "unix": {
+					case "unix":
+					case "win": {
 						let parts : Array<string> = [];
 						parts.push("lessc");
 						parts.push(this.filepointer_from.toString());

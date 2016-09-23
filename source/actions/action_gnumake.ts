@@ -52,10 +52,12 @@ class class_action_gnumake extends class_action_build {
 							let parts : Array<string> = [];
 							parts.push("make");
 							parts.push("--no-print-directory");
+							parts.push("--directory=" + this.workdir.as_string(configuration["system"]));
 							parts.push("--file=" + this.filepointer.as_string(configuration["system"]));
 							cmd_make = parts.join(" ");
 						}
-						return ((this.workdir == null) ? [cmd_make] : [cmd_cd1, cmd_make, cmd_cd2]).join(" && ");
+						// return ((this.workdir == null) ? [cmd_make] : [cmd_cd1, cmd_make, cmd_cd2]).join(" && ");
+						return [cmd_make];
 						// break;
 					}
 					default: {

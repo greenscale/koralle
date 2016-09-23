@@ -34,6 +34,14 @@ class class_action_touch extends class_action_adhoc {
 						return parts.join(" ");
 						// break;
 					}
+					case "win": {
+						let parts : Array<string> = [];
+						parts.push("echo.");
+						parts.push(">");
+						parts.push(this.filepointer.toString());
+						return parts.join(" ");
+						// break;
+					}
 					default: {
 						throw (new Error("not implemented"));
 						// break;

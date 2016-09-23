@@ -60,7 +60,8 @@ class class_action_tsc extends class_action_adhoc {
 		switch (target_identifier) {
 			case "gnumake": {
 				switch (configuration["system"]) {
-					case "unix": {
+					case "unix":
+					case "win": {
 						let parts : Array<string> = [];
 						parts.push("tsc");
 						if (this.allowUnreachableCode) parts.push("--allowUnreachableCode");

@@ -32,7 +32,7 @@ class class_action_echo extends class_action_adhoc {
 					case "win": {
 						let parts : Array<string> = [];
 						parts.push("echo");
-						parts.push("'" + this.message + "'");
+						parts.push("\"" + this.message + "\"");
 						return parts.join(" ");
 						break;
 					}
