@@ -69,19 +69,6 @@ function scan(
  * @author fenris
  */
 function main(args : Array<string>) : void {
-	configuration = {
-		"version": "0.0.5",
-		"tempfolder": null,
-		"path_source": "source",
-		"path_build": "build",
-		"target": "gnumake",
-		"system": "unix",
-		"raw": false,
-		"execute": false,
-		"output": null,
-		"path": "project.json",
-	};
-	
 	/*
 	let argumentparser : lib_arguments.class_argumentparser = new lib_arguments.class_parser(
 		[
@@ -169,13 +156,18 @@ function main(args : Array<string>) : void {
 								(new class_message("")).stdout();
 							}
 							{
+								(new class_message("--showgraph | -g", {"depth": 1})).stdout();
+								(new class_message("if set, the graphviz description of the dependency graph is written to stderr", {"depth": 2})).stdout();
+								(new class_message("")).stdout();
+							}
+							{
 								(new class_message("--output | -o", {"depth": 1})).stdout();
 								(new class_message("the path of the output file", {"depth": 2})).stdout();
 								(new class_message("")).stdout();
 							}
 							{
 								(new class_message("--version | -v", {"depth": 1})).stdout();
-								(new class_message("print the version and exit", {"depth": 2})).stdout();
+								(new class_message("print the version to stdout and exit", {"depth": 2})).stdout();
 								(new class_message("")).stdout();
 							}
 							{
@@ -219,6 +211,11 @@ function main(args : Array<string>) : void {
 					}
 					case "--execute": case "-x": {
 						configuration.execute = true;
+						return true;
+						break;
+					}
+					case "--showgraph": case "-g": {
+						configuration.showgraph = true;
 						return true;
 						break;
 					}
@@ -296,6 +293,9 @@ function main(args : Array<string>) : void {
 					else {
 						scan(state.filepointer)(
 							graph => {
+								if (configuration.showgraph) {
+									(new class_message(graph.output_graphviz())).stderr();								
+								}
 								try {
 									let order : Array<string> = topsort<string>(graph).filter(path => (path != state.filepointer.toString()));
 									state.order = order;

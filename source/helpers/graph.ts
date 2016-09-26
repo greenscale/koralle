@@ -45,6 +45,50 @@ class class_graph<type_node> {
 		);
 	}
 	
+	
+	/**
+	 * @author fenris
+	 */
+	public output_graphviz() : string {
+		let that : class_graph<type_node> = this;
+		function get_nodeindex(node : type_node) : int {
+			return that.nodes.indexOf(node);
+		}
+		function nodeid(node : type_node) : string {
+			return `x_${get_nodeindex(node).toString()}`;
+		}
+		function nodelist() : string {
+			return (
+				["\tnode [];\n"]
+				.concat(
+					that.nodes
+					.map(
+						(node, index) => {
+							return `\t${nodeid(node)} [label="${String(node)}"];\n`;
+						}
+					)
+				)
+				.join("")
+			);
+		}
+		function edgelist() : string {
+			return (
+				["\tedge [];\n"]
+				.concat(
+					that.edges
+					.map(
+						(edge, index) => {
+							return `\t${nodeid(edge.from)} -> ${nodeid(edge.to)} [];\n`;
+						}
+					)
+				)
+				.join("")
+			);
+		}
+		let output : string = `digraph\n{\n${nodelist()}\n${edgelist()}\n}\n`;
+		return output;
+	}
+	
 }
 
 

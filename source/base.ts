@@ -15,5 +15,18 @@ var configuration : {
 	execute ?: boolean;
 	output ?: string;
 	path ?: string;
-} = {};
+	showgraph ?: boolean;
+} = {
+	"version": "0.0.6",
+	"tempfolder": null,
+	"path_source": "source",
+	"path_build": "build",
+	"target": "gnumake",
+	"system": "unix",
+	"raw": false,
+	"execute": false,
+	"output": null,
+	"path": "project.json",
+	"showgraph": false,
+};
 
