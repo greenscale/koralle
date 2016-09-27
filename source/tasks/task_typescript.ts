@@ -63,8 +63,8 @@ class class_task_typescript extends class_task {
 		return (
 			new class_task_typescript(
 				name, sub, active,
-				object_fetch<Array<string>>(parameters, "inputs", [], 1).map(s => lib_path.class_filepointer.read(s)),
-				lib_path.class_filepointer.read(object_fetch<string>(parameters, "output", null, 2)),
+				object_fetch<Array<string>>(parameters, "inputs", [], 1).map(s => lib_path.filepointer_read(s)),
+				lib_path.filepointer_read(object_fetch<string>(parameters, "output", null, 2)),
 				object_fetch<string>(parameters, "target", null, 0),
 				object_fetch<boolean>(parameters, "allowUnreachableCode", false, 0),
 				object_fetch<boolean>(parameters, "declaration", false, 0)

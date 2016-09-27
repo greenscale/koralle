@@ -62,7 +62,7 @@ class class_target_ant extends class_target_regular<lib_ant.class_action> {
 						"__dependency_" + index.toString(),
 						[],
 						true,
-						lib_path.class_filepointer.read(path),
+						lib_path.filepointer_read(path),
 						that.identifier,
 						true,
 						undefined

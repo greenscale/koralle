@@ -73,7 +73,7 @@ class class_task_dependency extends class_task {
 		switch (this.target) {
 			case "gnumake": {
 				let filepointer_buildfile : lib_path.class_filepointer = new lib_path.class_filepointer(
-					lib_path.class_location.read(configuration.tempfolder, configuration.system),
+					lib_path.location_read(configuration.tempfolder, configuration.system),
 					"makefile"
 				);
 				return [
@@ -92,7 +92,7 @@ class class_task_dependency extends class_task {
 			}
 			case "ant": {
 				let filepointer_buildfile : lib_path.class_filepointer = new lib_path.class_filepointer(
-					lib_path.class_location.read(configuration.tempfolder, configuration.system),
+					lib_path.location_read(configuration.tempfolder, configuration.system),
 					"build.xml"
 				);
 				return [

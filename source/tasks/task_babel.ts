@@ -46,8 +46,8 @@ class class_task_babel extends class_task {
 		return (
 			new class_task_babel(
 				name, sub, active,
-				object_fetch<Array<string>>(parameters, "inputs", null, 2).map(x => lib_path.class_filepointer.read(x)),
-				lib_path.class_filepointer.read(object_fetch<string>(parameters, "output", null, 2)),
+				object_fetch<Array<string>>(parameters, "inputs", null, 2).map(x => lib_path.filepointer_read(x)),
+				lib_path.filepointer_read(object_fetch<string>(parameters, "output", null, 2)),
 				object_fetch<string>(parameters, "preset", null, 0),
 				object_fetch<boolean>(parameters, "minify", false, 0)
 			)

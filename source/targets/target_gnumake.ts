@@ -113,7 +113,7 @@ class class_target_gnumake extends class_target_regular<string> {
 						"__dependency_" + index.toString(),
 						[],
 						true,
-						lib_path.class_filepointer.read(path),
+						lib_path.filepointer_read(path),
 						that.identifier,
 						true,
 						undefined

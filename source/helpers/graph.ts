@@ -15,6 +15,7 @@ class class_graph<type_node> {
 	 */
 	public nodes : Array<type_node>;
 	
+	
 	/**
 	 * @author fenris
 	 */
@@ -43,6 +44,39 @@ class class_graph<type_node> {
 				this.edges.filter(edge => ((edge.from != pivot) && (edge.to != pivot)))
 			)
 		);
+	}
+	
+
+	/**
+	 * @author fenris
+	 */
+	public topsort() : Array<type_node> {
+		let graph : class_graph<type_node> = this;
+		if (graph.nodes.length == 0) {
+			return [];
+		}
+		else {
+			let pivot : type_node;
+			let found : boolean = graph.nodes.some(
+				function (node : type_node) : boolean {
+					let count : int = graph.edges.filter(edge => (edge.to == node)).length;
+					if (count == 0) {
+						pivot = node;
+						return true;
+					}
+					else {
+						// console.info("'" + String(node) + "' has " + count.toString() + " incoming edges");
+						return false;
+					}
+				}
+			);
+			if (found) {
+				return [pivot].concat(graph.without(pivot).topsort());
+			}
+			else {
+				throw (new Error("circular dependencies found"));
+			}
+		}
 	}
 	
 	
@@ -89,37 +123,5 @@ class class_graph<type_node> {
 		return output;
 	}
 	
-}
-
-
-/**
- * @author fenris
- */
-function topsort<type_node>(graph : class_graph<type_node>) : Array<type_node> {
-	if (graph.nodes.length == 0) {
-		return [];
-	}
-	else {
-		let pivot : type_node;
-		let found : boolean = graph.nodes.some(
-			function (node : type_node) : boolean {
-				let count : int = graph.edges.filter(edge => (edge.to == node)).length;
-				if (count == 0) {
-					pivot = node;
-					return true;
-				}
-				else {
-					// console.info("'" + String(node) + "' has " + count.toString() + " incoming edges");
-					return false;
-				}
-			}
-		);
-		if (found) {
-			return [pivot].concat(topsort<type_node>(graph.without(pivot)));
-		}
-		else {
-			throw (new Error("circular dependencies found"));
-		}
-	}
 }
 

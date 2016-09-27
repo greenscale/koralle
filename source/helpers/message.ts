@@ -1,10 +1,6 @@
 
-/**
- * @author fenris
- */
-function indentation(depth : int, symbol : string = "\t") : string {
-	return ((depth == 0) ? "" : (symbol + indentation(depth-1, symbol)));
-}
+///<reference path="../../../plankton/string/build/logic.d.ts"/>
+///<reference path="../../../plankton/object/build/logic.d.ts"/>
 
 
 /**
@@ -54,15 +50,11 @@ class class_message {
 			linebreak ?: boolean;
 		} = {}
 	) {
-		if (parameters.prefix == undefined) parameters.prefix = null;
-		if (parameters.type == undefined) parameters.type = null;
-		if (parameters.depth == undefined) parameters.depth = 0;
-		if (parameters.linebreak == undefined) parameters.linebreak = false;
 		this.content = content;
-		this.type = parameters.type;
-		this.depth = parameters.depth;
-		this.prefix = parameters.prefix;
-		this.linebreak = parameters.linebreak;
+		this.type = lib_object.fetch<string>(parameters, "type", null, 0);
+		this.depth = lib_object.fetch<int>(parameters, "depth", 0, 0);
+		this.prefix = lib_object.fetch<string>(parameters, "prefix", null, 0);
+		this.linebreak = lib_object.fetch<boolean>(parameters, "linebreak", false, 0);
 	}
 	
 	
@@ -71,7 +63,7 @@ class class_message {
 	 */
 	public generate(with_type : boolean = true) : string {
 		let output : string = "";
-		output += indentation(this.depth);
+		output += lib_string.repeat("\t", this.depth);
 		if (with_type) {
 			if (this.type != null) {
 				output += ("[" + this.type + "]" + " ");

@@ -31,7 +31,7 @@ class class_task_empty extends class_task {
 		return (
 			new class_task_empty(
 				name, sub, active,
-				lib_path.class_filepointer.read(object_fetch<string>(parameters, "output", null, 2))
+				lib_path.filepointer_read(object_fetch<string>(parameters, "output", null, 2))
 			)
 		);
 	}

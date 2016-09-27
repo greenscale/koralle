@@ -297,7 +297,7 @@ function main(args : Array<string>) : void {
 									(new class_message(graph.output_graphviz())).stderr();								
 								}
 								try {
-									let order : Array<string> = topsort<string>(graph).filter(path => (path != state.filepointer.toString()));
+									let order : Array<string> = graph.topsort().filter(path => (path != state.filepointer.toString()));
 									state.order = order;
 									resolve(state);
 								}
@@ -354,13 +354,13 @@ function main(args : Array<string>) : void {
 						else {
 							filepointer = new lib_path.class_filepointer(
 								// new lib_path.class_location(null, new lib_path.class_path(["."])),
-								lib_path.class_location.read(configuration.tempfolder, configuration.system),
+								lib_path.location_read(configuration.tempfolder, configuration.system),
 								"_koralle_"
 							);
 						}
 					}
 					else {
-						filepointer = lib_path.class_filepointer.read(configuration.output);
+						filepointer = lib_path.filepointer_read(configuration.output);
 					}
 					if (filepointer == null) {
 						(new class_message(state.script)).stdout();

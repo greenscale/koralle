@@ -22,10 +22,10 @@ class class_action_babel extends class_action_adhoc {
 	 * @author neu3no
 	 */
 	public constructor(
-			filepointers_from : Array<lib_path.class_filepointer>,
-			filepointer_to : lib_path.class_filepointer,
-			preset : string,
-			minify : boolean
+		filepointers_from : Array<lib_path.class_filepointer>,
+		filepointer_to : lib_path.class_filepointer,
+		preset : string,
+		minify : boolean
 	) {
 		super();
 		this.filepointers_from = filepointers_from;
@@ -47,30 +47,38 @@ class class_action_babel extends class_action_adhoc {
 					case "unix": 
 					case "win": 
 						parts.push("babel");
+						parts.push("--no-babelrc");
+						// input
+						{
+							this.filepointers_from.forEach(filepointer => parts.push(filepointer.as_string(configuration["system"])));
+						}
+						// output
+						{
+							parts.push("--out-file");
+							parts.push(this.filepointer_to.as_string(configuration["system"]));
+						}
+						// presets
+						{
+							let presets : Array<string> = [];
+							if (this.preset !== null) {
+								presets.push(this.preset);
+							}
+							if (this.minify) {
+								presets.push("babili");	
+							}
+							if (presets.length > 0) {
+								parts.push("--presets");
+								parts.push(presets.join(","));
+							}
+						}
+						return parts.join(" ");
 						break;
 					default: {
 						throw (new Error("not implemented"));
 						// break;
 					}
 				}
-				let presets=[];
-				if (this.preset !== null) {
-					presets.push(this.preset);
-				}
-				this.filepointers_from.forEach(filepointer => parts.push(filepointer.as_string(configuration["system"])));
-				parts.push("--out-file");
-				parts.push(this.filepointer_to.as_string(configuration["system"]));
-				if (this.minify) {
-					presets.push("babili");	
-				}
-				if (presets.length > 0) {
-					parts.push("--presets");
-					parts.push(presets.join(","));
-				}
-				parts.push("--no-babelrc");
-
-				return parts.join(" ");
-				// break;
+				break;
 			}
 			default: {
 				throw (new Error("unhandled target '" + target_identifier + "'"));

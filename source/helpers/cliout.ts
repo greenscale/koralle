@@ -1,4 +1,7 @@
 
+///<reference path="../../../plankton/string/build/logic.d.ts"/>
+
+
 /**
  * @author fenris
  */
@@ -8,7 +11,7 @@ class class_cliout {
 	 * @author fenris
 	 */
 	public static stdout(content : string, depth : int = 0) : void {
-		console.log(indentation(depth) + content);
+		console.log(lib_string.repeat("\t", depth) + content);
 	}
 	
 	
@@ -16,7 +19,7 @@ class class_cliout {
 	 * @author fenris
 	 */
 	public static stderr(content : string, depth : int = 0) : void {
-		console.error(indentation(depth) + content);
+		console.error(lib_string.repeat("\t", depth) + content);
 	}
 	
 	

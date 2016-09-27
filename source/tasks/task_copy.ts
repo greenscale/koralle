@@ -47,8 +47,8 @@ class class_task_copy extends class_task {
 		return (
 			new class_task_copy(
 				name, sub, active,
-				lib_path.class_filepointer.read(object_fetch<string>(parameters, "input", null, 2)),
-				lib_path.class_filepointer.read(object_fetch<string>(parameters, "output", null, 2)),
+				lib_path.filepointer_read(object_fetch<string>(parameters, "input", null, 2)),
+				lib_path.filepointer_read(object_fetch<string>(parameters, "output", null, 2)),
 				object_fetch<boolean>(parameters, "folder", false, 0)
 			)
 		);
@@ -113,8 +113,8 @@ class class_task_copy extends class_task {
 			false,
 			0
 		);
-		let input_ : lib_path.class_filepointer = lib_path.class_filepointer.read(input);
-		let output_ : lib_path.class_filepointer = lib_path.class_filepointer.read(output);
+		let input_ : lib_path.class_filepointer = lib_path.filepointer_read(input);
+		let output_ : lib_path.class_filepointer = lib_path.filepointer_read(output);
 		return {
 			"inputs": [
 				input_

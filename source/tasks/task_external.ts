@@ -39,7 +39,7 @@ class class_task_external extends class_task {
 		url : string = null,
 		target : string = configuration["target"],
 		raw : boolean = true,
-		workdir : lib_path.class_location = lib_path.class_location.read("./")
+		workdir : lib_path.class_location = lib_path.location_read("./")
 	) {
 		super(name, sub, active);
 		this.url = url;
@@ -84,19 +84,19 @@ class class_task_external extends class_task {
 	 * @author fenris
 	 */
 	public actions() : Array<class_action> {
-		let filepointer_project : lib_path.class_filepointer = lib_path.class_filepointer.read("./project.json");
+		let filepointer_project : lib_path.class_filepointer = lib_path.filepointer_read("./project.json");
 		let filepointer_buildfile : lib_path.class_filepointer;
 		switch (this.target) {
 			case "gnumake": {
 				filepointer_buildfile = new lib_path.class_filepointer(
-					lib_path.class_location.read(configuration.tempfolder, configuration.system),
+					lib_path.location_read(configuration.tempfolder, configuration.system),
 					"makefile"
 				);
 				break;
 			}
 			case "ant": {
 				filepointer_buildfile = new lib_path.class_filepointer(
-					lib_path.class_location.read(configuration.tempfolder, configuration.system),
+					lib_path.location_read(configuration.tempfolder, configuration.system),
 					"build.xml"
 				);
 				break;

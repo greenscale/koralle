@@ -53,13 +53,13 @@ class class_task_script extends class_task {
 	 */
 	public static create(name : string, sub : Array<class_task>, active : boolean, parameters : Object) : class_task_script {
 		let interpreter_raw : string = object_fetch<string>(parameters, "interpreter", null, 1);
-		let interpreter : lib_path.class_filepointer = ((interpreter_raw == null) ? null : lib_path.class_filepointer.read(interpreter_raw));
+		let interpreter : lib_path.class_filepointer = ((interpreter_raw == null) ? null : lib_path.filepointer_read(interpreter_raw));
 		return (
 			new class_task_script(
 				name, sub, active,
-				object_fetch<Array<string>>(parameters, "inputs", [], 1).map(s => lib_path.class_filepointer.read(s)),
-				object_fetch<Array<string>>(parameters, "outputs", [], 1).map(s => lib_path.class_filepointer.read(s)),
-				lib_path.class_filepointer.read(object_fetch<string>(parameters, "path", null, 2)),
+				object_fetch<Array<string>>(parameters, "inputs", [], 1).map(s => lib_path.filepointer_read(s)),
+				object_fetch<Array<string>>(parameters, "outputs", [], 1).map(s => lib_path.filepointer_read(s)),
+				lib_path.filepointer_read(object_fetch<string>(parameters, "path", null, 2)),
 				interpreter
 			)
 		);
