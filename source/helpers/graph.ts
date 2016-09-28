@@ -46,7 +46,23 @@ class class_graph<type_node> {
 		);
 	}
 	
-
+	
+	/**
+	 * @author fenris
+	 */
+	public outgoing(node : type_node) : Array<type_edge<type_node>> {
+		return this.edges.filter(edge => (edge.from == node));
+	}
+	
+	
+	/**
+	 * @author fenris
+	 */
+	public incoming(node : type_node) : Array<type_edge<type_node>> {
+		return this.edges.filter(edge => (edge.to == node));
+	}
+	
+	
 	/**
 	 * @author fenris
 	 */
@@ -77,6 +93,26 @@ class class_graph<type_node> {
 				throw (new Error("circular dependencies found"));
 			}
 		}
+	}
+	
+	
+	/**
+	 * @author fenris
+	 */
+	/*
+	public hasse() : graph<type_node> {
+		return (
+			new class_graph<type_node>(
+				this.nodes,
+				this.edges.filter(
+					edge => {
+						this.outgoing(edge.from).map(node => this.outgoing(node))
+						edge.to
+					}
+				)
+			)
+		);
+	 */
 	}
 	
 	
