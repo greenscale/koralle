@@ -294,7 +294,7 @@ function main(args : Array<string>) : void {
 						scan(state.filepointer)(
 							graph => {
 								if (configuration.showgraph) {
-									(new class_message(graph.output_graphviz())).stderr();								
+									(new class_message(graph.hasse().output_graphviz())).stderr();								
 								}
 								try {
 									let order : Array<string> = graph.topsort().filter(path => (path != state.filepointer.toString()));

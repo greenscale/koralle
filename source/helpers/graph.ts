@@ -99,20 +99,22 @@ class class_graph<type_node> {
 	/**
 	 * @author fenris
 	 */
-	/*
-	public hasse() : graph<type_node> {
+	public hasse() : class_graph<type_node> {
 		return (
 			new class_graph<type_node>(
 				this.nodes,
 				this.edges.filter(
 					edge => {
-						this.outgoing(edge.from).map(node => this.outgoing(node))
-						edge.to
+						let reachable : Array<type_node> = (
+							this.outgoing(edge.from).map(edge_ => edge_.to)
+							.map(node => this.outgoing(node).map(edge_ => edge_.to))
+							.reduce((x, y) => x.concat(y), [])
+						);
+						return (reachable.indexOf(edge.to) < 0);
 					}
 				)
 			)
 		);
-	 */
 	}
 	
 	
