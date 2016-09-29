@@ -7,59 +7,54 @@
  * @param {class_filepointer} filepointet the filepointer to the project.json, relative to the current working directory
  * @author fenris
  */
+type type_depgraphnode = {filepointer : lib_path.class_filepointer; label : string;}
 function scan(
 	filepointer : lib_path.class_filepointer,
-	graph : class_graph<string> = new class_graph<string>(),
+	data : Object,
+	graph : class_graph<type_depgraphnode> = null,
 	depth : int = 0
-) : lib_cdh_call.type_executor<class_graph<string>, Error> {
-	if (graph.nodes.indexOf(filepointer.toString()) >= 0) {
-		return ((resolve, reject) => resolve(graph));
+) : lib_call.type_executor<class_graph<type_depgraphnode>, Error> {
+	if (graph == null) {
+		graph = new class_graph<type_depgraphnode>(
+			(x, y) => (x.filepointer.toString() == y.filepointer.toString())
+		);
+	}
+	function make_node(filepointer : lib_path.class_filepointer, data : Object) : type_depgraphnode {
+		let name : string = lib_object.fetch<string>(data, "name", filepointer.toString(), 1);
+		let node : type_depgraphnode = {"filepointer": filepointer, "label": name};
+		return node;
+	}
+	let node : type_depgraphnode = make_node(filepointer, data);
+	if (graph.has(node)) {
+		return lib_call.executor_resolve<class_graph<type_depgraphnode>, Error>(graph);
 	}
 	else {
-// (new class_message("-- graph is " + JSON.stringify(graph), {"depth": depth})).stderr();
-// (new class_message("-- scanning '" + filepointer.toString() + "'", {"depth": depth})).stderr();
-	 	type type_state = {graph ?: class_graph<string>; data ?: Object;};
+		graph.nodes.push(node);
 		return (
-			(resolve, reject) => {
-			 	lib_cdh_call.executor_chain<type_state, Error>(
-			 		{
-			 			"graph": graph,
-			 			"data": null,
-			 		},
-			 		[
-			 			state => (resolve_, reject_) => {
-							state.graph.nodes.push(filepointer.toString());
-							resolve_(state);
-			 			},
-			 			state => (resolve_, reject_) => {
-						 	read_json(filepointer.toString())(
-						 		data => {state.data = data; resolve_(state);},
-						 		reject_
-						 	);
-			 			},
-			 			state => lib_cdh_call.executor_chain<type_state, Error>(
-							state,
-							object_fetch<Array<string>>(state.data, "dependencies", [], 0).map(
-								path => (state_ : type_state) => (resolve__, reject__) => {
-// (new class_message("-- dep.-path is '" + path + "'", {"depth": depth})).stderr();
-									let filepointer_ : lib_path.class_filepointer = lib_path.filepointer_read(path);
-									let filepointer__ : lib_path.class_filepointer = filepointer.foo(filepointer_);
-// (new class_message("-- combining " + ("'" + filepointer.toString() + "'") + " and " + ("'" + filepointer_.toString() + "'") + " to " + ("'" + filepointer__.toString() + "'"), {"depth": depth})).stderr();
-									let edge : type_edge<string> = {"from": filepointer__.toString(), "to": filepointer.toString()};
-									state_.graph.edges.push(edge);
-									scan(filepointer__, state_.graph, depth+1)(
-										graph_ => {state.graph = graph_; resolve__(state_);},
-										reject__
-									);
-								}
-							)
-						),
-			 		]
-			 	)(
-					state => resolve(state.graph),
-					reject
-				);
-			}
+ 			lib_call.executor_chain<class_graph<type_depgraphnode>, Error>(
+				graph,
+				lib_object.fetch<Array<string>>(data, "dependencies", [], 0).map(
+					path => graph_ => (resolve__, reject__) => {
+						let filepointer_ : lib_path.class_filepointer = filepointer.foo(lib_path.filepointer_read(path));
+						read_json(filepointer_.toString())(
+							data_ => {
+								scan(filepointer_, data_, graph_, depth+1)(
+									graph_ => {
+										let node_ : type_depgraphnode = make_node(filepointer_, data_);
+										let edge : type_edge<type_depgraphnode> = {"from": node_, "to": node};
+										graph_.edges.push(edge);
+										resolve__(graph_/*.hasse()*/);
+									},
+									reject__
+								);
+							},
+							reason => {
+								reject__(reason);
+							}
+						);
+					}
+				)
+			)
 		);
 	}
 }
@@ -236,12 +231,13 @@ function main(args : Array<string>) : void {
 		type type_state = {
 			filepointer ?: lib_path.class_filepointer;
 			order ?: Array<string>,
+			project_raw ?: Object;
 			project ?: class_project,
 			target ?: class_target,
 			output ?: lib_path.class_filepointer,
 			script ?: string,
 		};
-		lib_cdh_call.executor_chain<type_state, Error>(
+		lib_call.executor_chain<type_state, Error>(
 			{},
 			[
 				// setup temp-folder
@@ -284,6 +280,13 @@ function main(args : Array<string>) : void {
 					state.filepointer = filepointer;
 					resolve(state);
 				},
+				// get jsondata
+				state => (resolve, reject) => {
+					read_json(state.filepointer.filename)(
+						data => {state.project_raw = data; resolve(state);},
+						reject
+					);
+				},
 				// scan dependencies
 				state => (resolve, reject) => {
 					if (configuration.raw) {
@@ -291,13 +294,23 @@ function main(args : Array<string>) : void {
 						resolve(state);
 					}
 					else {
-						scan(state.filepointer)(
+						scan(state.filepointer, state.project_raw)(
 							graph => {
 								if (configuration.showgraph) {
-									(new class_message(graph.hasse().output_graphviz())).stderr();								
+									let output : string = graph
+										.hasse()
+										.output_graphviz(
+											node => node.label
+										)
+									;
+									(new class_message(output)).stderr();								
 								}
 								try {
-									let order : Array<string> = graph.topsort().filter(path => (path != state.filepointer.toString()));
+									let order : Array<string> = graph
+										.topsort()
+										.map(x => x.filepointer.toString())
+										.filter(path => (path != state.filepointer.toString()))
+									;
 									state.order = order;
 									resolve(state);
 								}
@@ -311,10 +324,7 @@ function main(args : Array<string>) : void {
 				},
 				// setup project
 				state => (resolve, reject) => {
-					read_json(state.filepointer.filename)(
-						data => {state.project = class_project.create(data); resolve(state);},
-						reject
-					);
+					state.project = class_project.create(state.project_raw); resolve(state);
 				},
 				// setup target
 				state => (resolve, reject) => {
@@ -323,7 +333,7 @@ function main(args : Array<string>) : void {
 						"gnumake": new class_target_gnumake(),
 						"make": new class_target_gnumake(),
 					};
-					let target : class_target = object_fetch<class_target>(mapping, configuration.target, null, 0);
+					let target : class_target = lib_object.fetch<class_target>(mapping, configuration.target, null, 0);
 					if (target == null) {
 						reject(new class_error("no implementation found for target '" + configuration.target + "'"));
 					}
