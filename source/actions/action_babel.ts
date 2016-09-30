@@ -64,7 +64,7 @@ class class_action_babel extends class_action_adhoc {
 								presets.push(this.preset);
 							}
 							if (this.minify) {
-								presets.push("babili");	
+								parts.push("--minified")
 							}
 							if (presets.length > 0) {
 								parts.push("--presets");
