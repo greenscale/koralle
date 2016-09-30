@@ -13,6 +13,12 @@ class class_graph<type_node> {
 	/**
 	 * @author fenris
 	 */
+	protected equality : (node1 : type_node, node2 : type_node)=>boolean = ((node1, node2) => (node1 == node2));
+	
+	
+	/**
+	 * @author fenris
+	 */
 	public nodes : Array<type_node>;
 	
 	
@@ -26,11 +32,21 @@ class class_graph<type_node> {
 	 * @author fenris
 	 */
 	public constructor(
+		equality : (node1 : type_node, node2 : type_node)=>boolean = ((node1, node2) => (node1 == node2)),
 		nodes : Array<type_node> = [],
 		edges : Array<type_edge<type_node>> = []
 	) {
+		this.equality = equality;
 		this.nodes = nodes;
 		this.edges = edges;
+	}
+	
+	
+	/**
+	 * @author frac
+	 */
+	public has(node : type_node) : boolean {
+		return this.nodes.some(node_ => this.equality(node, node_));
 	}
 	
 	
@@ -40,8 +56,9 @@ class class_graph<type_node> {
 	public without(pivot : type_node) : class_graph<type_node> {
 		return (
 			new class_graph<type_node>(
-				this.nodes.filter(node => (node != pivot)),
-				this.edges.filter(edge => ((edge.from != pivot) && (edge.to != pivot)))
+				this.equality,
+				this.nodes.filter(node => (! this.equality(node, pivot))),
+				this.edges.filter(edge => ((! this.equality(edge.from, pivot)) && (! this.equality(edge.to, pivot))))
 			)
 		);
 	}
@@ -51,7 +68,7 @@ class class_graph<type_node> {
 	 * @author fenris
 	 */
 	public outgoing(node : type_node) : Array<type_edge<type_node>> {
-		return this.edges.filter(edge => (edge.from == node));
+		return this.edges.filter(edge => this.equality(edge.from, node));
 	}
 	
 	
@@ -59,7 +76,7 @@ class class_graph<type_node> {
 	 * @author fenris
 	 */
 	public incoming(node : type_node) : Array<type_edge<type_node>> {
-		return this.edges.filter(edge => (edge.to == node));
+		return this.edges.filter(edge => this.equality(edge.to, node));
 	}
 	
 	
@@ -74,8 +91,8 @@ class class_graph<type_node> {
 		else {
 			let pivot : type_node;
 			let found : boolean = graph.nodes.some(
-				function (node : type_node) : boolean {
-					let count : int = graph.edges.filter(edge => (edge.to == node)).length;
+				node => {
+					let count : int = graph.edges.filter(edge => this.equality(edge.to, node)).length;
 					if (count == 0) {
 						pivot = node;
 						return true;
@@ -102,6 +119,7 @@ class class_graph<type_node> {
 	public hasse() : class_graph<type_node> {
 		return (
 			new class_graph<type_node>(
+				this.equality,
 				this.nodes,
 				this.edges.filter(
 					edge => {
@@ -110,7 +128,7 @@ class class_graph<type_node> {
 							.map(node => this.outgoing(node).map(edge_ => edge_.to))
 							.reduce((x, y) => x.concat(y), [])
 						);
-						return (reachable.indexOf(edge.to) < 0);
+						return (! reachable.some(node => this.equality(node, edge.to)));
 					}
 				)
 			)
@@ -121,10 +139,19 @@ class class_graph<type_node> {
 	/**
 	 * @author fenris
 	 */
-	public output_graphviz() : string {
+	public output_graphviz(
+		extract_label : (node : type_node)=>string = (node => String(node))
+	) : string {
 		let that : class_graph<type_node> = this;
 		function get_nodeindex(node : type_node) : int {
-			return that.nodes.indexOf(node);
+			// return that.nodes.findIndex(node_ => that.equality(node, node_));
+			let index : int;
+			for (let index : int = 0; index < that.nodes.length; ++index) {
+				if (that.equality(node, that.nodes[index])) {
+					return index;
+				}
+			}
+			return undefined;
 		}
 		function nodeid(node : type_node) : string {
 			return `x_${get_nodeindex(node).toString()}`;
@@ -136,7 +163,7 @@ class class_graph<type_node> {
 					that.nodes
 					.map(
 						(node, index) => {
-							return `\t${nodeid(node)} [label="${String(node)}"];\n`;
+							return `\t${nodeid(node)} [label="${extract_label(node)}"];\n`;
 						}
 					)
 				)

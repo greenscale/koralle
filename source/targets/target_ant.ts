@@ -134,7 +134,7 @@ class class_target_ant extends class_target_regular<lib_ant.class_action> {
 	 * @override
 	 * @author fenris
 	 */
-	public execute(filepointer : lib_path.class_filepointer) : lib_cdh_call.type_executor<void, Error> {
+	public execute(filepointer : lib_path.class_filepointer) : lib_call.type_executor<void, Error> {
 		return (
 			(resolve, reject) => {
 				let command : string = [

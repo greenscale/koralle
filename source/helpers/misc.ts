@@ -20,11 +20,11 @@ function genid(prefix : string = "") : string {
 /**
  * @author fenris
  */
-function read_json(path : string) : lib_cdh_call.type_executor<Object, Error> {
+function read_json(path : string) : lib_call.type_executor<Object, Error> {
 	type type_state = {readable ?: boolean; content ?: string; data ?: Object;};
 	return (
 		(resolve, reject) => {
-			lib_cdh_call.executor_chain<type_state, Error>(
+			lib_call.executor_chain<type_state, Error>(
 				{},
 				[
 					/*
