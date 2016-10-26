@@ -158,7 +158,7 @@ class class_graph<type_node> {
 		}
 		function nodelist() : string {
 			return (
-				["\tnode [];\n"]
+				["\tnode [fontname=\"Monospace\", style=\"filled\", fillcolor=\"0.4+0.8+0.8\"];\n"]
 				.concat(
 					that.nodes
 					.map(
@@ -172,7 +172,7 @@ class class_graph<type_node> {
 		}
 		function edgelist() : string {
 			return (
-				["\tedge [];\n"]
+				["\tedge [fontname=\"Monospace\"];\n"]
 				.concat(
 					that.edges
 					.map(
@@ -184,7 +184,7 @@ class class_graph<type_node> {
 				.join("")
 			);
 		}
-		let output : string = `digraph\n{\n${nodelist()}\n${edgelist()}\n}\n`;
+		let output : string = `digraph\n{\n\tgraph [fontname=\"Monospace\"];\n${nodelist()}\n${edgelist()}\n}\n`;
 		return output;
 	}
 	

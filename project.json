@@ -37,6 +37,8 @@
 						"name": "logic-compile",
 						"type": "typescript",
 						"parameters": {
+							"target": "ES5",
+							"allowUnreachableCode": true,
 							"inputs": [
 								"../plankton/base/build/logic.d.ts",
 								"../plankton/call/build/logic.d.ts",
@@ -67,6 +69,8 @@
 								"source/actions/action_tsc.ts",
 								"source/actions/action_php.ts",
 								"source/actions/action_gitpull.ts",
+								"source/actions/action_linklist-create.ts",
+								"source/actions/action_linklist-apply.ts",
 								"source/tasks/task.ts",
 								"source/tasks/task_group.ts",
 								"source/tasks/task_dependency.ts",
@@ -79,6 +83,8 @@
 								"source/tasks/task_babel.ts",
 								"source/tasks/task_typescript.ts",
 								"source/tasks/task_php.ts",
+								"source/tasks/task_linklist-create.ts",
+								"source/tasks/task_linklist-apply.ts",
 								"source/targets/target.ts",
 								"source/targets/target_regular.ts",
 								"source/targets/target_ant.ts",
@@ -86,9 +92,7 @@
 								"source/project.ts",
 								"source/main.ts"
 							],
-							"output": "temp/koralle.js",
-							"target": "ES5",
-							"allowUnreachableCode": true
+							"output": "temp/koralle.js"
 						}
 					}
 				]

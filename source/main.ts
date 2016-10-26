@@ -240,7 +240,7 @@ function main(args : Array<string>) : void {
 		lib_call.executor_chain<type_state, Error>(
 			{},
 			[
-				// setup temp-folder
+				// setup temp-folder ([TODO] move to target logic)
 				state => (resolve, reject) => {
 					switch (configuration.system) {
 						case "unix": {
