@@ -100,5 +100,5 @@ class class_task_linklist_create extends class_task {
 	
 }
 
-class_task.register("linklist-create", /*(name, sub, active, parameters) => */class_task_linklist_create.create/*(name, sub, active, parameters)*/);
+class_task.register("schwamm-create", /*(name, sub, active, parameters) => */class_task_linklist_create.create/*(name, sub, active, parameters)*/);
 

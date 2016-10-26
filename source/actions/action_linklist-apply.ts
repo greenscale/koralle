@@ -37,7 +37,7 @@ class class_action_linklist_apply extends class_action_adhoc {
 		switch (target_identifier) {
 			case "gnumake": {
 				let parts : Array<string> = [];
-				parts.push("linklist");
+				parts.push("schwamm");
 				parts.push("apply");
 				parts.push(this.path.as_string(configuration["system"]));
 				Object.keys(this.outputs_).forEach(

@@ -45,7 +45,7 @@ class class_action_linklist_create extends class_action_adhoc {
 		switch (target_identifier) {
 			case "gnumake": {
 				let parts : Array<string> = [];
-				parts.push("linklist");
+				parts.push("schwamm");
 				parts.push("create");
 				this.includes.forEach(
 					include => {
