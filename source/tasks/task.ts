@@ -39,9 +39,24 @@ abstract class class_task {
 	
 	
 	/**
+	 * @desc a list of paths which represent input-files of the task
 	 * @author fenris
 	 */
-	protected parameters : Object;
+	protected _inputs : Array<lib_path.class_filepointer>;
+	
+	
+	/**
+	 * @desc a list of paths which represent output-files of the task
+	 * @author fenris
+	 */
+	protected _outputs : Array<lib_path.class_filepointer>;
+	
+	
+	/**
+	 * @desc generates all actions which have to be executed in order to fulfil the task
+	 * @author fenris
+	 */
+	protected _actions : Array<class_action>;
 	
 	
 	/**
@@ -51,13 +66,17 @@ abstract class class_task {
 		name : string,
 		sub : Array<class_task> = [],
 		active : boolean = true,
-		parameters : Object = {}
+		_inputs : Array<lib_path.class_filepointer> = [],
+		_outputs : Array<lib_path.class_filepointer> = [],
+		_actions : Array<class_action> = []
 	) {
 		this.identifier = genid("task_");
 		this.name = (name != null) ? name : this.identifier;
 		this.sub = sub;
 		this.active = active;
-		this.parameters = parameters;
+		this._inputs = _inputs;
+		this._outputs = _outputs;
+		this._actions = _actions;
 	}
 	
 	
@@ -112,21 +131,27 @@ abstract class class_task {
 	 * @desc a list of paths which represent input-files of the task
 	 * @author fenris
 	 */
-	public abstract inputs() : Array<lib_path.class_filepointer>;
+	public inputs() : Array<lib_path.class_filepointer> {
+		return this._inputs;
+	}
 	
 	
 	/**
 	 * @desc a list of paths which represent output-files of the task
 	 * @author fenris
 	 */
-	public abstract outputs() : Array<lib_path.class_filepointer>;
+	public outputs() : Array<lib_path.class_filepointer> {
+		return this._outputs;
+	}
 	
 	
 	/**
 	 * @desc generates all actions which have to be executed in order to fulfil the task
 	 * @author fenris
 	 */
-	public abstract actions() : Array<class_action>;
+	public actions() : Array<class_action> {
+		return this._actions;
+	}
 	
 	
 	/**

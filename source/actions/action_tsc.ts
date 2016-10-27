@@ -31,7 +31,7 @@ class class_action_tsc extends class_action_adhoc {
 	/**
 	 * @author fenris
 	 */
-	protected declaration : boolean;
+	protected declaration : string;
 	
 	
 	/**
@@ -42,7 +42,7 @@ class class_action_tsc extends class_action_adhoc {
 		path_output : lib_path.class_filepointer,
 		target : string,
 		allowUnreachableCode : boolean,
-		declaration : boolean
+		declaration : string
 	) {
 		super();
 		this.paths_input = paths_input;
@@ -55,6 +55,7 @@ class class_action_tsc extends class_action_adhoc {
 	
 	/**
 	 * @author fenris
+	 * @todo handle declarion-path
 	 */
 	public compilation(target_identifier : string) : any {
 		switch (target_identifier) {
@@ -65,7 +66,7 @@ class class_action_tsc extends class_action_adhoc {
 						let parts : Array<string> = [];
 						parts.push("tsc");
 						if (this.allowUnreachableCode) parts.push("--allowUnreachableCode");
-						if (this.declaration) parts.push("--declaration");
+						if (this.declaration != null) parts.push("--declaration");
 						if (this.target != null) parts.push("--target"); parts.push(this.target);
 						this.paths_input.forEach(filepointer => parts.push(filepointer.toString()));
 						parts.push("--outFile"); parts.push(this.path_output.toString());
@@ -115,7 +116,7 @@ class class_action_tsc extends class_action_adhoc {
 											]
 										)
 										.concat(
-											this.declaration
+											(this.declaration != null)
 											?
 											[
 												new lib_xml.class_node_complex(
