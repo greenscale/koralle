@@ -24,7 +24,7 @@ class class_task_linklist_apply extends class_task {
 		sub : Array<class_task> = [],
 		active : boolean = true,
 		path : lib_path.class_filepointer,
-		outputs_ : {[group : string] : lib_path.class_filepointer},
+		outputs_ : {[group : string] : lib_path.class_filepointer}
 	) {
 		super(name, sub, active);
 		this.path = path;

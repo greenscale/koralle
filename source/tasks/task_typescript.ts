@@ -9,10 +9,10 @@ class class_task_typescript extends class_task {
 	 */
 	public constructor(
 		{
-			"name": name = null,
-			"sub": sub = [],
-			"active": active = true,
-			"parameters" : {
+			"name": name,
+			"sub": sub,
+			"active": active,
+			"parameters": {
 				"inputs": inputs = [],
 				"output": output = null,
 				"target": target = null,
@@ -20,9 +20,9 @@ class class_task_typescript extends class_task {
 				"declaration": declaration = null,
 			}
 		} : {
-			name : string;
-			sub : Array<class_task>;
-			active : boolean;
+			name ?: string;
+			sub ?: Array<class_task>;
+			active ?: boolean;
 			parameters : {
 				inputs ?: Array<string>;
 				output ?: string;

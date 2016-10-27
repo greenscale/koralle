@@ -59,13 +59,14 @@ class class_target_ant extends class_target_regular<lib_ant.class_action> {
 			function (path : string, index : int) : class_task_dependency {
 				return (
 					new class_task_dependency(
-						"__dependency_" + index.toString(),
-						[],
-						true,
-						lib_path.filepointer_read(path),
-						that.identifier,
-						true,
-						undefined
+						{
+							"name": `__dependency_${index.toString()}`,
+							"parameters": {
+								"path": path,
+								"target": that.identifier,
+								"raw": true,
+							}
+						}
 					)
 				);
 			}

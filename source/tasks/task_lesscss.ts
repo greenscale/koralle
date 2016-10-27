@@ -9,29 +9,29 @@ class class_task_lesscss extends class_task {
 	 */
 	public constructor(
 		{
-			"name": name = null,
-			"sub": sub = [],
-			"active": active = true,
+			"name": name,
+			"sub": sub,
+			"active": active,
 			"parameters": {
-				"inputs": inputs_ = [],
-				"output": output_ = null,
+				"inputs": inputs = [],
+				"output": output = null,
 			}
 		} : {
-			name : string;
-			sub : Array<class_task>;
-			active : boolean;
+			name ?: string;
+			sub ?: Array<class_task>;
+			active ?: boolean;
 			parameters : {
 				inputs ?: Array<string>;
 				output ?: string;
 			};
 		}
 	) {
-		let inputs : Array<lib_path.class_filepointer> = lib_call.use(
-			inputs_,
+		let inputs_ : Array<lib_path.class_filepointer> = lib_call.use(
+			inputs,
 			x => x.map(y => lib_path.filepointer_read(y))
 		);
-		let output : lib_path.class_filepointer = lib_call.use(
-			output_,
+		let output_ : lib_path.class_filepointer = lib_call.use(
+			output,
 			x => lib_path.filepointer_read(x)
 		);
 		let filepointer_temp : lib_path.class_filepointer = new lib_path.class_filepointer(
@@ -40,19 +40,19 @@ class class_task_lesscss extends class_task {
 		);
 		super(
 			name, sub, active,
-			inputs,
-			[output],
+			inputs_,
+			[output_],
 			[
 				new class_action_mkdir(
-					output.location
+					output_.location
 				),
 				new class_action_concat(
-					inputs,
+					inputs_,
 					filepointer_temp
 				),
 				new class_action_lessc(
 					filepointer_temp,
-					output
+					output_
 				),
 			]
 		);

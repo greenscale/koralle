@@ -7,137 +7,61 @@ class class_task_copy extends class_task {
 	/**
 	 * @author fenris
 	 */
-	protected input_ : lib_path.class_filepointer;
-	
-	
-	/**
-	 * @author fenris
-	 */
-	protected output_ : lib_path.class_filepointer;
-	
-	
-	/**
-	 * @author fenris
-	 */
-	protected folder : boolean;
-	
-	
-	/**
-	 * @author fenris
-	 */
-	constructor(
-		name : string = null,
-		sub : Array<class_task> = [],
-		active : boolean = true,
-		input_ : lib_path.class_filepointer = null,
-		output_ : lib_path.class_filepointer = null,
-		folder : boolean = null
+	public constructor(
+		{
+			"name": name,
+			"sub": sub,
+			"active": active,
+			"parameters": {
+				"input": input = null,
+				"output": output = null,
+				"folder": folder = false,
+			},
+		} : {
+			name ?: string;
+			sub ?: Array<class_task>;
+			active ?: boolean;
+			parameters : {
+				input ?: string;
+				output ?: string;
+				folder ?: boolean;
+			};
+		}
 	) {
-		super(name, sub, active);
-		this.input_ = input_;
-		this.output_ = output_;
-		this.folder = folder;
-	}
-	
-	
-	/**
-	 * @author fenris
-	 */
-	public static create(name : string, sub : Array<class_task>, active : boolean, parameters : Object) : class_task_copy {
-		return (
-			new class_task_copy(
-				name, sub, active,
-				lib_path.filepointer_read(object_fetch<string>(parameters, "input", null, 2)),
-				lib_path.filepointer_read(object_fetch<string>(parameters, "output", null, 2)),
-				object_fetch<boolean>(parameters, "folder", false, 0)
-			)
+		let input_ : lib_path.class_filepointer = lib_call.use(
+			input,
+			x => lib_path.filepointer_read(x)
 		);
-	}
-	
-	
-	/**
-	 * @override
-	 * @author fenris
-	 */
-	public inputs() : Array<lib_path.class_filepointer> {
-		return [this.input_];
-	}
-	
-	
-	/**
-	 * @override
-	 * @author fenris
-	 */
-	public outputs() : Array<lib_path.class_filepointer> {
-		return [this.output_];
-	}
-	
-	
-	/**
-	 * @author fenris
-	 */
-	public actions() : Array<class_action> {
-		return [
-			new class_action_mkdir(
-				this.output_.location
-			),
-			new class_action_copy(
-				this.input_,
-				this.output_,
-				this.folder
-			),
-		];
-	}
-	
-	
-	/**
-	 * @author fenris
-	 */
-	public static make(parameters : Object) : Object {
-		/*
-		let input : string = object_fetch<string>(
-			parameters,
-			"input",
-			null,
-			2
+		let output_ : lib_path.class_filepointer = lib_call.use(
+			output,
+			x => lib_path.filepointer_read(x)
 		);
-		let output : string = object_fetch<string>(
-			parameters,
-			"output",
-			null,
-			2
-		);
-		let folder : boolean = object_fetch<boolean>(
-			parameters,
-			"folder",
-			false,
-			0
-		);
-		let input_ : lib_path.class_filepointer = lib_path.filepointer_read(input);
-		let output_ : lib_path.class_filepointer = lib_path.filepointer_read(output);
-		return {
-			"inputs": [
-				input_
-			],
-			"outputs": [
-				output_
-			],
-			"actions": [
+		super(
+			name, sub, active,
+			[input_],
+			[output_],
+			[
 				new class_action_mkdir(
-					output.location
+					output_.location
 				),
 				new class_action_copy(
-					input,
-					output,
+					input_,
+					output_,
 					folder
 				),
 			]
-		};
-		 */
-		return null;
+		);
 	}
 	
 }
 
-class_task.register("copy", /*(name, sub, active, parameters) => */class_task_copy.create/*(name, sub, active, parameters)*/);
+class_task.register(
+	"copy",
+	(name, sub, active, parameters) => new class_task_copy(
+		{
+			"name": name, "sub": sub, "active": active,
+			"parameters": parameters,
+		}
+	)
+);
 
