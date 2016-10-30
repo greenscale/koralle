@@ -2,103 +2,70 @@
 /**
  * @author fenris
  */
-class class_task_linklist_create extends class_task {
+class class_task_schwamm_create extends class_task {
 	
 	/**
 	 * @author fenris
 	 */
-	protected includes : Array<lib_path.class_filepointer>;
-	
-	
-	/**
-	 * @author fenris
-	 */
-	protected adhoc : {[group : string] : Array<lib_path.class_filepointer>};
-	
-	
-	/**
-	 * @author fenris
-	 */
-	protected output : lib_path.class_filepointer;
-	
-	
-	/**
-	 * @author fenris
-	 */
-	constructor(
-		name : string = null,
-		sub : Array<class_task> = [],
-		active : boolean = true,
-		includes : Array<lib_path.class_filepointer>,
-		adhoc : {[group : string] : Array<lib_path.class_filepointer>},
-		output : lib_path.class_filepointer
+	public constructor(
+		{
+			"name": name,
+			"sub": sub,
+			"active": active,
+			"parameters": {
+				"includes": includes = [],
+				"adhoc": adhoc = {},
+				"output": output = null,
+			},
+		} : {
+			name ?: string,
+			sub ?: Array<class_task>,
+			active ?: boolean,
+			parameters ?: {
+				includes ?: Array<string>,
+				adhoc ?: {[group : string] : Array<string>},
+				output ?: string,
+			}
+		}
 	) {
-		super(name, sub, active);
-		this.includes = includes;
-		this.adhoc = adhoc;
-		this.output = output;
-	}
-	
-	
-	/**
-	 * @author fenris
-	 */
-	public static create(name : string, sub : Array<class_task>, active : boolean, parameters : Object) : class_task_linklist_create {
-		return (
-			new class_task_linklist_create(
-				name, sub, active,
-				lib_object.fetch<Array<string>>(parameters, "includes", null, 0).map(s => lib_path.filepointer_read(s)),
-				lib_object.map<Array<string>, Array<lib_path.class_filepointer>>(
-					lib_object.fetch<{[group : string] : Array<string>}>(
-						parameters,
-						"adhoc",
-						{},
-						0
-					),
-					members => members.map(member => lib_path.filepointer_read(member))
+		let includes_ : Array<lib_path.class_filepointer> = lib_call.use(
+			includes,
+			x => x.map(y => lib_path.filepointer_read(y))
+		);
+		let adhoc_ : {[group : string] : Array<lib_path.class_filepointer>} = lib_call.use(
+			adhoc,
+			x => lib_object.map<Array<string>, Array<lib_path.class_filepointer>>(x, members => members.map(member => lib_path.filepointer_read(member)))
+		);
+		let output_ : lib_path.class_filepointer = lib_call.use(
+			output,
+			x => lib_path.filepointer_read(x)
+		);
+		super(
+			name, sub, active,
+			includes_.concat(lib_object.values<Array<lib_path.class_filepointer>>(adhoc_).reduce((x, y) => x.concat(y), [])),
+			[output_],
+			[
+				new class_action_mkdir(
+					output_.location
 				),
-				lib_path.filepointer_read(lib_object.fetch<string>(parameters, "output", null, 2))
-			)
+				new class_action_schwamm_create(
+					includes_,
+					adhoc_,
+					output_
+				),
+			]
 		);
 	}
-	
-	
-	/**
-	 * @override
-	 * @author fenris
-	 */
-	public inputs() : Array<lib_path.class_filepointer> {
-		return [];
-	}
-	
-	
-	/**
-	 * @override
-	 * @author fenris
-	 */
-	public outputs() : Array<lib_path.class_filepointer> {
-		return [];
-	}
-	
-	
-	/**
-	 * @override
-	 * @author fenris
-	 */
-	public actions() : Array<class_action> {
-		return [
-			new class_action_mkdir(
-				this.output.location
-			),
-			new class_action_linklist_create(
-				this.includes,
-				this.adhoc,
-				this.output
-			),
-		];
-	}
-	
+		
 }
 
-class_task.register("schwamm-create", /*(name, sub, active, parameters) => */class_task_linklist_create.create/*(name, sub, active, parameters)*/);
+class_task.register(
+	"schwamm-create",
+	(name, sub, active, parameters) => new class_task_schwamm_create(
+		{
+			"name": name, "sub": sub, "active": active,
+			"parameters": parameters,
+		}
+	)
+);
 

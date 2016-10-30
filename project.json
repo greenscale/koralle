@@ -7,7 +7,8 @@
 		"../plankton/string/project.json",
 		"../plankton/xml/project.json",
 		"../plankton/object/project.json",
-		"../plankton/path/project.json"
+		"../plankton/path/project.json",
+		"../plankton/args/project.json"
 	],
 	"roottask": {
 		"active": true,
@@ -26,6 +27,7 @@
 						"../plankton/xml/build/logic.js",
 						"../plankton/object/build/logic.js",
 						"../plankton/path/build/logic.js",
+						"../plankton/args/build/logic.js",
 						"source/disclaimer.js",
 						"temp/koralle.js"
 					],
@@ -37,7 +39,7 @@
 						"name": "logic-compile",
 						"type": "typescript",
 						"parameters": {
-							"target": "ES5",
+							"output": "ES5",
 							"allowUnreachableCode": true,
 							"inputs": [
 								"../plankton/base/build/logic.d.ts",
@@ -46,6 +48,7 @@
 								"../plankton/xml/build/logic.d.ts",
 								"../plankton/object/build/logic.d.ts",
 								"../plankton/path/build/logic.d.ts",
+								"../plankton/args/build/logic.d.ts",
 								"source/base.ts",
 								"source/helpers/message.ts",
 								"source/helpers/cliout.ts",
@@ -85,10 +88,10 @@
 								"source/tasks/task_php.ts",
 								"source/tasks/task_schwamm-create.ts",
 								"source/tasks/task_schwamm-apply.ts",
-								"source/targets/target.ts",
-								"source/targets/target_regular.ts",
-								"source/targets/target_ant.ts",
-								"source/targets/target_gnumake.ts",
+								"source/outputs/output.ts",
+								"source/outputs/output_regular.ts",
+								"source/outputs/output_ant.ts",
+								"source/outputs/output_gnumake.ts",
 								"source/project.ts",
 								"source/main.ts"
 							],

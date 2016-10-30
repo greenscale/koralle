@@ -172,7 +172,12 @@ abstract class class_task {
 	 * @author fenris
 	 */
 	public static get(id : string) : type_taskfactory {
-		return this.pool[id];
+		if (id in this.pool) {
+			return this.pool[id];
+		}
+		else {
+			throw (new Error(`no task registered with id '${id}'`));
+		}
 	}
 	
 }

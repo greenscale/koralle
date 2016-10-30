@@ -64,169 +64,138 @@ function scan(
  * @author fenris
  */
 function main(args : Array<string>) : void {
-	/*
-	let argumentparser : lib_arguments.class_argumentparser = new lib_arguments.class_parser(
+	let arghandler : lib_args.class_handler = new lib_args.class_handler(
 		[
-			new lib_arguments.class_argument_volatile<string>(
+			new lib_args.class_argument(
 				{
+					"name": "path",
 					"type": "string",
-					"ids_long": ["target"],
-					"ids_short": ["t"],
-					"default": "gnumake",
-					"info": "the target build system; valid values are 'gnumake','ant'",
+					"default": "project.json",
+					"info": "the path of the project-description-file",
+					"kind": "positional",
+					"parameters": {
+					},
 				}
 			),
-			new lib_arguments.class_argument_volatile<string>(
+			new lib_args.class_argument(
 				{
+					"name": "help",
+					"type": "boolean",
+					"info": "show this help and exit",
+					"kind": "volatile",
+					"parameters": {
+						"indicators_long": ["help"],
+						"indicators_short": ["h"],
+					},
+				}
+			),
+			new lib_args.class_argument(
+				{
+					"name": "version",
+					"type": "boolean",
+					"info": "print the version to stdout and exit",
+					"kind": "volatile",
+					"parameters": {
+						"indicators_long": ["version"],
+						"indicators_short": ["v"],
+					},
+				}
+			),
+			new lib_args.class_argument(
+				{
+					"name": "output",
 					"type": "string",
-					"ids_long": ["system"],
-					"ids_short": ["s"],
+					"default": "gnumake",
+					"info": "the output build system; valid values are 'gnumake','ant'",
+					"kind": "volatile",
+					"parameters": {
+						"indicators_long": ["output"],
+						"indicators_short": ["o"],
+					},
+				}
+			),
+			new lib_args.class_argument(
+				{
+					"name": "system",
+					"type": "string",
 					"default": "unix",
 					"info": "the target platform; valid values are 'unix', 'win'; default is 'unix'",
+					"kind": "volatile",
+					"parameters": {
+						"indicators_long": ["system"],
+						"indicators_short": ["s"],
+					},
 				}
 			),
-			new lib_arguments.class_argument_volatile_boolean(
+			new lib_args.class_argument(
 				{
+					"name": "raw",
 					"type": "boolean",
-					"ids_long": ["raw"],
-					"ids_short": ["r"],
-					"default": false,
 					"info": "if set, depedencies are ignored/excluded from the output",
+					"kind": "volatile",
+					"parameters": {
+						"indicators_long": ["raw"],
+						"indicators_short": ["r"],
+					},
 				}
 			),
-			new lib_arguments.class_argument_volatile<boolean>(
+			new lib_args.class_argument(
 				{
+					"name": "execute",
 					"type": "boolean",
-					"ids_long": ["execute"],
-					"ids_short": ["x"],
-					"default": false,
 					"info": "if set, the build script will be executed instead of being printed to stdout",
+					"kind": "volatile",
+					"parameters": {
+						"indicators_long": ["execute"],
+						"indicators_short": ["x"],
+					},
+				}
+			),
+			new lib_args.class_argument(
+				{
+					"name": "showgraph",
+					"type": "boolean",
+					"info": "if set, the graphviz description of the dependency graph is written to stderr",
+					"kind": "volatile",
+					"parameters": {
+						"indicators_long": ["showgraph"],
+						"indicators_short": ["g"],
+					},
 				}
 			),
 		]
 	);
-	 */
-	
-	let procede : boolean = args.every(
-		function (arg : string) : boolean {
-			if ((arg.indexOf("--") == 0) || (arg.indexOf("-") == 0)) {
-				let parts : Array<string> = arg.split("=");
-				switch (parts[0]) {
-					case "--help": case "-h": {
-						(new class_message("NAME")).stdout();
-						(new class_message("Koralle Build System Abstractor", {"depth": 1})).stdout();
-						(new class_message("")).stdout();
-						{
-							(new class_message("SYNOPSIS")).stdout();
-							(new class_message("koralle [--target=gnumake|ant] [--system=unix|win] <path-to-project.json>", {"depth": 1})).stdout();
-							(new class_message("")).stdout();
-						}
-						{
-							(new class_message("DESCRIPTION")).stdout();
-							(new class_message("Koralle is not a build-system itself. Instead it generates scripts for existing build-systems (e.g. GNU Make, Apache Ant, …) on base of a common json-description-file (usually named 'project.json').", {"depth": 1})).stdout();
-							(new class_message("", {"depth": 1})).stdout();
-							(new class_message("Koralle is designed for reducing the amount of text needed to define the build-process.", {"depth": 1})).stdout();
-							(new class_message("")).stdout();
-						}
-						{
-							(new class_message("OPTIONS")).stdout();
-							{
-								(new class_message("--target | -t", {"depth": 1})).stdout();
-								(new class_message("the target build system; valid values are 'gnumake','ant'; default is 'gnumake'", {"depth": 2})).stdout();
-								(new class_message("")).stdout();
-							}
-							{
-								(new class_message("--system | -s", {"depth": 1})).stdout();
-								(new class_message("the target platform; valid values are 'unix', 'win'; default is 'unix'", {"depth": 2})).stdout();
-								(new class_message("")).stdout();
-							}
-							{
-								(new class_message("--raw | -r", {"depth": 1})).stdout();
-								(new class_message("if set, depedencies are ignored/excluded from the output", {"depth": 2})).stdout();
-								(new class_message("")).stdout();
-							}
-							{
-								(new class_message("--execute | -x", {"depth": 1})).stdout();
-								(new class_message("if set, the build script will be executed", {"depth": 2})).stdout();
-								(new class_message("")).stdout();
-							}
-							{
-								(new class_message("--showgraph | -g", {"depth": 1})).stdout();
-								(new class_message("if set, the graphviz description of the dependency graph is written to stderr", {"depth": 2})).stdout();
-								(new class_message("")).stdout();
-							}
-							{
-								(new class_message("--output | -o", {"depth": 1})).stdout();
-								(new class_message("the path of the output file", {"depth": 2})).stdout();
-								(new class_message("")).stdout();
-							}
-							{
-								(new class_message("--version | -v", {"depth": 1})).stdout();
-								(new class_message("print the version to stdout and exit", {"depth": 2})).stdout();
-								(new class_message("")).stdout();
-							}
-							{
-								(new class_message("--help | -h", {"depth": 1})).stdout();
-								(new class_message("show this help and exit", {"depth": 2})).stdout();
-								(new class_message("")).stdout();
-							}
-						}
-						{
-							(new class_message("AUTHOR")).stdout();
-							(new class_message("Christian Fraß <frass@greenscale.de>", {"depth": 1})).stdout();
-							(new class_message("")).stdout();
-						}
-						return false;
-						break;
-					}
-					case "--version": case "-v": {
-						(new class_message(configuration.version.toString())).stdout();
-						return false;
-						break;
-					}
-					case "--target": case "-t": {
-						configuration.target = parts[1];
-						return true;
-						break;
-					}
-					case "--system": case "-s": {
-						configuration.system = parts[1];
-						return true;
-						break;
-					}
-					case "--raw": case "-r": {
-						configuration.raw = true;
-						return true;
-						break;
-					}
-					case "--output": case "-o": {
-						configuration.output = parts[1];
-						return true;
-						break;
-					}
-					case "--execute": case "-x": {
-						configuration.execute = true;
-						return true;
-						break;
-					}
-					case "--showgraph": case "-g": {
-						configuration.showgraph = true;
-						return true;
-						break;
-					}
-					default: {
-						return false;
-						throw (new Error("unrecognized option '" + parts[0] + "'"));
-						break;
-					}
+	// lib_args.verbosity = 5;
+	let argdata : Object = arghandler.read("cli", args.join(" "));
+	let procede : boolean = true;
+	if (argdata["help"]) {
+		(new class_message(
+			arghandler.generate_help(
+				{
+					"programname": "Koralle Build System Abstractor",
+					"executable": "koralle",
+					"author": "Christian Fraß <frass@greenscale.de>",
+					"description": "Koralle is not a build-system itself. Instead it generates scripts for existing build-systems (e.g. GNU Make, Apache Ant, …) on base of a common json-description-file (usually named 'project.json'). Koralle is designed for reducing the amount of text needed to define the build-process.",
 				}
-			}
-			else {
-				configuration.path = arg;
-				return true;
-			}
+			)
+		)).stdout();
+		procede = false;
+	}
+	else {
+		if (argdata["version"]) {
+			(new class_message(configuration.version.toString())).stdout();
+			procede = false;
 		}
-	);
+		else {
+			configuration.path = argdata["path"];
+			configuration.system = argdata["system"];
+			configuration.output = argdata["output"];
+			configuration.raw = argdata["raw"];
+			configuration.execute = argdata["execute"];
+			configuration.showgraph = argdata["showgraph"];
+			procede = true;
+		}
+	}
 	if (procede) {
 		type type_state = {
 			filepointer ?: lib_path.class_filepointer;

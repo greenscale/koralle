@@ -2,7 +2,7 @@
 /**
  * @author fenris
  */
-class class_action_linklist_apply extends class_action_adhoc {
+class class_action_schwamm_apply extends class_action_adhoc {
 	
 	/**
 	 * @author fenris
