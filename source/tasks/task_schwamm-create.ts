@@ -16,6 +16,7 @@ class class_task_schwamm_create extends class_task {
 				"includes": includes = [],
 				"adhoc": adhoc = {},
 				"output": output = null,
+				"dir": dir = null,
 			},
 		} : {
 			name ?: string,
@@ -25,6 +26,7 @@ class class_task_schwamm_create extends class_task {
 				includes ?: Array<string>,
 				adhoc ?: {[group : string] : Array<string>},
 				output ?: string,
+				dir ?: string;
 			}
 		}
 	) {
@@ -40,6 +42,10 @@ class class_task_schwamm_create extends class_task {
 			output,
 			x => lib_path.filepointer_read(x)
 		);
+		let dir_ : lib_path.class_location = lib_call.use(
+			dir,
+			x => ((x == null) ? null : lib_path.location_read(x))
+		);
 		super(
 			name, sub, active,
 			includes_.concat(lib_object.values<Array<lib_path.class_filepointer>>(adhoc_).reduce((x, y) => x.concat(y), [])),
@@ -51,7 +57,8 @@ class class_task_schwamm_create extends class_task {
 				new class_action_schwamm_create(
 					includes_,
 					adhoc_,
-					output_
+					output_,
+					dir_
 				),
 			]
 		);

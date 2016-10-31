@@ -9,10 +9,10 @@ var configuration : {
 	tempfolder ?: string;
 	path_source ?: string;
 	path_build ?: string;
-	target ?: string;
 	system ?: string;
 	raw ?: boolean;
 	execute ?: boolean;
+	file ?: string;
 	output ?: string;
 	path ?: string;
 	showgraph ?: boolean;
@@ -21,11 +21,11 @@ var configuration : {
 	"tempfolder": null,
 	"path_source": "source",
 	"path_build": "build",
-	"target": "gnumake",
 	"system": "unix",
 	"raw": false,
 	"execute": false,
-	"output": null,
+	"output": "gnumake",
+	"file": null,
 	"path": "project.json",
 	"showgraph": false,
 };

@@ -39,11 +39,11 @@ class class_action_schwamm_apply extends class_action_adhoc {
 				let parts : Array<string> = [];
 				parts.push("schwamm");
 				parts.push("apply");
-				parts.push(this.path.as_string(configuration["system"]));
+				parts.push(`--file=${this.path.as_string(configuration["system"])}`);
 				Object.keys(this.outputs_).forEach(
 					groupname => {
 						let filepointer : lib_path.class_filepointer = lib_path.filepointer_read(configuration["path"]).foo(this.outputs_[groupname]);
-						parts = parts.concat(["-o", `${groupname}:${filepointer.as_string(configuration["system"])}`]);
+						parts.push(`--output=${groupname}:${filepointer.as_string(configuration["system"])}`);
 					}
 				);
 				return parts.join(" ");

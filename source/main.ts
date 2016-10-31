@@ -129,6 +129,19 @@ function main(args : Array<string>) : void {
 			),
 			new lib_args.class_argument(
 				{
+					"name": "file",
+					"type": "string",
+					"default": null,
+					"info": "the file in which the result build script shall be written",
+					"kind": "volatile",
+					"parameters": {
+						"indicators_long": ["file"],
+						"indicators_short": ["f"],
+					},
+				}
+			),
+			new lib_args.class_argument(
+				{
 					"name": "raw",
 					"type": "boolean",
 					"info": "if set, depedencies are ignored/excluded from the output",
@@ -193,6 +206,7 @@ function main(args : Array<string>) : void {
 			configuration.raw = argdata["raw"];
 			configuration.execute = argdata["execute"];
 			configuration.showgraph = argdata["showgraph"];
+			configuration.file = argdata["file"];
 			procede = true;
 		}
 	}
@@ -202,14 +216,14 @@ function main(args : Array<string>) : void {
 			order ?: Array<string>,
 			project_raw ?: Object;
 			project ?: class_project,
-			target ?: class_target,
-			output ?: lib_path.class_filepointer,
+			output ?: class_target,
+			file ?: lib_path.class_filepointer,
 			script ?: string,
 		};
 		lib_call.executor_chain<type_state, Error>(
 			{},
 			[
-				// setup temp-folder ([TODO] move to target logic)
+				// setup temp-folder ([TODO] move to output logic)
 				state => (resolve, reject) => {
 					switch (configuration.system) {
 						case "unix": {
@@ -218,7 +232,7 @@ function main(args : Array<string>) : void {
 							break;
 						}
 						case "win": {
-							switch (configuration.target) {
+							switch (configuration.output) {
 								case "gnumake": {
 									configuration.tempfolder = "%TEMP%\\";
 									resolve(state);
@@ -230,7 +244,7 @@ function main(args : Array<string>) : void {
 									break;
 								}
 								default: {
-									reject(new Error("invalid target '" + configuration.target + "'"));
+									reject(new Error("invalid output '" + configuration.output + "'"));
 									break;
 								}
 							}
@@ -295,19 +309,19 @@ function main(args : Array<string>) : void {
 				state => (resolve, reject) => {
 					state.project = class_project.create(state.project_raw); resolve(state);
 				},
-				// setup target
+				// setup output
 				state => (resolve, reject) => {
 					let mapping : {[name : string] : class_target} = {
 						"ant": new class_target_ant(),
 						"gnumake": new class_target_gnumake(),
 						"make": new class_target_gnumake(),
 					};
-					let target : class_target = lib_object.fetch<class_target>(mapping, configuration.target, null, 0);
-					if (target == null) {
-						reject(new class_error("no implementation found for target '" + configuration.target + "'"));
+					let output : class_target = lib_object.fetch<class_target>(mapping, configuration.output, null, 0);
+					if (output == null) {
+						reject(new class_error("no implementation found for output '" + configuration.output + "'"));
 					}
 					else {
-						state.target = target;
+						state.output = output;
 						resolve(state);
 					}
 				},
@@ -315,7 +329,7 @@ function main(args : Array<string>) : void {
 				state => (resolve, reject) => {
 					state.project.dependencies_set(state.order);
 					try {
-						let script : string = state.target.compile_project_string(state.project, configuration.raw);
+						let script : string = state.output.compile_project_string(state.project, configuration.raw);
 						state.script = script;
 						resolve(state);
 					}
@@ -323,10 +337,10 @@ function main(args : Array<string>) : void {
 						reject(<Error>(exception));
 					}
 				},
-				// output
+				// write
 				state => (resolve, reject) => {
 					let filepointer : lib_path.class_filepointer;
-					if (configuration.output == null) {
+					if (configuration.file == null) {
 						if (! configuration.execute) {
 							filepointer = null;
 						}
@@ -339,7 +353,7 @@ function main(args : Array<string>) : void {
 						}
 					}
 					else {
-						filepointer = lib_path.filepointer_read(configuration.output);
+						filepointer = lib_path.filepointer_read(configuration.file);
 					}
 					if (filepointer == null) {
 						(new class_message(state.script)).stdout();
@@ -347,7 +361,7 @@ function main(args : Array<string>) : void {
 					else {
 						_fs.writeFile(filepointer.toString(), state.script);
 					}
-					state.output = filepointer;
+					state.file = filepointer;
 					resolve(state);
 				},
 				// execution
@@ -356,7 +370,7 @@ function main(args : Array<string>) : void {
 						resolve(state);
 					}
 					else {
-						state.target.execute(state.output)(
+						state.output.execute(state.file)(
 							result => resolve(state),
 							reject
 						);

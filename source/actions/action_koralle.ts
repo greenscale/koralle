@@ -52,11 +52,13 @@ class class_action_koralle extends class_action_adhoc {
 					case "win": {
 						let parts : Array<string> = [];
 						parts.push("koralle");
-						parts.push("--target=" + this.target);
-						parts.push("--system=" + configuration["system"]);
+						parts.push(`--output=${this.target}`);
+						parts.push(`--system=${configuration["system"]}`);
 						if (this.raw) parts.push("--raw");
 						parts.push(this.filepointer_in.as_string(configuration["system"]));
-						return (parts.join(" ") + " > " + this.filepointer_out.as_string(configuration["system"]));
+						parts.push(`--file=${this.filepointer_out.as_string(configuration["system"])}`);
+						// parts.push(`> ${this.filepointer_out.as_string(configuration["system"])}`);
+						return (parts.join(" "));
 						// break;
 					}
 					default: {

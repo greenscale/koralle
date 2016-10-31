@@ -25,15 +25,23 @@ class class_action_schwamm_create extends class_action_adhoc {
 	/**
 	 * @author fenris
 	 */
+	protected dir : lib_path.class_location;
+	
+	
+	/**
+	 * @author fenris
+	 */
 	public constructor(
 		includes : Array<lib_path.class_filepointer>,
 		adhoc : {[group : string] : Array<lib_path.class_filepointer>},
-		output : lib_path.class_filepointer
+		output : lib_path.class_filepointer,
+		dir : lib_path.class_location
 	) {
 		super();
 		this.includes = includes;
 		this.adhoc = adhoc;
 		this.output = output;
+		this.dir = dir;
 	}
 	
 	
@@ -49,7 +57,7 @@ class class_action_schwamm_create extends class_action_adhoc {
 				parts.push("create");
 				this.includes.forEach(
 					include => {
-						parts = parts.concat(["-i", include.as_string(configuration["system"])]);
+						parts.push(`--include=${include.as_string(configuration["unix"])}`);
 					}
 				);
 				Object.keys(this.adhoc).forEach(
@@ -57,13 +65,19 @@ class class_action_schwamm_create extends class_action_adhoc {
 						this.adhoc[group].forEach(
 							member => {
 								let filepointer : lib_path.class_filepointer = lib_path.filepointer_read(configuration["path"]).foo(member);
-								parts = parts.concat(["-a", `${group}:${filepointer.as_string(configuration["system"])}`]);
+								parts.push(`--adhoc=${group}:${filepointer.as_string(configuration["unix"])}`);
 							}
 						);
 					}
 				);
-				parts.push(">");
-				parts.push(this.output.as_string(configuration["system"]));
+				// parts.push(`--file=${this.output.as_string(configuration["system"])}`);
+				if (this.dir != null) {
+					parts.push(`--dir=${this.dir.as_string("unix")}`);
+				}
+				else {
+					parts.push(`--dir=${this.output.location.as_string("unix")}`);
+				}
+				parts.push(`> ${this.output.as_string(configuration["unix"])}`);
 				return parts.join(" ");
 				// break;
 			}
