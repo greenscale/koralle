@@ -64,7 +64,7 @@ class class_action_schwamm_create extends class_action_adhoc {
 					group => {
 						this.adhoc[group].forEach(
 							member => {
-								let filepointer : lib_path.class_filepointer = lib_path.filepointer_read(configuration["path"]).foo(member);
+								let filepointer : lib_path.class_filepointer = /*lib_path.filepointer_read(configuration["path"]).foo(member)*/member;
 								parts.push(`--adhoc=${group}:${filepointer.as_string(configuration["unix"])}`);
 							}
 						);
