@@ -77,7 +77,6 @@
 								"source/tasks/task.ts",
 								"source/tasks/task_group.ts",
 								"source/tasks/task_dependency.ts",
-								"source/tasks/task_external.ts",
 								"source/tasks/task_script.ts",
 								"source/tasks/task_empty.ts",
 								"source/tasks/task_copy.ts",

@@ -62,6 +62,37 @@ module lib_ant {
 			return this.representation;
 		}
 		
+		
+		/**
+		 * @author fenris
+		 */
+		public static macro_exec(
+			{
+				"executable": executable,
+				"output": output = null,
+				"args": args = [],
+			} : {
+				executable : string;
+				output ?: string;
+				args ?: Array<string>;
+			}
+		) : class_action {
+			let attributes : {[key : string] : string} = {};
+			attributes["executable"] = executable;
+			if (output != null) {
+				attributes["output"] = output;
+			}
+			return (
+				new lib_ant.class_action(
+					new lib_xml.class_node_complex(
+						"exec",
+						attributes,
+						args.map(arg => new lib_xml.class_node_complex("arg", {"value": arg}))
+					)
+				)
+			);
+		}
+		
 	}
 	
 	

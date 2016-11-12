@@ -7,106 +7,93 @@ class class_task_script extends class_task {
 	/**
 	 * @author fenris
 	 */
-	protected inputs_ : Array<lib_path.class_filepointer>;
-	
-	
-	/**
-	 * @author fenris
-	 */
-	protected outputs_ : Array<lib_path.class_filepointer>;
-	
-	
-	/**
-	 * @author fenris
-	 */
-	protected path : lib_path.class_filepointer;
-	
-	
-	/**
-	 * @author fenris
-	 */
-	protected interpreter : lib_path.class_filepointer;
-	
-	
-	/**
-	 * @author fenris
-	 */
-	constructor(
-		name : string = null,
-		sub : Array<class_task> = [],
-		active : boolean = true,
-		inputs_ : Array<lib_path.class_filepointer>,
-		outputs_ : Array<lib_path.class_filepointer>,
-		path : lib_path.class_filepointer,
-		interpreter : lib_path.class_filepointer = null
+	public constructor(
+		{
+			"name": name,
+			"sub": sub,
+			"active": active,
+			"parameters": {
+				"path": path_raw = undefined,
+				"inputs": inputs_raw = [],
+				"outputs": outputs_raw = [],
+				"interpreter": interpreter_raw = null,
+				"workdir": workdir_raw = null,
+			},
+		} : {
+			name ?: string;
+			sub ?: Array<class_task>;
+			active ?: boolean;
+			parameters : {
+				path ?: string;
+				inputs ?: Array<string>;
+				outputs ?: Array<string>;
+				interpreter ?: string;
+				workdir ?: string;
+			};
+		}
 	) {
-		super(name, sub, active);
-		this.inputs_ = inputs_;
-		this.outputs_ = outputs_;
-		this.path = path;
-		this.interpreter = interpreter;
-	}
-	
-	
-	/**
-	 * @author fenris
-	 */
-	public static create(name : string, sub : Array<class_task>, active : boolean, parameters : Object) : class_task_script {
-		let interpreter_raw : string = object_fetch<string>(parameters, "interpreter", null, 1);
-		let interpreter : lib_path.class_filepointer = ((interpreter_raw == null) ? null : lib_path.filepointer_read(interpreter_raw));
-		return (
-			new class_task_script(
-				name, sub, active,
-				object_fetch<Array<string>>(parameters, "inputs", [], 1).map(s => lib_path.filepointer_read(s)),
-				object_fetch<Array<string>>(parameters, "outputs", [], 1).map(s => lib_path.filepointer_read(s)),
-				lib_path.filepointer_read(object_fetch<string>(parameters, "path", null, 2)),
-				interpreter
-			)
+		if (path_raw == undefined) {
+			throw (new Error(class_task.errormessage_mandatoryparamater("script", name, "path")));
+		}
+		let path : lib_path.class_filepointer = lib_call.use(
+			path_raw,
+			x => lib_path.filepointer_read(x)
 		);
-	}
-	
-	
-	/**
-	 * @override
-	 * @author fenris
-	 */
-	public inputs() : Array<lib_path.class_filepointer> {
-		return this.inputs_;
-	}
-	
-	
-	/**
-	 * @override
-	 * @author fenris
-	 */
-	public outputs() : Array<lib_path.class_filepointer> {
-		return this.outputs_;
-	}
-	
-	
-	/**
-	 * @author fenris
-	 */
-	public actions() : Array<class_action> {
-		return (
-			[]
-			.concat(
-				this.outputs_.map(output => new class_action_mkdir(output.location))
-			)
-			.concat(
-				[
-					new class_action_exec(
-						this.inputs_,
-						this.outputs_,
-						this.path,
-						this.interpreter
-					),
-				]
+		let inputs : Array<lib_path.class_filepointer> = lib_call.use(
+			inputs_raw,
+			x => x.map(y => lib_path.filepointer_read(y))
+		);
+		let outputs : Array<lib_path.class_filepointer> = lib_call.use(
+			outputs_raw,
+			x => x.map(y => lib_path.filepointer_read(y))
+		);
+		let workdir : lib_path.class_location = lib_call.use(
+			workdir_raw,
+			x => ((x == null) ? null : lib_path.location_read(x))
+		);
+		let interpreter : lib_path.class_filepointer = lib_call.use(
+			interpreter_raw,
+			x => ((x == null) ? null : lib_path.filepointer_read(x))
+		);
+		super(
+			name, sub, active,
+			inputs,
+			outputs,
+			(
+				[]
+				.concat(
+					outputs.map(
+						output => new class_action_mkdir(
+							output.location
+						),
+					)
+				)
+				.concat(
+					[
+						new class_action_exec(
+							{
+								"inputs": inputs,
+								"outputs": outputs,
+								"path": path,
+								"interpreter": interpreter,
+								"workdir": workdir,
+							}
+						),
+					]
+				)
 			)
 		);
 	}
 	
 }
 
-class_task.register("script", /*(name, sub, active, parameters) => */class_task_script.create/*(name, sub, active, parameters)*/);
+class_task.register(
+	"script",
+	(name, sub, active, parameters) => new class_task_script(
+		{
+			"name": name, "sub": sub, "active": active,
+			"parameters": parameters,
+		}
+	)
+);
 

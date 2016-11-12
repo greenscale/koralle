@@ -40,7 +40,7 @@ class class_action_copy extends class_action_adhoc {
 	public compilation(target_identifier : string) : any {
 		switch (target_identifier) {
 			case "gnumake": {
-				switch (configuration["system"]) {
+				switch (configuration.system) {
 					case "unix":
 					case "win": {
 						let parts : Array<string> = [];
@@ -49,12 +49,12 @@ class class_action_copy extends class_action_adhoc {
 							parts.push("--recursive");
 							parts.push("--update");
 							parts.push("--verbose");
-							parts.push((new lib_path.class_filepointer(this.filepointer_from.location, "*")).as_string(configuration["system"]));
+							parts.push((new lib_path.class_filepointer(this.filepointer_from.location, "*")).as_string(configuration.system));
 						}
 						else {
-							parts.push(this.filepointer_from.as_string(configuration["system"]));
+							parts.push(this.filepointer_from.as_string(configuration.system));
 						}
-						parts.push(this.filepointer_to.as_string(configuration["system"]));
+						parts.push(this.filepointer_to.as_string(configuration.system));
 						return parts.join(" ");
 						break;
 					}

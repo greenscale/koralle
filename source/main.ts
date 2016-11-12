@@ -91,6 +91,18 @@ function main(args : Array<string>) : void {
 			),
 			new lib_args.class_argument(
 				{
+					"name": "tasklist",
+					"type": "boolean",
+					"info": "show the list of available tasks and exit",
+					"kind": "volatile",
+					"parameters": {
+						"indicators_long": ["tasklist"],
+						"indicators_short": ["l"],
+					},
+				}
+			),
+			new lib_args.class_argument(
+				{
 					"name": "version",
 					"type": "boolean",
 					"info": "print the version to stdout and exit",
@@ -194,21 +206,23 @@ function main(args : Array<string>) : void {
 		)).stdout();
 		procede = false;
 	}
+	else if (argdata["version"]) {
+		(new class_message(configuration.version.toString())).stdout();
+		procede = false;
+	}
+	else if (argdata["tasklist"]) {
+		new class_message(class_task.list().map(entry => `\t${entry}\n`).join("")).stdout();
+		procede = false;
+	}
 	else {
-		if (argdata["version"]) {
-			(new class_message(configuration.version.toString())).stdout();
-			procede = false;
-		}
-		else {
-			configuration.path = argdata["path"];
-			configuration.system = argdata["system"];
-			configuration.output = argdata["output"];
-			configuration.raw = argdata["raw"];
-			configuration.execute = argdata["execute"];
-			configuration.showgraph = argdata["showgraph"];
-			configuration.file = argdata["file"];
-			procede = true;
-		}
+		configuration.path = argdata["path"];
+		configuration.system = argdata["system"];
+		configuration.output = argdata["output"];
+		configuration.raw = argdata["raw"];
+		configuration.execute = argdata["execute"];
+		configuration.showgraph = argdata["showgraph"];
+		configuration.file = argdata["file"];
+		procede = true;
 	}
 	if (procede) {
 		type type_state = {
@@ -364,7 +378,7 @@ function main(args : Array<string>) : void {
 					state.file = filepointer;
 					resolve(state);
 				},
-				// execution
+				// execute
 				state => (resolve, reject) => {
 					if (! configuration.execute) {
 						resolve(state);
@@ -391,5 +405,9 @@ function main(args : Array<string>) : void {
 }
 
 
+configuration.invocation = {
+	"interpreter": process.argv[0],
+	"path": process.argv[1],
+};
 main(process.argv.slice(2));
 

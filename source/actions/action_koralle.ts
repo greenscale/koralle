@@ -19,7 +19,7 @@ class class_action_koralle extends class_action_adhoc {
 	/**
 	 * @author fenris
 	 */
-	protected target : string;
+	protected output : string;
 	
 	
 	/**
@@ -31,161 +31,92 @@ class class_action_koralle extends class_action_adhoc {
 	/**
 	 * @author fenris
 	 */
-	public constructor(filepointer_in : lib_path.class_filepointer, filepointer_out : lib_path.class_filepointer, target : string, raw : boolean) {
+	public constructor(
+		{
+			"filepointer_in": filepointer_in,
+			"filepointer_out": filepointer_out,
+			"output": output,
+			"raw": raw,
+		} : {
+			filepointer_in : lib_path.class_filepointer;
+			filepointer_out : lib_path.class_filepointer;
+			output : string;
+			raw : boolean;
+		}
+	) {
 		super();
 		this.filepointer_in = filepointer_in;
 		this.filepointer_out = filepointer_out;
-		this.target = target;
+		this.output = output;
 		this.raw = raw;
 	}
 	
 	
 	/**
-	 * @desc for defining directly how the action is to be converted into a target-piece
+	 * @desc for defining directly how the action is to be converted into an output-piece
 	 * @author fenris
 	 */
-	public compilation(target_identifier : string) : any {
-		switch (target_identifier) {
+	public compilation(output_identifier : string) : any {
+		switch (output_identifier) {
 			case "gnumake": {
-				switch (configuration["system"]) {
+				switch (configuration.system) {
 					case "unix":
 					case "win": {
 						let parts : Array<string> = [];
-						parts.push("koralle");
-						parts.push(`--output=${this.target}`);
-						parts.push(`--system=${configuration["system"]}`);
-						if (this.raw) parts.push("--raw");
-						parts.push(this.filepointer_in.as_string(configuration["system"]));
-						parts.push(`--file=${this.filepointer_out.as_string(configuration["system"])}`);
-						// parts.push(`> ${this.filepointer_out.as_string(configuration["system"])}`);
+						if (configuration.invocation.interpreter != null) {
+							parts.push(configuration.invocation.interpreter);
+						}
+						parts.push(configuration.invocation.path);
+						parts.push(`--output=${this.output}`);
+						parts.push(`--system=${configuration.system}`);
+						if (this.raw) {
+							parts.push("--raw");
+						}
+						parts.push(this.filepointer_in.as_string(configuration.system));
+						parts.push(`--file=${this.filepointer_out.as_string(configuration.system)}`);
 						return (parts.join(" "));
-						// break;
+						break;
 					}
 					default: {
 						throw (new Error("not implemented"));
-						// break;
+						break;
 					}
 				}
 				break;
 			}
 			case "ant": {
-				switch (configuration["system"]) {
-					case "unix": {
-						return (
-							new lib_ant.class_action(
-								new lib_xml.class_node_complex(
-									"exec",
-									{
-										"executable": "koralle",
-										"output": this.filepointer_out.as_string("unix"),
-									},
-									(
-										[]
-										.concat(
-											[
-												new lib_xml.class_node_complex(
-													"arg",
-													{"value": "--target=" + this.target}
-												),
-												new lib_xml.class_node_complex(
-													"arg",
-													{"value": "--system=" + configuration["system"]}
-												),
-											]
-										)
-										.concat(
-											this.raw
-											?
-											[
-												new lib_xml.class_node_complex(
-													"arg",
-													{"value": "--raw"}
-												),
-											]
-											:
-											[]
-										)
-										.concat(
-											[
-												new lib_xml.class_node_complex(
-													"arg",
-													{"value": this.filepointer_in.as_string("unix")}
-												)
-											]
-										)
-									)
-								)
-							)
-						);
-						// break;
-					}
+				switch (configuration.system) {
+					case "unix":
 					case "win": {
+						let args : Array<string> = [];
+						args.push(configuration.invocation.path);
+						args.push(`--output=${this.output}`);
+						args.push(`--system=${configuration.system}`);
+						if (this.raw) {
+							args.push(`--raw`);
+						}
+						args.push(this.filepointer_in.as_string("unix"));
+						args.push(`--file=${this.filepointer_out.as_string(configuration.system)}`);
 						return (
-							new lib_ant.class_action(
-								new lib_xml.class_node_complex(
-									"exec",
-									{
-										"executable": "cmd",
-										"output": this.filepointer_out.as_string("win"),
-									},
-									(
-										[]
-										.concat(
-											[
-												new lib_xml.class_node_complex(
-													"arg",
-													{"value": "/c"}
-												),
-												new lib_xml.class_node_complex(
-													"arg",
-													{"value": "koralle"}
-												),
-												new lib_xml.class_node_complex(
-													"arg",
-													{"value": "--target=" + this.target}
-												),
-												new lib_xml.class_node_complex(
-													"arg",
-													{"value": "--system=" + configuration["system"]}
-												),
-											]
-										)
-										.concat(
-											this.raw
-											?
-											[
-												new lib_xml.class_node_complex(
-													"arg",
-													{"value": "--raw"}
-												),
-											]
-											:
-											[]
-										)
-										.concat(
-											[
-												new lib_xml.class_node_complex(
-													"arg",
-													{"value": this.filepointer_in.as_string("unix")}
-												)
-											]
-										)
-									)
-								)
+							lib_ant.class_action.macro_exec(
+								{
+									"executable": configuration.invocation.interpreter,
+									"args": args,
+								}
 							)
 						);
-						// break;
+						break;
 					}
 					default: {
 						throw (new Error("not implemented"));
-						// break;
+						break;
 					}
 				}
 				break;
 			}
 			default: {
-				throw (new Error("unhandled target '" + target_identifier + "'"));
-				// break;
+				throw (new Error(`unhandled output '${output_identifier}'`));
+				break;
 			}
 		}
 	}

@@ -13,8 +13,8 @@ class class_task_copy extends class_task {
 			"sub": sub,
 			"active": active,
 			"parameters": {
-				"input": input = null,
-				"output": output = null,
+				"input": input_raw = null,
+				"output": output_raw = null,
 				"folder": folder = false,
 			},
 		} : {
@@ -28,25 +28,31 @@ class class_task_copy extends class_task {
 			};
 		}
 	) {
-		let input_ : lib_path.class_filepointer = lib_call.use(
-			input,
+		if (input_raw == undefined) {
+			throw (new Error(class_task.errormessage_mandatoryparamater("copy", name, "input")));
+		}
+		let input : lib_path.class_filepointer = lib_call.use(
+			input_raw,
 			x => lib_path.filepointer_read(x)
 		);
-		let output_ : lib_path.class_filepointer = lib_call.use(
-			output,
+		if (output_raw == undefined) {
+			throw (new Error(class_task.errormessage_mandatoryparamater("copy", name, "output")));
+		}
+		let output : lib_path.class_filepointer = lib_call.use(
+			output_raw,
 			x => lib_path.filepointer_read(x)
 		);
 		super(
 			name, sub, active,
-			[input_],
-			[output_],
+			folder ? [] : [input],
+			folder ? [] : [output],
 			[
 				new class_action_mkdir(
-					output_.location
+					output.location
 				),
 				new class_action_copy(
-					input_,
-					output_,
+					input,
+					output,
 					folder
 				),
 			]

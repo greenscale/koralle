@@ -5,6 +5,10 @@ var _child_process = require("child_process");
 var _fs = require("fs");
 
 var configuration : {
+	invocation ?: {
+		interpreter ?: string;
+		path ?: string;
+	};
 	version ?: string;
 	tempfolder ?: string;
 	path_source ?: string;
@@ -17,6 +21,10 @@ var configuration : {
 	path ?: string;
 	showgraph ?: boolean;
 } = {
+	"invocation": {
+		"interpreter": null,
+		"path": "koralle",
+	},
 	"version": "0.0.6",
 	"tempfolder": null,
 	"path_source": "source",

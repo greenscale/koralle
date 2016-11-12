@@ -92,7 +92,32 @@ class class_project {
 			)
 		);
 	}
-
+	
+	
+	/**
+	 * @author fenris
+	 */
+	public dependencytasks(output : string) : Array<class_task> {
+		return (
+			this.dependencies_all.map(
+				function (path : string, index : int) : class_task_dependency {
+					return (
+						new class_task_dependency(
+							{
+								"name": `__dependency_${index.toString()}`,
+								"parameters": {
+									"path": path,
+									"output": output,
+									"raw": true,
+								},
+							}
+						)
+					);
+				}
+			)
+		);
+	}
+	
 	
 	/**
 	 * @author fenris

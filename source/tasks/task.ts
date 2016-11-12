@@ -71,7 +71,7 @@ abstract class class_task {
 		_actions : Array<class_action> = []
 	) {
 		this.identifier = genid("task_");
-		this.name = (name != null) ? name : this.identifier;
+		this.name = ((name != null) ? name : this.identifier);
 		this.sub = sub;
 		this.active = active;
 		this._inputs = _inputs;
@@ -178,6 +178,22 @@ abstract class class_task {
 		else {
 			throw (new Error(`no task registered with id '${id}'`));
 		}
+	}
+	
+	
+	/**
+	 * @author fenris
+	 */
+	public static list() : Array<string> {
+		return Object.keys(this.pool);
+	}
+	
+	
+	/**
+	 * @author fenris
+	 */
+	protected static errormessage_mandatoryparamater(type : string, name : string, fieldname : string) : string {
+		return `mandatory paramater '${fieldname}' missing in ${type}-task '${name}'`;
 	}
 	
 }
