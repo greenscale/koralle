@@ -14,10 +14,10 @@ class class_task_script extends class_task {
 			"active": active,
 			"parameters": {
 				"path": path_raw = undefined,
-				"inputs": inputs_raw = [],
-				"outputs": outputs_raw = [],
 				"interpreter": interpreter_raw = null,
 				"workdir": workdir_raw = null,
+				"inputs": inputs_raw = [],
+				"outputs": outputs_raw = [],
 			},
 		} : {
 			name ?: string;
@@ -25,10 +25,10 @@ class class_task_script extends class_task {
 			active ?: boolean;
 			parameters : {
 				path ?: string;
-				inputs ?: Array<string>;
-				outputs ?: Array<string>;
 				interpreter ?: string;
 				workdir ?: string;
+				inputs ?: Array<string>;
+				outputs ?: Array<string>;
 			};
 		}
 	) {
@@ -39,14 +39,6 @@ class class_task_script extends class_task {
 			path_raw,
 			x => lib_path.filepointer_read(x)
 		);
-		let inputs : Array<lib_path.class_filepointer> = lib_call.use(
-			inputs_raw,
-			x => x.map(y => lib_path.filepointer_read(y))
-		);
-		let outputs : Array<lib_path.class_filepointer> = lib_call.use(
-			outputs_raw,
-			x => x.map(y => lib_path.filepointer_read(y))
-		);
 		let workdir : lib_path.class_location = lib_call.use(
 			workdir_raw,
 			x => ((x == null) ? null : lib_path.location_read(x))
@@ -54,6 +46,14 @@ class class_task_script extends class_task {
 		let interpreter : lib_path.class_filepointer = lib_call.use(
 			interpreter_raw,
 			x => ((x == null) ? null : lib_path.filepointer_read(x))
+		);
+		let inputs : Array<lib_path.class_filepointer> = lib_call.use(
+			inputs_raw,
+			x => x.map(y => lib_path.filepointer_read(y))
+		);
+		let outputs : Array<lib_path.class_filepointer> = lib_call.use(
+			outputs_raw,
+			x => x.map(y => lib_path.filepointer_read(y))
 		);
 		super(
 			name, sub, active,

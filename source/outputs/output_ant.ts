@@ -14,6 +14,28 @@ class class_target_ant extends class_target_regular<lib_ant.class_action> {
 		super("ant");
 	}
 		
+	
+	/**
+	 * @override
+	 * @author fenris
+	 */
+	public tempfolder() : string {
+		switch (configuration.system) {
+			case "unix": {
+				return "/tmp/";
+				break;
+			}
+			case "win": {
+				return "${env.TEMP}\\";
+				break;
+			}
+			default: {
+				throw (new Error(`invalid system '${configuration.system}'`));
+				break;
+			}
+		}
+	}
+	
 			
 	/**
 	 * @author fenris
@@ -119,7 +141,7 @@ class class_target_ant extends class_target_regular<lib_ant.class_action> {
 	 * @override
 	 * @author fenris
 	 */
-	public execute(filepointer : lib_path.class_filepointer) : lib_call.type_executor<void, Error> {
+	public execute(filepointer : lib_path.class_filepointer, workdir : string = ".") : lib_call.type_executor<void, Error> {
 		return (
 			(resolve, reject) => {
 				let command : string = [

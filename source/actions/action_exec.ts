@@ -68,16 +68,16 @@ class class_action_exec extends class_action_adhoc {
 	public compilation(target_identifier : string) : any {
 		switch (target_identifier) {
 			case "gnumake": {
-				switch (configuration["system"]) {
+				switch (configuration.system) {
 					case "unix":
 					case "win": {
 						let command : string = "";
 						{
 							let parts : Array<string> = [];
-							if (this.path_interpreter != null) parts.push(this.path_interpreter.as_string(configuration["system"]));
-							parts.push(this.path_script.as_string(configuration["system"]));
-							parts.push(this.paths_input.map(filepointer => filepointer.as_string(configuration["system"])).join(","));
-							parts.push(this.paths_output.map(filepointer => filepointer.as_string(configuration["system"])).join(","));
+							if (this.path_interpreter != null) parts.push(this.path_interpreter.as_string(configuration.system));
+							parts.push(this.path_script.as_string(configuration.system));
+							parts.push("'" + this.paths_input.map(filepointer => filepointer.as_string(configuration.system)).join(",") + "'");
+							parts.push("'" + this.paths_output.map(filepointer => filepointer.as_string(configuration.system)).join(",") + "'");
 							command = parts.join(" ");
 						}
 						{
@@ -96,107 +96,44 @@ class class_action_exec extends class_action_adhoc {
 				break;
 			}
 			case "ant": {
-				switch (configuration["system"]) {
+				switch (configuration.system) {
 					case "unix": {
-						if (this.path_interpreter == null) {
-							return (
-								new lib_ant.class_action(
-									new lib_xml.class_node_complex(
-										"exec",
-										{"executable": this.path_script.as_string("unix")},
-										[
-											new lib_xml.class_node_complex(
-												"arg",
-												{"value": "'" + this.paths_input.map(filepointer => filepointer.as_string("unix")).join(",") + "'"}
-											),
-											new lib_xml.class_node_complex(
-												"arg",
-												{"value": "'" + this.paths_output.map(filepointer => filepointer.as_string("unix")).join(",") + "'"}
-											),
-										]
-									)
-								)
-							)
-						}
-						else {
-							return (
-								new lib_ant.class_action(
-									new lib_xml.class_node_complex(
-										"exec",
-										{"executable": this.path_interpreter.as_string("unix")},
-										[
-											new lib_xml.class_node_complex(
-												"arg",
-												{"value": this.path_script.as_string("unix")}
-											),
-											new lib_xml.class_node_complex(
-												"arg",
-												{"value": "'" + this.paths_input.map(filepointer => filepointer.as_string("unix")).join(",") + "'"}
-											),
-											new lib_xml.class_node_complex(
-												"arg",
-												{"value": "'" + this.paths_output.map(filepointer => filepointer.as_string("unix")).join(",") + "'"}
-											),
-										]
-									)
-								)
-							);
-						}
-						// break;
-					}
-					case "win": {
 						return (
-							new lib_ant.class_action(
-								new lib_xml.class_node_complex(
-									"exec",
-									{"executable": "cmd"},
-									(
-										[]
-										.concat(
-											[
-												new lib_xml.class_node_complex(
-													"arg",
-													{"value": "/c"}
-												),
-											]
-										)
-										.concat(
-											(this.path_interpreter != null)
-											?
-											[
-												new lib_xml.class_node_complex(
-													"arg",
-													{"value": this.path_interpreter.as_string("win")}
-												),
-											]
-											:
-											[]
-										)
-										.concat(
-											[
-												new lib_xml.class_node_complex(
-													"arg",
-													{"value": this.path_script.as_string("win")}
-												),
-												new lib_xml.class_node_complex(
-													"arg",
-													{"value": "'" + this.paths_input.map(filepointer => filepointer.as_string("win")).join(",") + "'"}
-												),
-												new lib_xml.class_node_complex(
-													"arg",
-													{"value": "'" + this.paths_output.map(filepointer => filepointer.as_string("win")).join(",") + "'"}
-												),
-											]
-										)
-									)
-								)
+							lib_ant.class_action.macro_exec(
+								{
+									"interpreter": this.path_interpreter.as_string("unix"),
+									"path": this.path_script.as_string("unix"),
+									"args": [
+										("'" + this.paths_input.map(filepointer => filepointer.as_string("unix")).join(",") + "'"),
+										("'" + this.paths_output.map(filepointer => filepointer.as_string("unix")).join(",") + "'"),
+									],
+								}
 							)
 						);
-						// break;
+						break;
+					}
+					case "win": {
+						let args : Array<string> = [];
+						if (this.path_interpreter != null) {
+							args.push("/c");
+							args.push(this.path_interpreter.as_string("win"));
+						}
+						args.push("'" + this.paths_input.map(filepointer => filepointer.as_string("win")).join(",") + "'");
+						args.push("'" + this.paths_output.map(filepointer => filepointer.as_string("win")).join(",") + "'");
+						return (
+							lib_ant.class_action.macro_exec(
+								{
+									"interpreter": "cmd",
+									"path": this.path_script.as_string("win"),
+									"args": args,
+								}
+							)
+						);
+						break;
 					}
 					default: {
 						throw (new Error("not implemented"));
-						// break;
+						break;
 					}
 				}
 				break;

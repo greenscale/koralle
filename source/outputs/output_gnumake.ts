@@ -16,6 +16,28 @@ class class_target_gnumake extends class_target_regular<string> {
 	
 	
 	/**
+	 * @override
+	 * @author fenris
+	 */
+	public tempfolder() : string {
+		switch (configuration.system) {
+			case "unix": {
+				return "/tmp/";
+				break;
+			}
+			case "win": {
+				return "%TEMP%\\";
+				break;
+			}
+			default: {
+				throw (new Error(`invalid system '${configuration.system}'`));
+				break;
+			}
+		}
+	}
+	
+	
+	/**
 	 * @author fenris
 	 */
 	protected compile_task(
@@ -176,34 +198,40 @@ class class_target_gnumake extends class_target_regular<string> {
 	 * @override
 	 * @author fenris
 	 */
-	public execute(filepointer : lib_path.class_filepointer) : lib_call.type_executor<void, Error> {
+	public execute(filepointer : lib_path.class_filepointer, workdir : string = process.cwd()) : lib_call.type_executor<void, Error> {
 		return (
 			(resolve, reject) => {
-				let command : string = (
-					  ["cd", filepointer.location].join(" ")
-					+ " && "
-					+ ["make", "--file=" + filepointer.filename].join(" ")
-					+ " ; "
-					+ ["cd", "-"].join(" ")
+				let cp = _child_process.spawn(
+					"make",
+					[
+						// `--directory=${workdir}`,
+						`--file=${filepointer.as_string(configuration.system)}`,
+					],
+					{}
 				);
-(new class_message(command, {"prefix": "exec:command"})).stderr();
-				_child_process.exec(
-					command,
-					{},
-					function (stdout : string, stderr : string, error : Error) : void {
-						/*
-						(new class_message(stdout, {"prefix": "exec:stdout"})).stderr();
-						(new class_message(stderr, {"prefix": "exec:stderr"})).stderr();
-						(new class_message(String(error), {"prefix": "exec:error"})).stderr();
-						 */
-						if (error == null) {
+				cp.stdout.on(
+					"data",
+					[x => x.toString(), x => x.slice(0, x.length-1), console.log].reduce(lib_call.compose)
+				);
+				cp.stderr.on(
+					"data",
+					[x => x.toString(), x => x.slice(0, x.length-1), console.error].reduce(lib_call.compose)
+				);
+				cp.on(
+					"error",
+					error => reject(new class_error("subprocess not finish successfully", [error]))
+				);
+				cp.on(
+					"close",
+					code => {
+						if (code == 0) {
 							resolve(undefined);
 						}
 						else {
-							reject(error);
+							reject(new Error("unknown error while subprocess execution"));
 						}
 					}
-				)
+				);
 			}
 		);
 	}

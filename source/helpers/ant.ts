@@ -68,17 +68,25 @@ module lib_ant {
 		 */
 		public static macro_exec(
 			{
-				"executable": executable,
+				"path": path,
+				"interpreter": interpreter = null,
 				"output": output = null,
 				"args": args = [],
 			} : {
-				executable : string;
+				path : string;
+				interpreter ?: string;
 				output ?: string;
 				args ?: Array<string>;
 			}
 		) : class_action {
 			let attributes : {[key : string] : string} = {};
-			attributes["executable"] = executable;
+			if (interpreter == null) {
+				attributes["executable"] = path;
+			}
+			else {
+				attributes["executable"] = interpreter;
+				args.unshift(path);
+			}
 			if (output != null) {
 				attributes["output"] = output;
 			}

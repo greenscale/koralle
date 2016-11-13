@@ -237,39 +237,6 @@ function main(args : Array<string>) : void {
 		lib_call.executor_chain<type_state, Error>(
 			{},
 			[
-				// setup temp-folder ([TODO] move to output logic)
-				state => (resolve, reject) => {
-					switch (configuration.system) {
-						case "unix": {
-							configuration.tempfolder = "/tmp/";
-							resolve(state);
-							break;
-						}
-						case "win": {
-							switch (configuration.output) {
-								case "gnumake": {
-									configuration.tempfolder = "%TEMP%\\";
-									resolve(state);
-									break;
-								}
-								case "ant": {
-									configuration.tempfolder = "${env.TEMP}\\";
-									resolve(state);
-									break;
-								}
-								default: {
-									reject(new Error("invalid output '" + configuration.output + "'"));
-									break;
-								}
-							}
-							break;
-						}
-						default: {
-							reject(new Error("invalid system '" + configuration.system + "'"));
-							break;
-						}
-					}
-				},
 				// environment
 				state => (resolve, reject) => {
 					let filepointer : lib_path.class_filepointer = lib_path.filepointer_read(configuration.path);
@@ -281,7 +248,7 @@ function main(args : Array<string>) : void {
 				state => (resolve, reject) => {
 					read_json(state.filepointer.filename)(
 						data => {state.project_raw = data; resolve(state);},
-						reject
+						reason => reject(new class_error(`project description file '${state.filepointer.toString()}' couldn't be read`, [reason]))
 					);
 				},
 				// scan dependencies
@@ -315,13 +282,14 @@ function main(args : Array<string>) : void {
 									reject(<Error>(exception));
 								}
 							},
-							reject
+							reason => reject(new class_error("scanning dependencies failed", [reason]))
 						);
 					}
 				},
 				// setup project
 				state => (resolve, reject) => {
-					state.project = class_project.create(state.project_raw); resolve(state);
+					state.project = class_project.create(state.project_raw);
+					resolve(state);
 				},
 				// setup output
 				state => (resolve, reject) => {
@@ -332,11 +300,21 @@ function main(args : Array<string>) : void {
 					};
 					let output : class_target = lib_object.fetch<class_target>(mapping, configuration.output, null, 0);
 					if (output == null) {
-						reject(new class_error("no implementation found for output '" + configuration.output + "'"));
+						reject(new class_error(`no implementation found for output '${configuration.output}'`));
 					}
 					else {
 						state.output = output;
 						resolve(state);
+					}
+				},
+				// setup temp-folder
+				state => (resolve, reject) => {
+					try {
+						configuration.tempfolder = state.output.tempfolder();
+						resolve(state);
+					}
+					catch (exception) {
+						reject(new class_error("couldn't setup temp folder", [exception]));
 					}
 				},
 				// generate
@@ -348,7 +326,7 @@ function main(args : Array<string>) : void {
 						resolve(state);
 					}
 					catch (exception) {
-						reject(<Error>(exception));
+						reject(new class_error("generating build script failed", [exception]));
 					}
 				},
 				// write
@@ -369,14 +347,25 @@ function main(args : Array<string>) : void {
 					else {
 						filepointer = lib_path.filepointer_read(configuration.file);
 					}
+					state.file = filepointer;
 					if (filepointer == null) {
 						(new class_message(state.script)).stdout();
+						resolve(state);
 					}
 					else {
-						_fs.writeFile(filepointer.toString(), state.script);
+						_fs.writeFile(
+							filepointer.toString(),
+							state.script,
+							error => {
+								if (error == null) {
+									resolve(state);
+								}
+								else {
+									reject(new class_error("writing to file failed", [error]));
+								}
+							}
+						);
 					}
-					state.file = filepointer;
-					resolve(state);
 				},
 				// execute
 				state => (resolve, reject) => {
@@ -386,7 +375,7 @@ function main(args : Array<string>) : void {
 					else {
 						state.output.execute(state.file)(
 							result => resolve(state),
-							reject
+							reason => reject(new class_error("execution of build script failed", [reason]))
 						);
 					}
 				},
@@ -394,11 +383,13 @@ function main(args : Array<string>) : void {
 		)(
 			function (state : type_state) : void {
 				// (new class_message("successfull", {"type": "information", "prefix": "koralle"})).stderr();
+				process.exit(0);
 			},
 			function (reason : Error) : void {
 				// throw reason;
-				console.error(reason);
-				(new class_message("an error occured: " + String(reason), {"type": "error", "prefix": "koralle"})).stderr();
+				// console.error(reason);
+				(new class_message(`the following error occured: '${reason.toString()}'`, {"type": "error", "prefix": "koralle"})).stderr();
+				process.exit(-1);
 			}
 		);
 	}

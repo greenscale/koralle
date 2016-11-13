@@ -67,12 +67,12 @@ class class_action_koralle extends class_action_adhoc {
 							parts.push(configuration.invocation.interpreter);
 						}
 						parts.push(configuration.invocation.path);
+						parts.push(this.filepointer_in.as_string(configuration.system));
 						parts.push(`--output=${this.output}`);
 						parts.push(`--system=${configuration.system}`);
 						if (this.raw) {
 							parts.push("--raw");
 						}
-						parts.push(this.filepointer_in.as_string(configuration.system));
 						parts.push(`--file=${this.filepointer_out.as_string(configuration.system)}`);
 						return (parts.join(" "));
 						break;
@@ -95,12 +95,12 @@ class class_action_koralle extends class_action_adhoc {
 						if (this.raw) {
 							args.push(`--raw`);
 						}
-						args.push(this.filepointer_in.as_string("unix"));
 						args.push(`--file=${this.filepointer_out.as_string(configuration.system)}`);
 						return (
 							lib_ant.class_action.macro_exec(
 								{
-									"executable": configuration.invocation.interpreter,
+									"path": this.filepointer_in.as_string("unix"),
+									"interpreter": configuration.invocation.interpreter,
 									"args": args,
 								}
 							)

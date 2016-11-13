@@ -17,6 +17,12 @@ abstract class class_target {
 	/**
 	 * @author fenris
 	 */
+	public abstract tempfolder() : string;
+	
+	
+	/**
+	 * @author fenris
+	 */
 	// public abstract compile_action(action : class_action) : type_result;
 	
 	
@@ -41,7 +47,7 @@ abstract class class_target {
 	/**
 	 * @author fenris
 	 */
-	public abstract execute(filepointer : lib_path.class_filepointer) : lib_call.type_executor<void, Error>;
+	public abstract execute(filepointer : lib_path.class_filepointer, workdir ?: string) : lib_call.type_executor<void, Error>;
 	
 }
 
