@@ -694,67 +694,24 @@ declare var string_contains: typeof lib_string.contains;
 declare var string_startsWith: typeof lib_string.startsWith;
 declare var string_endsWith: typeof lib_string.endsWith;
 declare var string_count_occourrences: typeof lib_string.count_occourrences;
-declare var pattern: RegExp;
-declare var gpattern: RegExp;
-declare function split_format(format: any): {
-    'flags': any;
-    'width': number;
-    'precision': number;
-    'specifier': any;
-    'string': any;
-};
-declare function make_err(format: any, arg: any, should: any): string;
-declare function test_arg(format: any, arg: any, should: any): boolean;
-declare function string_fill(str: any, char: any, len: any, left: any): any;
-/**
- * the known_parameters are used to parse the different identifiers for the welln known syntax:
- *          flag   width   precision   identifier
- *      %{[0#+- ]}{[0-9]*}.{[0-9]*}[fFdiueEgGsoxXaAsn]
- * flags:
- * 0    -   fill with '0' instead of ' ' if the string length < width
- * #    -   not implemented
- * -    -   left-justified -> fill on the right side to reach width
- * +    -   force using '+' on positive numbers
- * ' '  -   add a single space before positive numbers
- *
- * identifiers
- * %f, %F       -   interpret given number as float, width: the minimal total width (fill with ' ' or '0' if the
- *                  resulting string is too short, precision: cut more then given decimal places
- * %d, %i, %u   -   interpret number as integer, decimal places will be cut. width: like float, precision:
- *                  fill with '0' on right side until length given in precision is reached
- * %e           -   interpret as float and write as scientifical number, width & precision like in float
- * %E           -   same es %e but uppercase 'E'
- * %g           -   use the shortest string of %f or %e
- * %G           -   use the shortest string of %E or %E
- * %s           -   simply print a string
- * %o           -   print the given number in octal notation
- * %x           -   print the given number in hex notation
- * %X           -   same as %x but with uppercase characters
- * %a           -   alias to %x
- * %A           -   alias to %X
- * %n           -   just print nothing
- * @type {{}}
- */
-declare var known_params: {};
-declare var decompose: (chain: any, regexp: any) => {
-    "front": any;
-    "match": any;
-    "back": any;
-};
-/**
- * an implementation of c sprintf
- * @param {string} string format string
- * @param {array} args arguments which should be filled into
- * @returns {string}
- */
+declare module lib_string {
+    /**
+     * an implementation of c sprintf
+     * @param {string} string format string
+     * @param {array} args arguments which should be filled into
+     * @returns {string}
+     */
+    var sprintf: (input: string, args?: any[], original?: any) => string;
+    /**
+     * an implementation of c printf
+     * @param {string} string format string
+     * @param {array} args arguments which should be filled into
+     * @returns {string}
+     */
+    function printf(format: any, args: any): void;
+}
 declare var sprintf: (input: string, args?: any[], original?: any) => string;
-/**
- * an implementation of c printf
- * @param {string} string format string
- * @param {array} args arguments which should be filled into
- * @returns {string}
- */
-declare function printf(format: any, args: any): void;
+declare var printf: typeof lib_string.printf;
 declare var global_config: any;
 /**
  * @author neuc

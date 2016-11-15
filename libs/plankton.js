@@ -1608,7 +1608,7 @@ var lib_string;
             throw (new Error("[string_generate] out of valid indices"));
         }
         else {
-            return sprintf(prefix + "%0" + hexdigits.toString() + "X", [index_is++]);
+            return lib_string.sprintf(prefix + "%0" + hexdigits.toString() + "X", [index_is++]);
         }
     }
     lib_string.generate = generate;
@@ -1760,246 +1760,250 @@ var string_contains = lib_string.contains;
 var string_startsWith = lib_string.startsWith;
 var string_endsWith = lib_string.endsWith;
 var string_count_occourrences = lib_string.count_occourrences;
-// module lib_base {
-var pattern = /%([-+#0 ]*)([0-9]*)[\.]{0,1}([0-9]*)([\w]{1})/;
-var gpattern = /%([-+#0 ]*)([0-9]*)[\.]{0,1}([0-9]*)([\w]{1})/g;
-function split_format(format) {
-    var tmp = format.match(pattern);
-    if (tmp === null)
-        return null;
-    return {
-        'flags': tmp[1].split(""),
-        'width': Number(tmp[2]),
-        'precision': tmp[3] === '' ? null : Number(tmp[3]),
-        'specifier': tmp[4],
-        'string': format
+var lib_string;
+(function (lib_string) {
+    var pattern = /%([-+#0 ]*)([0-9]*)[\.]{0,1}([0-9]*)([\w]{1})/;
+    var gpattern = /%([-+#0 ]*)([0-9]*)[\.]{0,1}([0-9]*)([\w]{1})/g;
+    function split_format(format) {
+        var tmp = format.match(pattern);
+        if (tmp === null)
+            return null;
+        return {
+            'flags': tmp[1].split(""),
+            'width': Number(tmp[2]),
+            'precision': tmp[3] === '' ? null : Number(tmp[3]),
+            'specifier': tmp[4],
+            'string': format
+        };
+    }
+    function make_err(format, arg, should) {
+        return ("[sprintf]" + " " + "argument for '" + format.string + "' has to be '" + should + "' but '" + arg + "' is '" + typeof arg + "'!");
+    }
+    function test_arg(format, arg, should) {
+        if (typeof arg !== should) {
+            console.warn(make_err(format, arg, should));
+            return false;
+        }
+        return true;
+    }
+    function string_fill(str, char, len, left) {
+        while (str.length < len) {
+            if (left) {
+                str += char;
+            }
+            else {
+                str = char + str;
+            }
+        }
+        return str;
+    }
+    /**
+     * the known_parameters are used to parse the different identifiers for the welln known syntax:
+     *          flag   width   precision   identifier
+     *      %{[0#+- ]}{[0-9]*}.{[0-9]*}[fFdiueEgGsoxXaAsn]
+     * flags:
+     * 0    -   fill with '0' instead of ' ' if the string length < width
+     * #    -   not implemented
+     * -    -   left-justified -> fill on the right side to reach width
+     * +    -   force using '+' on positive numbers
+     * ' '  -   add a single space before positive numbers
+     *
+     * identifiers
+     * %f, %F       -   interpret given number as float, width: the minimal total width (fill with ' ' or '0' if the
+     *                  resulting string is too short, precision: cut more then given decimal places
+     * %d, %i, %u   -   interpret number as integer, decimal places will be cut. width: like float, precision:
+     *                  fill with '0' on right side until length given in precision is reached
+     * %e           -   interpret as float and write as scientifical number, width & precision like in float
+     * %E           -   same es %e but uppercase 'E'
+     * %g           -   use the shortest string of %f or %e
+     * %G           -   use the shortest string of %E or %E
+     * %s           -   simply print a string
+     * %o           -   print the given number in octal notation
+     * %x           -   print the given number in hex notation
+     * %X           -   same as %x but with uppercase characters
+     * %a           -   alias to %x
+     * %A           -   alias to %X
+     * %n           -   just print nothing
+     * @type {{}}
+     */
+    var known_params = {};
+    known_params["f"] = function (format, arg) {
+        if (!test_arg(format, arg, "number"))
+            return "Ø";
+        var tmp = Math.abs(arg);
+        var sign = (arg < 0) ? -1 : 1;
+        var tmp_result = null;
+        if (format.precision !== null) {
+            tmp = Math.floor(Math.pow(10, format.precision) * tmp) / Math.pow(10, format.precision);
+            var tmp_ = (tmp * sign).toString().split(".");
+            if (tmp_.length === 1)
+                tmp_.push("");
+            tmp_[1] = string_fill(tmp_[1], "0", format.precision, true);
+            tmp_result = tmp_.join(".");
+        }
+        else {
+            tmp_result = (sign * tmp).toString();
+        }
+        if ((format.flags.indexOf(" ") >= 0) && (arg >= 0)) {
+            tmp_result = " " + tmp;
+        }
+        else if ((format.flags.indexOf("+") >= 0) && (arg >= 0)) {
+            tmp_result = "+" + tmp;
+        }
+        tmp_result = string_fill(tmp, (format.flags.indexOf("0") >= 0) ? "0" : " ", format.width, (format.flags.indexOf("-") >= 0));
+        return tmp_result;
     };
-}
-function make_err(format, arg, should) {
-    return ("[sprintf]" + " " + "argument for '" + format.string + "' has to be '" + should + "' but '" + arg + "' is '" + typeof arg + "'!");
-}
-function test_arg(format, arg, should) {
-    if (typeof arg !== should) {
-        console.warn(make_err(format, arg, should));
-        return false;
-    }
-    return true;
-}
-function string_fill(str, char, len, left) {
-    while (str.length < len) {
-        if (left) {
-            str += char;
+    known_params["F"] = known_params["f"];
+    known_params["d"] = function (format, arg) {
+        if (!test_arg(format, arg, 'number'))
+            return 'Ø';
+        var tmp = (((arg < 0 && format.specifier !== 'u') ? -1 : 1) * Math.floor(Math.abs(arg))).toString();
+        if ((format.specifier === 'd' || format.specifier === 'i') && format.flags.indexOf(' ') >= 0 && arg >= 0) {
+            tmp = ' ' + tmp;
+        }
+        else if ((format.specifier === 'd' || format.specifier === 'i') && format.flags.indexOf('+') >= 0 && arg >= 0) {
+            tmp = '+' + tmp;
+        }
+        tmp = string_fill(tmp, format.flags.indexOf('0') >= 0 ? '0' : ' ', format.width, format.flags.indexOf('-') >= 0);
+        tmp = string_fill(tmp, '0', format.precision === null ? 0 : format.precision, false);
+        return tmp;
+    };
+    known_params["i"] = known_params["d"];
+    known_params["u"] = known_params["d"];
+    known_params["e"] = function (format, arg) {
+        if (!test_arg(format, arg, 'number'))
+            return 'Ø';
+        var tmp = arg.toExponential(format.precision === null ? undefined : format.precision).toString();
+        if (format.flags.indexOf(' ') >= 0 && arg >= 0) {
+            tmp = ' ' + tmp;
+        }
+        else if (format.flags.indexOf('+') >= 0 && arg >= 0) {
+            tmp = '+' + tmp;
+        }
+        tmp = string_fill(tmp, format.flags.indexOf('0') >= 0 ? '0' : ' ', format.width, format.flags.indexOf('-') >= 0);
+        return tmp;
+    };
+    known_params["E"] = function (format, arg) {
+        return known_params["e"](format, arg).toUpperCase();
+    };
+    known_params["g"] = function (format, arg) {
+        if (!test_arg(format, arg, 'number'))
+            return 'Ø';
+        var tmpf = known_params["f"](format, arg);
+        var tmpe = known_params["e"](format, arg);
+        if (tmpf.length < tmpe.length) {
+            return tmpf;
         }
         else {
-            str = char + str;
+            return tmpe;
         }
-    }
-    return str;
-}
-/**
- * the known_parameters are used to parse the different identifiers for the welln known syntax:
- *          flag   width   precision   identifier
- *      %{[0#+- ]}{[0-9]*}.{[0-9]*}[fFdiueEgGsoxXaAsn]
- * flags:
- * 0    -   fill with '0' instead of ' ' if the string length < width
- * #    -   not implemented
- * -    -   left-justified -> fill on the right side to reach width
- * +    -   force using '+' on positive numbers
- * ' '  -   add a single space before positive numbers
- *
- * identifiers
- * %f, %F       -   interpret given number as float, width: the minimal total width (fill with ' ' or '0' if the
- *                  resulting string is too short, precision: cut more then given decimal places
- * %d, %i, %u   -   interpret number as integer, decimal places will be cut. width: like float, precision:
- *                  fill with '0' on right side until length given in precision is reached
- * %e           -   interpret as float and write as scientifical number, width & precision like in float
- * %E           -   same es %e but uppercase 'E'
- * %g           -   use the shortest string of %f or %e
- * %G           -   use the shortest string of %E or %E
- * %s           -   simply print a string
- * %o           -   print the given number in octal notation
- * %x           -   print the given number in hex notation
- * %X           -   same as %x but with uppercase characters
- * %a           -   alias to %x
- * %A           -   alias to %X
- * %n           -   just print nothing
- * @type {{}}
- */
-var known_params = {};
-known_params["f"] = function (format, arg) {
-    if (!test_arg(format, arg, "number"))
-        return "Ø";
-    var tmp = Math.abs(arg);
-    var sign = (arg < 0) ? -1 : 1;
-    var tmp_result = null;
-    if (format.precision !== null) {
-        tmp = Math.floor(Math.pow(10, format.precision) * tmp) / Math.pow(10, format.precision);
-        var tmp_ = (tmp * sign).toString().split(".");
-        if (tmp_.length === 1)
-            tmp_.push("");
-        tmp_[1] = string_fill(tmp_[1], "0", format.precision, true);
-        tmp_result = tmp_.join(".");
-    }
-    else {
-        tmp_result = (sign * tmp).toString();
-    }
-    if ((format.flags.indexOf(" ") >= 0) && (arg >= 0)) {
-        tmp_result = " " + tmp;
-    }
-    else if ((format.flags.indexOf("+") >= 0) && (arg >= 0)) {
-        tmp_result = "+" + tmp;
-    }
-    tmp_result = string_fill(tmp, (format.flags.indexOf("0") >= 0) ? "0" : " ", format.width, (format.flags.indexOf("-") >= 0));
-    return tmp_result;
-};
-known_params["F"] = known_params["f"];
-known_params["d"] = function (format, arg) {
-    if (!test_arg(format, arg, 'number'))
-        return 'Ø';
-    var tmp = (((arg < 0 && format.specifier !== 'u') ? -1 : 1) * Math.floor(Math.abs(arg))).toString();
-    if ((format.specifier === 'd' || format.specifier === 'i') && format.flags.indexOf(' ') >= 0 && arg >= 0) {
-        tmp = ' ' + tmp;
-    }
-    else if ((format.specifier === 'd' || format.specifier === 'i') && format.flags.indexOf('+') >= 0 && arg >= 0) {
-        tmp = '+' + tmp;
-    }
-    tmp = string_fill(tmp, format.flags.indexOf('0') >= 0 ? '0' : ' ', format.width, format.flags.indexOf('-') >= 0);
-    tmp = string_fill(tmp, '0', format.precision === null ? 0 : format.precision, false);
-    return tmp;
-};
-known_params["i"] = known_params["d"];
-known_params["u"] = known_params["d"];
-known_params["e"] = function (format, arg) {
-    if (!test_arg(format, arg, 'number'))
-        return 'Ø';
-    var tmp = arg.toExponential(format.precision === null ? undefined : format.precision).toString();
-    if (format.flags.indexOf(' ') >= 0 && arg >= 0) {
-        tmp = ' ' + tmp;
-    }
-    else if (format.flags.indexOf('+') >= 0 && arg >= 0) {
-        tmp = '+' + tmp;
-    }
-    tmp = string_fill(tmp, format.flags.indexOf('0') >= 0 ? '0' : ' ', format.width, format.flags.indexOf('-') >= 0);
-    return tmp;
-};
-known_params["E"] = function (format, arg) {
-    return known_params["e"](format, arg).toUpperCase();
-};
-known_params["g"] = function (format, arg) {
-    if (!test_arg(format, arg, 'number'))
-        return 'Ø';
-    var tmpf = known_params["f"](format, arg);
-    var tmpe = known_params["e"](format, arg);
-    if (tmpf.length < tmpe.length) {
-        return tmpf;
-    }
-    else {
-        return tmpe;
-    }
-};
-known_params["G"] = function (format, arg) {
-    return known_params["g"](format, arg).toUpperCase();
-};
-known_params["s"] = function (format, arg) {
-    if (!test_arg(format, arg, 'string'))
-        return 'o.O';
-    var tmp = format.precision !== null ? arg.substr(0, format.precision) : arg;
-    tmp = string_fill(tmp, format.flags.indexOf('0') >= 0 ? '0' : ' ', format.width, format.flags.indexOf('-') >= 0);
-    return tmp;
-};
-known_params["o"] = function (format, arg) {
-    if (!test_arg(format, arg, 'number'))
-        return 'Ø';
-    var tmp = Math.floor(Math.round(Math.abs(arg))) * ((arg < 0) ? -1 : 1);
-    return known_params["s"](format, tmp.toString(8));
-};
-known_params["x"] = function (format, arg) {
-    if (!test_arg(format, arg, 'number'))
-        return 'Ø';
-    var tmp = Math.floor(Math.round(Math.abs(arg))) * ((arg < 0) ? -1 : 1);
-    return known_params["s"](format, tmp.toString(16));
-};
-known_params["a"] = known_params["x"];
-known_params["X"] = function (format, arg) {
-    if (!test_arg(format, arg, 'number'))
-        return 'Ø';
-    return known_params["x"](format, arg).toUpperCase();
-};
-known_params["A"] = known_params["X"];
-known_params["c"] = function (format, arg) {
-    var tmp = "";
-    if (typeof arg === "number") {
-        tmp = String.fromCharCode(arg);
-    }
-    else if ((typeof arg === "string") && (arg.length === 1)) {
-        tmp = arg[0];
-    }
-    else {
-        console.warn(make_err(format, arg, "number|string") + " and if string it needs to have the length of 1!");
-    }
-    return known_params["s"](format, tmp);
-};
-known_params["n"] = function () {
-    return "";
-};
-var decompose = function (chain, regexp) {
-    var result = regexp.exec(chain);
-    if (result == null) {
-        return null;
-    }
-    else {
-        var front = chain.substring(0, result.index);
-        var back = chain.substring(result.index + result[0].length);
-        return { "front": front, "match": result[0], "back": back };
-    }
-};
-/**
- * an implementation of c sprintf
- * @param {string} string format string
- * @param {array} args arguments which should be filled into
- * @returns {string}
- */
-/*export*/ var sprintf = function (input, args, original) {
-    if (args === void 0) { args = []; }
-    if (original === void 0) { original = null; }
-    if (original == null)
-        original = input;
-    var components = decompose(input, pattern);
-    if (components == null) {
-        if (args.length > 0) {
-            console.warn("[sprintf] superfluous arguments while formatting '" + original + "': ", args);
+    };
+    known_params["G"] = function (format, arg) {
+        return known_params["g"](format, arg).toUpperCase();
+    };
+    known_params["s"] = function (format, arg) {
+        if (!test_arg(format, arg, 'string'))
+            return 'o.O';
+        var tmp = format.precision !== null ? arg.substr(0, format.precision) : arg;
+        tmp = string_fill(tmp, format.flags.indexOf('0') >= 0 ? '0' : ' ', format.width, format.flags.indexOf('-') >= 0);
+        return tmp;
+    };
+    known_params["o"] = function (format, arg) {
+        if (!test_arg(format, arg, 'number'))
+            return 'Ø';
+        var tmp = Math.floor(Math.round(Math.abs(arg))) * ((arg < 0) ? -1 : 1);
+        return known_params["s"](format, tmp.toString(8));
+    };
+    known_params["x"] = function (format, arg) {
+        if (!test_arg(format, arg, 'number'))
+            return 'Ø';
+        var tmp = Math.floor(Math.round(Math.abs(arg))) * ((arg < 0) ? -1 : 1);
+        return known_params["s"](format, tmp.toString(16));
+    };
+    known_params["a"] = known_params["x"];
+    known_params["X"] = function (format, arg) {
+        if (!test_arg(format, arg, 'number'))
+            return 'Ø';
+        return known_params["x"](format, arg).toUpperCase();
+    };
+    known_params["A"] = known_params["X"];
+    known_params["c"] = function (format, arg) {
+        var tmp = "";
+        if (typeof arg === "number") {
+            tmp = String.fromCharCode(arg);
         }
-        return input;
-    }
-    else {
-        var arg;
-        var rest;
-        if (args.length > 0) {
-            arg = args[0];
-            rest = args.slice(1);
+        else if ((typeof arg === "string") && (arg.length === 1)) {
+            tmp = arg[0];
         }
         else {
-            console.warn("[sprintf] out of arguments while formatting '" + original + "'");
-            arg = null;
-            rest = [];
+            console.warn(make_err(format, arg, "number|string") + " and if string it needs to have the length of 1!");
+        }
+        return known_params["s"](format, tmp);
+    };
+    known_params["n"] = function () {
+        return "";
+    };
+    var decompose = function (chain, regexp) {
+        var result = regexp.exec(chain);
+        if (result == null) {
+            return null;
+        }
+        else {
+            var front = chain.substring(0, result.index);
+            var back = chain.substring(result.index + result[0].length);
+            return { "front": front, "match": result[0], "back": back };
+        }
+    };
+    /**
+     * an implementation of c sprintf
+     * @param {string} string format string
+     * @param {array} args arguments which should be filled into
+     * @returns {string}
+     */
+    lib_string.sprintf = function (input, args, original) {
+        if (args === void 0) { args = []; }
+        if (original === void 0) { original = null; }
+        if (original == null)
+            original = input;
+        var components = decompose(input, pattern);
+        if (components == null) {
+            if (args.length > 0) {
+                console.warn("[sprintf] superfluous arguments while formatting '" + original + "': ", args);
+            }
             return input;
         }
-        var fmt = split_format(components["match"]);
-        return (components["front"]
-            + known_params[fmt.specifier](fmt, arg)
-            + sprintf(components["back"], rest, original));
+        else {
+            var arg;
+            var rest;
+            if (args.length > 0) {
+                arg = args[0];
+                rest = args.slice(1);
+            }
+            else {
+                console.warn("[sprintf] out of arguments while formatting '" + original + "'");
+                arg = null;
+                rest = [];
+                return input;
+            }
+            var fmt = split_format(components["match"]);
+            return (components["front"]
+                + known_params[fmt.specifier](fmt, arg)
+                + lib_string.sprintf(components["back"], rest, original));
+        }
+    };
+    /**
+     * an implementation of c printf
+     * @param {string} string format string
+     * @param {array} args arguments which should be filled into
+     * @returns {string}
+     */
+    function printf(format, args) {
+        console.log(lib_string.sprintf(format, args));
     }
-};
-/**
- * an implementation of c printf
- * @param {string} string format string
- * @param {array} args arguments which should be filled into
- * @returns {string}
- */
-/*export*/ function printf(format, args) {
-    console.log(sprintf(format, args));
-}
-// }
+    lib_string.printf = printf;
+})(lib_string || (lib_string = {}));
+var sprintf = lib_string.sprintf;
+var printf = lib_string.printf;
 /**
  * @author neuc
  */
