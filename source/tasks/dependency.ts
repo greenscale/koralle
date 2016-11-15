@@ -30,6 +30,9 @@ class class_task_dependency extends class_task {
 			};
 		}
 	) {
+		if (path_raw == undefined) {
+			throw (new Error(class_task.errormessage_mandatoryparamater("dependency", name, "path")));
+		}
 		let path : lib_path.class_filepointer = lib_call.use(
 			path_raw,
 			x => ((x == null) ? null : lib_path.filepointer_read(x))

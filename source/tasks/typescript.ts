@@ -13,8 +13,8 @@ class class_task_typescript extends class_task {
 			"sub": sub,
 			"active": active,
 			"parameters": {
-				"inputs": inputs = [],
-				"output": output = null,
+				"inputs": inputs_raw = [],
+				"output": output_raw = null,
 				"target": target = null,
 				"allowUnreachableCode": allowUnreachableCode = null,
 				"declaration": declaration = null,
@@ -32,25 +32,28 @@ class class_task_typescript extends class_task {
 			}
 		}
 	) {
-		let inputs_ : Array<lib_path.class_filepointer> = lib_call.use(
-			inputs,
+		let inputs : Array<lib_path.class_filepointer> = lib_call.use(
+			inputs_raw,
 			x => x.map(y => lib_path.filepointer_read(y))
 		);
-		let output_ : lib_path.class_filepointer = lib_call.use(
-			output,
+		if (output_raw == undefined) {
+			throw (new Error(class_task.errormessage_mandatoryparamater("typescript", name, "output")));
+		}
+		let output : lib_path.class_filepointer = lib_call.use(
+			output_raw,
 			x => lib_path.filepointer_read(x)
 		);
 		super(
 			name, sub, active,
-			inputs_,
-			[output_],
+			inputs,
+			[output],
 			[
 				new class_action_mkdir(
-					output_.location
+					output.location
 				),
 				new class_action_tsc(
-					inputs_,
-					output_,
+					inputs,
+					output,
 					target,
 					allowUnreachableCode,
 					declaration

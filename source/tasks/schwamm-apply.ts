@@ -13,8 +13,8 @@ class class_task_schwamm_apply extends class_task {
 			"sub": sub,
 			"active": active,
 			"parameters": {
-				"path" : path,
-				"outputs" : outputs = null,
+				"path" : path_raw,
+				"outputs" : outputs_raw = null,
 			}
 		} : {
 			name ?: string;
@@ -26,22 +26,25 @@ class class_task_schwamm_apply extends class_task {
 			}
 		}
 	) {
-		let path_ : lib_path.class_filepointer = lib_call.use(
-			path,
+		let path : lib_path.class_filepointer = lib_call.use(
+			path_raw,
 			x => lib_path.filepointer_read(x)
 		);
-		let outputs_ : {[group : string] : lib_path.class_filepointer} = lib_call.use(
-			outputs,
+		if (outputs_raw == undefined) {
+			throw (new Error(class_task.errormessage_mandatoryparamater("schamm-apply", name, "outputs")));
+		}
+		let outputs : {[group : string] : lib_path.class_filepointer} = lib_call.use(
+			outputs_raw,
 			x => lib_object.map<string, lib_path.class_filepointer>(x, output => lib_path.filepointer_read(output))
 		);
 		super(
 			name, sub, active,
-			[path_],
-			lib_object.to_array(outputs_).map(x => x.value),
+			[path],
+			lib_object.to_array(outputs).map(x => x.value),
 			(
 				[]
 				.concat(
-					lib_object.to_array(outputs_).map(
+					lib_object.to_array(outputs).map(
 						pair => new class_action_mkdir(
 							pair.value.location
 						),
@@ -50,8 +53,8 @@ class class_task_schwamm_apply extends class_task {
 				.concat(
 					[
 						new class_action_schwamm_apply(
-							path_,
-							outputs_
+							path,
+							outputs
 						),
 					]
 				)

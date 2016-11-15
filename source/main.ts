@@ -244,6 +244,32 @@ function main(args : Array<string>) : void {
 					state.filepointer = filepointer;
 					resolve(state);
 				},
+				// setup output
+				state => (resolve, reject) => {
+					let mapping : {[name : string] : class_target} = {
+						"ant": new class_target_ant(),
+						"gnumake": new class_target_gnumake(),
+						"make": new class_target_gnumake(),
+					};
+					let output : class_target = lib_object.fetch<class_target>(mapping, configuration.output, null, 0);
+					if (output == null) {
+						reject(new class_error(`no implementation found for output '${configuration.output}'`));
+					}
+					else {
+						state.output = output;
+						resolve(state);
+					}
+				},
+				// setup temp-folder
+				state => (resolve, reject) => {
+					try {
+						configuration.tempfolder = state.output.tempfolder();
+						resolve(state);
+					}
+					catch (exception) {
+						reject(new class_error("couldn't setup temp folder", [exception]));
+					}
+				},
 				// get jsondata
 				state => (resolve, reject) => {
 					lib_file.read_json(state.filepointer.filename)(
@@ -290,32 +316,6 @@ function main(args : Array<string>) : void {
 				state => (resolve, reject) => {
 					state.project = class_project.create(state.project_raw);
 					resolve(state);
-				},
-				// setup output
-				state => (resolve, reject) => {
-					let mapping : {[name : string] : class_target} = {
-						"ant": new class_target_ant(),
-						"gnumake": new class_target_gnumake(),
-						"make": new class_target_gnumake(),
-					};
-					let output : class_target = lib_object.fetch<class_target>(mapping, configuration.output, null, 0);
-					if (output == null) {
-						reject(new class_error(`no implementation found for output '${configuration.output}'`));
-					}
-					else {
-						state.output = output;
-						resolve(state);
-					}
-				},
-				// setup temp-folder
-				state => (resolve, reject) => {
-					try {
-						configuration.tempfolder = state.output.tempfolder();
-						resolve(state);
-					}
-					catch (exception) {
-						reject(new class_error("couldn't setup temp folder", [exception]));
-					}
 				},
 				// generate
 				state => (resolve, reject) => {

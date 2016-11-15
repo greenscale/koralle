@@ -7,70 +7,54 @@ class class_task_empty extends class_task {
 	/**
 	 * @author fenris
 	 */
-	protected output_ : lib_path.class_filepointer;
-	
-	
-	/**
-	 * @author fenris
-	 */
-	constructor(
-		name : string = null,
-		sub : Array<class_task> = [],
-		active : boolean = true,
-		output_ : lib_path.class_filepointer = null
+	public constructor(
+		{
+			"name": name,
+			"sub": sub,
+			"active": active,
+			"parameters": {
+				"output": output_raw = undefined,
+			},
+		} : {
+			name ?: string;
+			sub ?: Array<class_task>;
+			active ?: boolean;
+			parameters ?: {
+				output ?: string;
+			};
+		}
 	) {
-		super(name, sub, active);
-		this.output_ = output_;
-	}
-	
-	
-	/**
-	 * @author fenris
-	 */
-	public static create(name : string, sub : Array<class_task>, active : boolean, parameters : Object) : class_task_empty {
-		return (
-			new class_task_empty(
-				name, sub, active,
-				lib_path.filepointer_read(object_fetch<string>(parameters, "output", null, 2))
-			)
+		if (output_raw == undefined) {
+			throw (new Error(class_task.errormessage_mandatoryparamater("empty", name, "output")));
+		}
+		let output : lib_path.class_filepointer = lib_call.use(
+			output_raw,
+			x => lib_path.filepointer_read(x)
 		);
-	}
-	
-	
-	/**
-	 * @override
-	 * @author fenris
-	 */
-	public inputs() : Array<lib_path.class_filepointer> {
-		return [];
-	}
-	
-	
-	/**
-	 * @override
-	 * @author fenris
-	 */
-	public outputs() : Array<lib_path.class_filepointer> {
-		return [this.output_];
-	}
-	
-	
-	/**
-	 * @override
-	 * @author fenris
-	 */
-	public actions() : Array<class_action> {
-		return [
-			new class_action_mkdir(
-				this.output_.location
-			),
-			new class_action_touch(
-				this.output_
-			),
-		];
+		super(
+			name, sub, active,
+			[],
+			[output],
+			[
+				new class_action_mkdir(
+					output.location
+				),
+				new class_action_touch(
+					output
+				),
+			]
+		);
 	}
 	
 }
 
-class_task.register("empty", /*(name, sub, active, parameters) => */class_task_empty.create/*(name, sub, active, parameters)*/);
+class_task.register(
+	"empty",
+	(name, sub, active, parameters) => new class_task_empty(
+		{
+			"name": name, "sub": sub, "active": active,
+			"parameters": parameters,
+		}
+	)
+);
 
