@@ -1,16 +1,6 @@
 {
 	"name": "koralle",
 	"version": "0.0.6",
-	"dependencies": [
-		"../plankton/base/project.json",
-		"../plankton/call/project.json",
-		"../plankton/string/project.json",
-		"../plankton/xml/project.json",
-		"../plankton/object/project.json",
-		"../plankton/path/project.json",
-		"../plankton/file/project.json",
-		"../plankton/args/project.json"
-	],
 	"roottask": {
 		"active": true,
 		"name": "all",
@@ -18,40 +8,26 @@
 		"sub": [
 			{
 				"active": true,
-				"name": "logic-link",
+				"name": "link",
 				"type": "concat",
 				"parameters": {
 					"inputs": [
-						"../plankton/base/build/logic.js",
-						"../plankton/call/build/logic.js",
-						"../plankton/string/build/logic.js",
-						"../plankton/xml/build/logic.js",
-						"../plankton/object/build/logic.js",
-						"../plankton/path/build/logic.js",
-						"../plankton/file/build/logic.js",
-						"../plankton/args/build/logic.js",
 						"source/disclaimer.js",
-						"temp/koralle.js"
+						"libs/plankton.js",
+						"temp/unlinked.js"
 					],
 					"output": "build/koralle.js"
 				},
 				"sub": [
 					{
 						"active": true,
-						"name": "logic-compile",
+						"name": "build",
 						"type": "typescript",
 						"parameters": {
 							"output": "ES5",
 							"allowUnreachableCode": true,
 							"inputs": [
-								"../plankton/base/build/logic.d.ts",
-								"../plankton/call/build/logic.d.ts",
-								"../plankton/string/build/logic.d.ts",
-								"../plankton/xml/build/logic.d.ts",
-								"../plankton/object/build/logic.d.ts",
-								"../plankton/path/build/logic.d.ts",
-								"../plankton/file/build/logic.d.ts",
-								"../plankton/args/build/logic.d.ts",
+								"libs/plankton.d.ts",
 								"source/base.ts",
 								"source/helpers/message.ts",
 								"source/helpers/cliout.ts",
@@ -96,7 +72,7 @@
 								"source/project.ts",
 								"source/main.ts"
 							],
-							"output": "temp/koralle.js"
+							"output": "temp/unlinked.js"
 						}
 					}
 				]

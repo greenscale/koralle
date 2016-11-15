@@ -1,7 +1,4 @@
 
-///<reference path="../../../plankton/object/build/logic.d.ts"/>
-
-
 /**
  * @author fenris
  */

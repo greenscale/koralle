@@ -2,7 +2,7 @@
 /**
  * @author fenris
  */
-abstract class class_action_build extends class_action_adhoc {
+abstract class class_action_build extends class_action {
 	
 	/**
 	 * @author fenris

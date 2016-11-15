@@ -26,6 +26,9 @@ class class_task_schwamm_apply extends class_task {
 			}
 		}
 	) {
+		if (path_raw == undefined) {
+			throw (new Error(class_task.errormessage_mandatoryparamater("schamm-apply", name, "path")));
+		}
 		let path : lib_path.class_filepointer = lib_call.use(
 			path_raw,
 			x => lib_path.filepointer_read(x)

@@ -1,6 +1,4 @@
 
-///<reference path="../../plankton/call/build/logic.d.ts"/>
-
 
 /**
  * scans a project and its subprojects and constructs a dependency-graph
