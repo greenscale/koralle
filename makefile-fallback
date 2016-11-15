@@ -11,7 +11,7 @@ __dependencies: __dependency_0 __dependency_1 __dependency_2 __dependency_3 __de
 .PHONY: __dependencies
 
 __dependency_0: __logging___dependency_0
-	@ koralle --output=gnumake --system=unix --raw ../plankton/base/project.json --file=/tmp/makefile
+	@ /home/fenris/programme/nodejs/bin/node /home/fenris/programme/koralle/koralle.js ../plankton/base/project.json --output=gnumake --system=unix --raw --file=/tmp/makefile
 	@ make --no-print-directory --directory=../plankton/base/ --file=/tmp/makefile
 .PHONY: __dependency_0
 
@@ -20,7 +20,7 @@ __logging___dependency_0:
 .PHONY: __logging___dependency_0
 
 __dependency_1: __logging___dependency_1
-	@ koralle --output=gnumake --system=unix --raw ../plankton/call/project.json --file=/tmp/makefile
+	@ /home/fenris/programme/nodejs/bin/node /home/fenris/programme/koralle/koralle.js ../plankton/call/project.json --output=gnumake --system=unix --raw --file=/tmp/makefile
 	@ make --no-print-directory --directory=../plankton/call/ --file=/tmp/makefile
 .PHONY: __dependency_1
 
@@ -29,7 +29,7 @@ __logging___dependency_1:
 .PHONY: __logging___dependency_1
 
 __dependency_2: __logging___dependency_2
-	@ koralle --output=gnumake --system=unix --raw ../plankton/string/project.json --file=/tmp/makefile
+	@ /home/fenris/programme/nodejs/bin/node /home/fenris/programme/koralle/koralle.js ../plankton/string/project.json --output=gnumake --system=unix --raw --file=/tmp/makefile
 	@ make --no-print-directory --directory=../plankton/string/ --file=/tmp/makefile
 .PHONY: __dependency_2
 
@@ -38,7 +38,7 @@ __logging___dependency_2:
 .PHONY: __logging___dependency_2
 
 __dependency_3: __logging___dependency_3
-	@ koralle --output=gnumake --system=unix --raw ../plankton/xml/project.json --file=/tmp/makefile
+	@ /home/fenris/programme/nodejs/bin/node /home/fenris/programme/koralle/koralle.js ../plankton/xml/project.json --output=gnumake --system=unix --raw --file=/tmp/makefile
 	@ make --no-print-directory --directory=../plankton/xml/ --file=/tmp/makefile
 .PHONY: __dependency_3
 
@@ -47,7 +47,7 @@ __logging___dependency_3:
 .PHONY: __logging___dependency_3
 
 __dependency_4: __logging___dependency_4
-	@ koralle --output=gnumake --system=unix --raw ../plankton/object/project.json --file=/tmp/makefile
+	@ /home/fenris/programme/nodejs/bin/node /home/fenris/programme/koralle/koralle.js ../plankton/object/project.json --output=gnumake --system=unix --raw --file=/tmp/makefile
 	@ make --no-print-directory --directory=../plankton/object/ --file=/tmp/makefile
 .PHONY: __dependency_4
 
@@ -56,7 +56,7 @@ __logging___dependency_4:
 .PHONY: __logging___dependency_4
 
 __dependency_5: __logging___dependency_5
-	@ koralle --output=gnumake --system=unix --raw ../plankton/path/project.json --file=/tmp/makefile
+	@ /home/fenris/programme/nodejs/bin/node /home/fenris/programme/koralle/koralle.js ../plankton/path/project.json --output=gnumake --system=unix --raw --file=/tmp/makefile
 	@ make --no-print-directory --directory=../plankton/path/ --file=/tmp/makefile
 .PHONY: __dependency_5
 
@@ -65,7 +65,7 @@ __logging___dependency_5:
 .PHONY: __logging___dependency_5
 
 __dependency_6: __logging___dependency_6
-	@ koralle --output=gnumake --system=unix --raw ../plankton/args/project.json --file=/tmp/makefile
+	@ /home/fenris/programme/nodejs/bin/node /home/fenris/programme/koralle/koralle.js ../plankton/args/project.json --output=gnumake --system=unix --raw --file=/tmp/makefile
 	@ make --no-print-directory --directory=../plankton/args/ --file=/tmp/makefile
 .PHONY: __dependency_6
 
@@ -101,9 +101,9 @@ __logging_logic-compile:
 	@ echo "		[log] <koralle> processing 'logic-compile' ..."
 .PHONY: __logging_logic-compile
 
-temp/koralle.js: ../plankton/base/build/logic.d.ts ../plankton/call/build/logic.d.ts ../plankton/string/build/logic.d.ts ../plankton/xml/build/logic.d.ts ../plankton/object/build/logic.d.ts ../plankton/path/build/logic.d.ts ../plankton/args/build/logic.d.ts source/base.ts source/helpers/message.ts source/helpers/cliout.ts source/helpers/graph.ts source/helpers/gnumake.ts source/helpers/ant.ts source/helpers/misc.ts source/actions/action.ts source/actions/action_exec.ts source/actions/action_echo.ts source/actions/action_koralle.ts source/actions/action_build.ts source/actions/action_gnumake.ts source/actions/action_ant.ts source/actions/action_mkdir.ts source/actions/action_touch.ts source/actions/action_copy.ts source/actions/action_concat.ts source/actions/action_lessc.ts source/actions/action_babel.ts source/actions/action_tsc.ts source/actions/action_php.ts source/actions/action_gitpull.ts source/actions/action_schwamm-create.ts source/actions/action_schwamm-apply.ts source/tasks/task.ts source/tasks/task_group.ts source/tasks/task_dependency.ts source/tasks/task_script.ts source/tasks/task_empty.ts source/tasks/task_copy.ts source/tasks/task_concat.ts source/tasks/task_lesscss.ts source/tasks/task_babel.ts source/tasks/task_typescript.ts source/tasks/task_php.ts source/tasks/task_schwamm-create.ts source/tasks/task_schwamm-apply.ts source/outputs/output.ts source/outputs/output_regular.ts source/outputs/output_ant.ts source/outputs/output_gnumake.ts source/project.ts source/main.ts
+temp/koralle.js: ../plankton/base/build/logic.d.ts ../plankton/call/build/logic.d.ts ../plankton/string/build/logic.d.ts ../plankton/xml/build/logic.d.ts ../plankton/object/build/logic.d.ts ../plankton/path/build/logic.d.ts ../plankton/args/build/logic.d.ts source/base.ts source/helpers/message.ts source/helpers/cliout.ts source/helpers/graph.ts source/helpers/gnumake.ts source/helpers/ant.ts source/helpers/misc.ts source/actions/action.ts source/actions/exec.ts source/actions/echo.ts source/actions/koralle.ts source/actions/build.ts source/actions/gnumake.ts source/actions/ant.ts source/actions/mkdir.ts source/actions/touch.ts source/actions/copy.ts source/actions/concat.ts source/actions/lessc.ts source/actions/babel.ts source/actions/tsc.ts source/actions/php.ts source/actions/gitpull.ts source/actions/schwamm-create.ts source/actions/schwamm-apply.ts source/tasks/task.ts source/tasks/group.ts source/tasks/dependency.ts source/tasks/script.ts source/tasks/empty.ts source/tasks/copy.ts source/tasks/concat.ts source/tasks/lesscss.ts source/tasks/babel.ts source/tasks/typescript.ts source/tasks/php.ts source/tasks/schwamm-create.ts source/tasks/schwamm-apply.ts source/outputs/output.ts source/outputs/regular.ts source/outputs/ant.ts source/outputs/gnumake.ts source/project.ts source/main.ts
 	@ mkdir -p temp/
-	@ tsc --allowUnreachableCode  ../plankton/base/build/logic.d.ts ../plankton/call/build/logic.d.ts ../plankton/string/build/logic.d.ts ../plankton/xml/build/logic.d.ts ../plankton/object/build/logic.d.ts ../plankton/path/build/logic.d.ts ../plankton/args/build/logic.d.ts source/base.ts source/helpers/message.ts source/helpers/cliout.ts source/helpers/graph.ts source/helpers/gnumake.ts source/helpers/ant.ts source/helpers/misc.ts source/actions/action.ts source/actions/action_exec.ts source/actions/action_echo.ts source/actions/action_koralle.ts source/actions/action_build.ts source/actions/action_gnumake.ts source/actions/action_ant.ts source/actions/action_mkdir.ts source/actions/action_touch.ts source/actions/action_copy.ts source/actions/action_concat.ts source/actions/action_lessc.ts source/actions/action_babel.ts source/actions/action_tsc.ts source/actions/action_php.ts source/actions/action_gitpull.ts source/actions/action_schwamm-create.ts source/actions/action_schwamm-apply.ts source/tasks/task.ts source/tasks/task_group.ts source/tasks/task_dependency.ts source/tasks/task_script.ts source/tasks/task_empty.ts source/tasks/task_copy.ts source/tasks/task_concat.ts source/tasks/task_lesscss.ts source/tasks/task_babel.ts source/tasks/task_typescript.ts source/tasks/task_php.ts source/tasks/task_schwamm-create.ts source/tasks/task_schwamm-apply.ts source/outputs/output.ts source/outputs/output_regular.ts source/outputs/output_ant.ts source/outputs/output_gnumake.ts source/project.ts source/main.ts --outFile temp/koralle.js
+	@ tsc --allowUnreachableCode  ../plankton/base/build/logic.d.ts ../plankton/call/build/logic.d.ts ../plankton/string/build/logic.d.ts ../plankton/xml/build/logic.d.ts ../plankton/object/build/logic.d.ts ../plankton/path/build/logic.d.ts ../plankton/args/build/logic.d.ts source/base.ts source/helpers/message.ts source/helpers/cliout.ts source/helpers/graph.ts source/helpers/gnumake.ts source/helpers/ant.ts source/helpers/misc.ts source/actions/action.ts source/actions/exec.ts source/actions/echo.ts source/actions/koralle.ts source/actions/build.ts source/actions/gnumake.ts source/actions/ant.ts source/actions/mkdir.ts source/actions/touch.ts source/actions/copy.ts source/actions/concat.ts source/actions/lessc.ts source/actions/babel.ts source/actions/tsc.ts source/actions/php.ts source/actions/gitpull.ts source/actions/schwamm-create.ts source/actions/schwamm-apply.ts source/tasks/task.ts source/tasks/group.ts source/tasks/dependency.ts source/tasks/script.ts source/tasks/empty.ts source/tasks/copy.ts source/tasks/concat.ts source/tasks/lesscss.ts source/tasks/babel.ts source/tasks/typescript.ts source/tasks/php.ts source/tasks/schwamm-create.ts source/tasks/schwamm-apply.ts source/outputs/output.ts source/outputs/regular.ts source/outputs/ant.ts source/outputs/gnumake.ts source/project.ts source/main.ts --outFile temp/koralle.js
 
 documentation: __logging_documentation jsdoc diagram
 .PHONY: documentation
@@ -121,7 +121,7 @@ __logging_jsdoc:
 
 documentation/generated: build/koralle.js
 	@ mkdir -p documentation/
-	@ /bin/bash tools/jsdoc.sh build/koralle.js documentation/generated
+	@ /bin/bash tools/jsdoc.sh 'build/koralle.js' 'documentation/generated'
 
 diagram: __logging_diagram documentation/structure/structure.svg
 .PHONY: diagram
@@ -132,5 +132,5 @@ __logging_diagram:
 
 documentation/structure/structure.svg: documentation/structure/structure.gv
 	@ mkdir -p documentation/structure/
-	@ /bin/bash tools/graphviz.sh documentation/structure/structure.gv documentation/structure/structure.svg
+	@ /bin/bash tools/graphviz.sh 'documentation/structure/structure.gv' 'documentation/structure/structure.svg'
 

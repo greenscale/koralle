@@ -36,7 +36,7 @@ function scan(
 				lib_object.fetch<Array<string>>(data, "dependencies", [], 0).map(
 					path => graph_ => (resolve__, reject__) => {
 						let filepointer_ : lib_path.class_filepointer = filepointer.foo(lib_path.filepointer_read(path));
-						read_json(filepointer_.toString())(
+						lib_file.read_json(filepointer_.toString())(
 							data_ => {
 								scan(filepointer_, data_, graph_, depth+1)(
 									graph_ => {
@@ -246,7 +246,7 @@ function main(args : Array<string>) : void {
 				},
 				// get jsondata
 				state => (resolve, reject) => {
-					read_json(state.filepointer.filename)(
+					lib_file.read_json(state.filepointer.filename)(
 						data => {state.project_raw = data; resolve(state);},
 						reason => reject(new class_error(`project description file '${state.filepointer.toString()}' couldn't be read`, [reason]))
 					);

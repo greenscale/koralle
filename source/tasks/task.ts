@@ -70,7 +70,7 @@ abstract class class_task {
 		_outputs : Array<lib_path.class_filepointer> = [],
 		_actions : Array<class_action> = []
 	) {
-		this.identifier = genid("task_");
+		this.identifier = lib_string.generate("task_");
 		this.name = ((name != null) ? name : this.identifier);
 		this.sub = sub;
 		this.active = active;
