@@ -7,7 +7,7 @@ __default: __root
 __root: __dependencies __core
 .PHONY: __root
 
-__dependencies: __dependency_0 __dependency_1 __dependency_2 __dependency_3 __dependency_4 __dependency_5 __dependency_6
+__dependencies: __dependency_0 __dependency_1 __dependency_2 __dependency_3 __dependency_4 __dependency_5 __dependency_6 __dependency_7
 .PHONY: __dependencies
 
 __dependency_0: __logging___dependency_0
@@ -65,13 +65,22 @@ __logging___dependency_5:
 .PHONY: __logging___dependency_5
 
 __dependency_6: __logging___dependency_6
-	@ /home/fenris/programme/nodejs/bin/node /home/fenris/programme/koralle/koralle.js ../plankton/args/project.json --output=gnumake --system=unix --raw --file=/tmp/makefile
-	@ make --no-print-directory --directory=../plankton/args/ --file=/tmp/makefile
+	@ /home/fenris/programme/nodejs/bin/node /home/fenris/programme/koralle/koralle.js ../plankton/file/project.json --output=gnumake --system=unix --raw --file=/tmp/makefile
+	@ make --no-print-directory --directory=../plankton/file/ --file=/tmp/makefile
 .PHONY: __dependency_6
 
 __logging___dependency_6:
 	@ echo "[log] processing '__dependency_6' ..."
 .PHONY: __logging___dependency_6
+
+__dependency_7: __logging___dependency_7
+	@ /home/fenris/programme/nodejs/bin/node /home/fenris/programme/koralle/koralle.js ../plankton/args/project.json --output=gnumake --system=unix --raw --file=/tmp/makefile
+	@ make --no-print-directory --directory=../plankton/args/ --file=/tmp/makefile
+.PHONY: __dependency_7
+
+__logging___dependency_7:
+	@ echo "[log] processing '__dependency_7' ..."
+.PHONY: __logging___dependency_7
 
 __core: all
 .PHONY: __core
@@ -90,9 +99,9 @@ __logging_logic-link:
 	@ echo "	[log] <koralle> processing 'logic-link' ..."
 .PHONY: __logging_logic-link
 
-build/koralle.js: ../plankton/base/build/logic.js ../plankton/call/build/logic.js ../plankton/string/build/logic.js ../plankton/xml/build/logic.js ../plankton/object/build/logic.js ../plankton/path/build/logic.js ../plankton/args/build/logic.js source/disclaimer.js temp/koralle.js
+build/koralle.js: ../plankton/base/build/logic.js ../plankton/call/build/logic.js ../plankton/string/build/logic.js ../plankton/xml/build/logic.js ../plankton/object/build/logic.js ../plankton/path/build/logic.js ../plankton/file/build/logic.js ../plankton/args/build/logic.js source/disclaimer.js temp/koralle.js
 	@ mkdir -p build/
-	@ cat ../plankton/base/build/logic.js ../plankton/call/build/logic.js ../plankton/string/build/logic.js ../plankton/xml/build/logic.js ../plankton/object/build/logic.js ../plankton/path/build/logic.js ../plankton/args/build/logic.js source/disclaimer.js temp/koralle.js > build/koralle.js
+	@ cat ../plankton/base/build/logic.js ../plankton/call/build/logic.js ../plankton/string/build/logic.js ../plankton/xml/build/logic.js ../plankton/object/build/logic.js ../plankton/path/build/logic.js ../plankton/file/build/logic.js ../plankton/args/build/logic.js source/disclaimer.js temp/koralle.js > build/koralle.js
 
 logic-compile: __logging_logic-compile temp/koralle.js
 .PHONY: logic-compile
@@ -101,9 +110,9 @@ __logging_logic-compile:
 	@ echo "		[log] <koralle> processing 'logic-compile' ..."
 .PHONY: __logging_logic-compile
 
-temp/koralle.js: ../plankton/base/build/logic.d.ts ../plankton/call/build/logic.d.ts ../plankton/string/build/logic.d.ts ../plankton/xml/build/logic.d.ts ../plankton/object/build/logic.d.ts ../plankton/path/build/logic.d.ts ../plankton/args/build/logic.d.ts source/base.ts source/helpers/message.ts source/helpers/cliout.ts source/helpers/graph.ts source/helpers/gnumake.ts source/helpers/ant.ts source/helpers/misc.ts source/actions/action.ts source/actions/exec.ts source/actions/echo.ts source/actions/koralle.ts source/actions/build.ts source/actions/gnumake.ts source/actions/ant.ts source/actions/mkdir.ts source/actions/touch.ts source/actions/copy.ts source/actions/concat.ts source/actions/lessc.ts source/actions/babel.ts source/actions/tsc.ts source/actions/php.ts source/actions/gitpull.ts source/actions/schwamm-create.ts source/actions/schwamm-apply.ts source/tasks/task.ts source/tasks/group.ts source/tasks/dependency.ts source/tasks/script.ts source/tasks/empty.ts source/tasks/copy.ts source/tasks/concat.ts source/tasks/lesscss.ts source/tasks/babel.ts source/tasks/typescript.ts source/tasks/php.ts source/tasks/schwamm-create.ts source/tasks/schwamm-apply.ts source/outputs/output.ts source/outputs/regular.ts source/outputs/ant.ts source/outputs/gnumake.ts source/project.ts source/main.ts
+temp/koralle.js: ../plankton/base/build/logic.d.ts ../plankton/call/build/logic.d.ts ../plankton/string/build/logic.d.ts ../plankton/xml/build/logic.d.ts ../plankton/object/build/logic.d.ts ../plankton/path/build/logic.d.ts ../plankton/file/build/logic.d.ts ../plankton/args/build/logic.d.ts source/base.ts source/helpers/message.ts source/helpers/cliout.ts source/helpers/graph.ts source/helpers/gnumake.ts source/helpers/ant.ts source/actions/action.ts source/actions/exec.ts source/actions/echo.ts source/actions/koralle.ts source/actions/build.ts source/actions/gnumake.ts source/actions/ant.ts source/actions/mkdir.ts source/actions/touch.ts source/actions/copy.ts source/actions/concat.ts source/actions/lessc.ts source/actions/babel.ts source/actions/tsc.ts source/actions/php.ts source/actions/gitpull.ts source/actions/schwamm-create.ts source/actions/schwamm-apply.ts source/tasks/task.ts source/tasks/group.ts source/tasks/dependency.ts source/tasks/script.ts source/tasks/empty.ts source/tasks/copy.ts source/tasks/concat.ts source/tasks/lesscss.ts source/tasks/babel.ts source/tasks/typescript.ts source/tasks/php.ts source/tasks/schwamm-create.ts source/tasks/schwamm-apply.ts source/outputs/output.ts source/outputs/regular.ts source/outputs/ant.ts source/outputs/gnumake.ts source/project.ts source/main.ts
 	@ mkdir -p temp/
-	@ tsc --allowUnreachableCode  ../plankton/base/build/logic.d.ts ../plankton/call/build/logic.d.ts ../plankton/string/build/logic.d.ts ../plankton/xml/build/logic.d.ts ../plankton/object/build/logic.d.ts ../plankton/path/build/logic.d.ts ../plankton/args/build/logic.d.ts source/base.ts source/helpers/message.ts source/helpers/cliout.ts source/helpers/graph.ts source/helpers/gnumake.ts source/helpers/ant.ts source/helpers/misc.ts source/actions/action.ts source/actions/exec.ts source/actions/echo.ts source/actions/koralle.ts source/actions/build.ts source/actions/gnumake.ts source/actions/ant.ts source/actions/mkdir.ts source/actions/touch.ts source/actions/copy.ts source/actions/concat.ts source/actions/lessc.ts source/actions/babel.ts source/actions/tsc.ts source/actions/php.ts source/actions/gitpull.ts source/actions/schwamm-create.ts source/actions/schwamm-apply.ts source/tasks/task.ts source/tasks/group.ts source/tasks/dependency.ts source/tasks/script.ts source/tasks/empty.ts source/tasks/copy.ts source/tasks/concat.ts source/tasks/lesscss.ts source/tasks/babel.ts source/tasks/typescript.ts source/tasks/php.ts source/tasks/schwamm-create.ts source/tasks/schwamm-apply.ts source/outputs/output.ts source/outputs/regular.ts source/outputs/ant.ts source/outputs/gnumake.ts source/project.ts source/main.ts --outFile temp/koralle.js
+	@ tsc --allowUnreachableCode  ../plankton/base/build/logic.d.ts ../plankton/call/build/logic.d.ts ../plankton/string/build/logic.d.ts ../plankton/xml/build/logic.d.ts ../plankton/object/build/logic.d.ts ../plankton/path/build/logic.d.ts ../plankton/file/build/logic.d.ts ../plankton/args/build/logic.d.ts source/base.ts source/helpers/message.ts source/helpers/cliout.ts source/helpers/graph.ts source/helpers/gnumake.ts source/helpers/ant.ts source/actions/action.ts source/actions/exec.ts source/actions/echo.ts source/actions/koralle.ts source/actions/build.ts source/actions/gnumake.ts source/actions/ant.ts source/actions/mkdir.ts source/actions/touch.ts source/actions/copy.ts source/actions/concat.ts source/actions/lessc.ts source/actions/babel.ts source/actions/tsc.ts source/actions/php.ts source/actions/gitpull.ts source/actions/schwamm-create.ts source/actions/schwamm-apply.ts source/tasks/task.ts source/tasks/group.ts source/tasks/dependency.ts source/tasks/script.ts source/tasks/empty.ts source/tasks/copy.ts source/tasks/concat.ts source/tasks/lesscss.ts source/tasks/babel.ts source/tasks/typescript.ts source/tasks/php.ts source/tasks/schwamm-create.ts source/tasks/schwamm-apply.ts source/outputs/output.ts source/outputs/regular.ts source/outputs/ant.ts source/outputs/gnumake.ts source/project.ts source/main.ts --outFile temp/koralle.js
 
 documentation: __logging_documentation jsdoc diagram
 .PHONY: documentation

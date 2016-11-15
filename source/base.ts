@@ -38,3 +38,10 @@ var configuration : {
 	"showgraph": false,
 };
 
+type type_cmdparams = {
+	interpreter ?: string;
+	path : string;
+	args ?: Array<string>;
+	output ?: string;
+};
+

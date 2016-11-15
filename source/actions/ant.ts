@@ -79,11 +79,11 @@ class class_action_ant extends class_action_build {
 						)
 					)
 				);
-				// break;
+				break;
 			}
 			default: {
-				throw (new Error("unhandled target '" + target_identifier + "'"));
-				// break;
+				throw (new Error(`unhandled target '${target_identifier}'`));
+				break;
 			}
 		}
 	}

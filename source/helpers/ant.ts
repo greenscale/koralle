@@ -68,16 +68,11 @@ module lib_ant {
 		 */
 		public static macro_exec(
 			{
-				"path": path,
 				"interpreter": interpreter = null,
-				"output": output = null,
+				"path": path,
 				"args": args = [],
-			} : {
-				path : string;
-				interpreter ?: string;
-				output ?: string;
-				args ?: Array<string>;
-			}
+				"output": output = null,
+			} : type_cmdparams
 		) : class_action {
 			let attributes : {[key : string] : string} = {};
 			if (interpreter == null) {
@@ -100,6 +95,12 @@ module lib_ant {
 				)
 			);
 		}
+		
+		
+		/**
+		 * @author fenris
+		 */
+		public static macro_command(cmdparams : type_cmdparams) : class_action {return this.macro_exec(cmdparams);}
 		
 	}
 	

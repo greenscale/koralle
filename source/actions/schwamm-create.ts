@@ -50,40 +50,42 @@ class class_action_schwamm_create extends class_action_adhoc {
 	 * @author fenris
 	 */
 	public compilation(target_identifier : string) : any {
+		let args : Array<string> = [];
+		args.push("create");
+		this.includes.forEach(
+			include => {
+				args.push(`--include=${include.as_string(configuration["unix"])}`);
+			}
+		);
+		Object.keys(this.adhoc).forEach(
+			group => {
+				this.adhoc[group].forEach(
+					member => {
+						let filepointer : lib_path.class_filepointer = /*lib_path.filepointer_read(configuration["path"]).foo(member)*/member;
+						args.push(`--adhoc=${group}:${filepointer.as_string(configuration["unix"])}`);
+					}
+				);
+			}
+		);
+		// args.push(`--file=${this.output.as_string(configuration["system"])}`);
+		args.push(`--dir=${((this.dir != null) ? this.dir : this.output.location).as_string("unix")}`);
+		let cmdparams : type_cmdparams = {
+			"path": "schwamm",
+			"args": args,
+			"output": this.output.as_string(configuration["unix"]),
+		};
 		switch (target_identifier) {
 			case "gnumake": {
-				let parts : Array<string> = [];
-				parts.push("schwamm");
-				parts.push("create");
-				this.includes.forEach(
-					include => {
-						parts.push(`--include=${include.as_string(configuration["unix"])}`);
-					}
-				);
-				Object.keys(this.adhoc).forEach(
-					group => {
-						this.adhoc[group].forEach(
-							member => {
-								let filepointer : lib_path.class_filepointer = /*lib_path.filepointer_read(configuration["path"]).foo(member)*/member;
-								parts.push(`--adhoc=${group}:${filepointer.as_string(configuration["unix"])}`);
-							}
-						);
-					}
-				);
-				// parts.push(`--file=${this.output.as_string(configuration["system"])}`);
-				if (this.dir != null) {
-					parts.push(`--dir=${this.dir.as_string("unix")}`);
-				}
-				else {
-					parts.push(`--dir=${this.output.location.as_string("unix")}`);
-				}
-				parts.push(`> ${this.output.as_string(configuration["unix"])}`);
-				return parts.join(" ");
-				// break;
+				return lib_gnumake.macro_command(cmdparams);
+				break;
+			}
+			case "ant": {
+				return lib_ant.class_action.macro_command(cmdparams);
+				break;
 			}
 			default: {
-				throw (new Error("unhandled target '" + target_identifier + "'"));
-				// break;
+				throw (new Error(`unhandled target '${target_identifier}'`));
+				break;
 			}
 		}
 	}

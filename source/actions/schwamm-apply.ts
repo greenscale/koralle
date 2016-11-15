@@ -13,7 +13,7 @@ class class_action_schwamm_apply extends class_action_adhoc {
 	/**
 	 * @author fenris
 	 */
-	protected outputs_ : {[group : string] : lib_path.class_filepointer};
+	protected outputs : {[group : string] : lib_path.class_filepointer};
 	
 	
 	/**
@@ -21,11 +21,11 @@ class class_action_schwamm_apply extends class_action_adhoc {
 	 */
 	public constructor(
 		path : lib_path.class_filepointer,
-		outputs_ : {[group : string] : lib_path.class_filepointer}
+		outputs : {[group : string] : lib_path.class_filepointer}
 	) {
 		super();
 		this.path = path;
-		this.outputs_ = outputs_;
+		this.outputs = outputs;
 	}
 	
 	
@@ -34,24 +34,31 @@ class class_action_schwamm_apply extends class_action_adhoc {
 	 * @author fenris
 	 */
 	public compilation(target_identifier : string) : any {
+		let args : Array<string> = [];
+		args.push("apply");
+		args.push(`--file=${this.path.as_string(configuration["system"])}`);
+		Object.keys(this.outputs).forEach(
+			groupname => {
+				let filepointer : lib_path.class_filepointer = lib_path.filepointer_read(configuration["path"]).foo(this.outputs[groupname]);
+				args.push(`--output=${groupname}:${filepointer.as_string(configuration["system"])}`);
+			}
+		);
+		let cmdparams : type_cmdparams = {
+			"path": "schwamm",
+			"args": args,
+		};
 		switch (target_identifier) {
 			case "gnumake": {
-				let parts : Array<string> = [];
-				parts.push("schwamm");
-				parts.push("apply");
-				parts.push(`--file=${this.path.as_string(configuration["system"])}`);
-				Object.keys(this.outputs_).forEach(
-					groupname => {
-						let filepointer : lib_path.class_filepointer = lib_path.filepointer_read(configuration["path"]).foo(this.outputs_[groupname]);
-						parts.push(`--output=${groupname}:${filepointer.as_string(configuration["system"])}`);
-					}
-				);
-				return parts.join(" ");
-				// break;
+				return lib_gnumake.macro_command(cmdparams);
+				break;
+			}
+			case "ant": {
+				return lib_ant.class_action.macro_command(cmdparams);
+				break;
 			}
 			default: {
-				throw (new Error("unhandled target '" + target_identifier + "'"));
-				// break;
+				throw (new Error(`unhandled target '${target_identifier}'`));
+				break;
 			}
 		}
 	}

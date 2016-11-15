@@ -10,6 +10,37 @@ module lib_gnumake {
 	/**
 	 * @author fenris
 	 */
+	export function macro_command(
+		{
+			"interpreter": interpreter = null,
+			"path": path,
+			"args": args = [],
+			"output": output = null,
+		} : type_cmdparams
+	) : string {
+		let command : string = path;
+		{
+			if (interpreter != null) {
+				command = `${interpreter} ${command}`;
+			}
+		}
+		{
+			let parts : Array<string> = [];
+			args.forEach(arg => parts.push(arg));
+			command = `${command} ${parts.join(" ")}`;
+		}
+		{
+			if (output != null) {
+				command = `${command} > ${output}`;
+			}
+		}
+		return command;
+	}
+	
+	
+	/**
+	 * @author fenris
+	 */
 	export class class_rule {
 		
 		/**

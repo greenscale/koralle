@@ -89,7 +89,7 @@ class class_action_koralle extends class_action_adhoc {
 					case "unix":
 					case "win": {
 						let args : Array<string> = [];
-						args.push(configuration.invocation.path);
+						args.push(this.filepointer_in.as_string("unix"));
 						args.push(`--output=${this.output}`);
 						args.push(`--system=${configuration.system}`);
 						if (this.raw) {
@@ -99,7 +99,7 @@ class class_action_koralle extends class_action_adhoc {
 						return (
 							lib_ant.class_action.macro_exec(
 								{
-									"path": this.filepointer_in.as_string("unix"),
+									"path": configuration.invocation.path,
 									"interpreter": configuration.invocation.interpreter,
 									"args": args,
 								}
