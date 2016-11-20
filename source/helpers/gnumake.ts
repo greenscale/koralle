@@ -13,25 +13,58 @@ module lib_gnumake {
 			"path": path,
 			"args": args = [],
 			"output": output = null,
+			"system": system = "unix",
 		} : type_cmdparams
 	) : string {
-		let command : string = path;
-		{
-			if (interpreter != null) {
-				command = `${interpreter} ${command}`;
+		switch (system) {
+			case "unix": {
+				let command : string = path;
+				{
+					if (interpreter != null) {
+						command = `${interpreter} ${command}`;
+					}
+				}
+				{
+					let parts : Array<string> = [];
+					args.forEach(arg => parts.push(arg));
+					command = `${command} ${parts.join(" ")}`;
+				}
+				{
+					if (output != null) {
+						command = `${command} > ${output}`;
+					}
+				}
+				return command;
+				break;
+			}
+			case "win": {
+				let command : string = "cmd //c";
+				{
+					command = `${command} ${path}`
+				}
+				{
+					if (interpreter != null) {
+						command = `${command} ${interpreter}`;
+					}
+				}
+				{
+					let parts : Array<string> = [];
+					args.forEach(arg => parts.push(arg));
+					command = `${command} ${parts.join(" ")}`;
+				}
+				{
+					if (output != null) {
+						command = `${command} > ${output}`;
+					}
+				}
+				return command;
+				break;
+			}
+			default: {
+				throw (new Error(`unhandled system '${system}'`));
+				break;
 			}
 		}
-		{
-			let parts : Array<string> = [];
-			args.forEach(arg => parts.push(arg));
-			command = `${command} ${parts.join(" ")}`;
-		}
-		{
-			if (output != null) {
-				command = `${command} > ${output}`;
-			}
-		}
-		return command;
 	}
 	
 	
@@ -96,9 +129,11 @@ module lib_gnumake {
 		 */
 		public compile(silent : boolean = false) : string {
 			let output : string = "";
-			output += (this.name + ":" + this.dependencies.map(dependency => (" " + dependency)).join("") + "\n");
-			this.actions.forEach(action => (output += "\t" + (silent ? "@ " : "") + action + "\n"));
-			if (this.phony) output += (".PHONY: " + this.name + "\n");
+			output += (`${this.name}: ${this.dependencies.map(dependency => (" " + dependency)).join("")}\n`);
+			this.actions.forEach(action => (output += `\t${(silent ? "@ " : "")}${action}\n`));
+			if (this.phony) {
+				output += (`.PHONY: ${this.name}\n`);
+			}
 			return output;
 		}
 		

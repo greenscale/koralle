@@ -1,6 +1,6 @@
 {
 	"name": "koralle",
-	"version": "0.0.6",
+	"version": "0.0.7",
 	"roottask": {
 		"active": true,
 		"name": "all",
@@ -44,6 +44,7 @@
 								"source/actions/mkdir.ts",
 								"source/actions/touch.ts",
 								"source/actions/copy.ts",
+								"source/actions/move.ts",
 								"source/actions/concat.ts",
 								"source/actions/lessc.ts",
 								"source/actions/babel.ts",

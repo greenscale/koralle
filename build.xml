@@ -5,225 +5,39 @@
 	</property>
 	<target name="__root" depends="__dependencies,__core">
 	</target>
-	<target name="__dependencies" depends="__dependency_0,__dependency_1,__dependency_2,__dependency_3,__dependency_4,__dependency_5,__dependency_6,__dependency_7">
-	</target>
-	<target name="__dependency_0" depends="">
-		<echo message="__dependency_0">
-		</echo>
-		<exec executable="/home/fenris/programme/nodejs/bin/node">
-			<arg value="/home/fenris/programme/koralle/koralle.js">
-			</arg>
-			<arg value="../plankton/base/project.json">
-			</arg>
-			<arg value="--output=ant">
-			</arg>
-			<arg value="--system=unix">
-			</arg>
-			<arg value="--raw">
-			</arg>
-			<arg value="--file=/tmp/build.xml">
-			</arg>
-		</exec>
-		<ant antfile="/tmp/build.xml" dir="../plankton/base/">
-		</ant>
-	</target>
-	<target name="__dependency_1" depends="">
-		<echo message="__dependency_1">
-		</echo>
-		<exec executable="/home/fenris/programme/nodejs/bin/node">
-			<arg value="/home/fenris/programme/koralle/koralle.js">
-			</arg>
-			<arg value="../plankton/call/project.json">
-			</arg>
-			<arg value="--output=ant">
-			</arg>
-			<arg value="--system=unix">
-			</arg>
-			<arg value="--raw">
-			</arg>
-			<arg value="--file=/tmp/build.xml">
-			</arg>
-		</exec>
-		<ant antfile="/tmp/build.xml" dir="../plankton/call/">
-		</ant>
-	</target>
-	<target name="__dependency_2" depends="">
-		<echo message="__dependency_2">
-		</echo>
-		<exec executable="/home/fenris/programme/nodejs/bin/node">
-			<arg value="/home/fenris/programme/koralle/koralle.js">
-			</arg>
-			<arg value="../plankton/string/project.json">
-			</arg>
-			<arg value="--output=ant">
-			</arg>
-			<arg value="--system=unix">
-			</arg>
-			<arg value="--raw">
-			</arg>
-			<arg value="--file=/tmp/build.xml">
-			</arg>
-		</exec>
-		<ant antfile="/tmp/build.xml" dir="../plankton/string/">
-		</ant>
-	</target>
-	<target name="__dependency_3" depends="">
-		<echo message="__dependency_3">
-		</echo>
-		<exec executable="/home/fenris/programme/nodejs/bin/node">
-			<arg value="/home/fenris/programme/koralle/koralle.js">
-			</arg>
-			<arg value="../plankton/xml/project.json">
-			</arg>
-			<arg value="--output=ant">
-			</arg>
-			<arg value="--system=unix">
-			</arg>
-			<arg value="--raw">
-			</arg>
-			<arg value="--file=/tmp/build.xml">
-			</arg>
-		</exec>
-		<ant antfile="/tmp/build.xml" dir="../plankton/xml/">
-		</ant>
-	</target>
-	<target name="__dependency_4" depends="">
-		<echo message="__dependency_4">
-		</echo>
-		<exec executable="/home/fenris/programme/nodejs/bin/node">
-			<arg value="/home/fenris/programme/koralle/koralle.js">
-			</arg>
-			<arg value="../plankton/object/project.json">
-			</arg>
-			<arg value="--output=ant">
-			</arg>
-			<arg value="--system=unix">
-			</arg>
-			<arg value="--raw">
-			</arg>
-			<arg value="--file=/tmp/build.xml">
-			</arg>
-		</exec>
-		<ant antfile="/tmp/build.xml" dir="../plankton/object/">
-		</ant>
-	</target>
-	<target name="__dependency_5" depends="">
-		<echo message="__dependency_5">
-		</echo>
-		<exec executable="/home/fenris/programme/nodejs/bin/node">
-			<arg value="/home/fenris/programme/koralle/koralle.js">
-			</arg>
-			<arg value="../plankton/path/project.json">
-			</arg>
-			<arg value="--output=ant">
-			</arg>
-			<arg value="--system=unix">
-			</arg>
-			<arg value="--raw">
-			</arg>
-			<arg value="--file=/tmp/build.xml">
-			</arg>
-		</exec>
-		<ant antfile="/tmp/build.xml" dir="../plankton/path/">
-		</ant>
-	</target>
-	<target name="__dependency_6" depends="">
-		<echo message="__dependency_6">
-		</echo>
-		<exec executable="/home/fenris/programme/nodejs/bin/node">
-			<arg value="/home/fenris/programme/koralle/koralle.js">
-			</arg>
-			<arg value="../plankton/file/project.json">
-			</arg>
-			<arg value="--output=ant">
-			</arg>
-			<arg value="--system=unix">
-			</arg>
-			<arg value="--raw">
-			</arg>
-			<arg value="--file=/tmp/build.xml">
-			</arg>
-		</exec>
-		<ant antfile="/tmp/build.xml" dir="../plankton/file/">
-		</ant>
-	</target>
-	<target name="__dependency_7" depends="">
-		<echo message="__dependency_7">
-		</echo>
-		<exec executable="/home/fenris/programme/nodejs/bin/node">
-			<arg value="/home/fenris/programme/koralle/koralle.js">
-			</arg>
-			<arg value="../plankton/args/project.json">
-			</arg>
-			<arg value="--output=ant">
-			</arg>
-			<arg value="--system=unix">
-			</arg>
-			<arg value="--raw">
-			</arg>
-			<arg value="--file=/tmp/build.xml">
-			</arg>
-		</exec>
-		<ant antfile="/tmp/build.xml" dir="../plankton/args/">
-		</ant>
+	<target name="__dependencies" depends="">
 	</target>
 	<target name="__core" depends="all">
 	</target>
-	<target name="all" depends="logic-link">
+	<target name="all" depends="link">
 		<echo message="all">
 		</echo>
 	</target>
-	<target name="logic-link" depends="logic-compile">
-		<echo message="logic-link">
+	<target name="link" depends="build">
+		<echo message="link">
 		</echo>
 		<mkdir dir="build/">
 		</mkdir>
 		<concat destfile="build/koralle.js">
 			<filelist dir=".">
-				<file name="../plankton/base/build/logic.js">
-				</file>
-				<file name="../plankton/call/build/logic.js">
-				</file>
-				<file name="../plankton/string/build/logic.js">
-				</file>
-				<file name="../plankton/xml/build/logic.js">
-				</file>
-				<file name="../plankton/object/build/logic.js">
-				</file>
-				<file name="../plankton/path/build/logic.js">
-				</file>
-				<file name="../plankton/file/build/logic.js">
-				</file>
-				<file name="../plankton/args/build/logic.js">
-				</file>
 				<file name="source/disclaimer.js">
 				</file>
-				<file name="temp/koralle.js">
+				<file name="libs/plankton.js">
+				</file>
+				<file name="temp/unlinked.js">
 				</file>
 			</filelist>
 		</concat>
 	</target>
-	<target name="logic-compile" depends="">
-		<echo message="logic-compile">
+	<target name="build" depends="">
+		<echo message="build">
 		</echo>
 		<mkdir dir="temp/">
 		</mkdir>
 		<exec executable="tsc">
-			<arg value="../plankton/base/build/logic.d.ts">
+			<arg value="--allowUnreachableCode">
 			</arg>
-			<arg value="../plankton/call/build/logic.d.ts">
-			</arg>
-			<arg value="../plankton/string/build/logic.d.ts">
-			</arg>
-			<arg value="../plankton/xml/build/logic.d.ts">
-			</arg>
-			<arg value="../plankton/object/build/logic.d.ts">
-			</arg>
-			<arg value="../plankton/path/build/logic.d.ts">
-			</arg>
-			<arg value="../plankton/file/build/logic.d.ts">
-			</arg>
-			<arg value="../plankton/args/build/logic.d.ts">
+			<arg value="libs/plankton.d.ts">
 			</arg>
 			<arg value="source/base.ts">
 			</arg>
@@ -256,6 +70,8 @@
 			<arg value="source/actions/touch.ts">
 			</arg>
 			<arg value="source/actions/copy.ts">
+			</arg>
+			<arg value="source/actions/move.ts">
 			</arg>
 			<arg value="source/actions/concat.ts">
 			</arg>
@@ -311,11 +127,9 @@
 			</arg>
 			<arg value="source/main.ts">
 			</arg>
-			<arg value="--allowUnreachableCode">
-			</arg>
 			<arg value="--outFile">
 			</arg>
-			<arg value="temp/koralle.js">
+			<arg value="temp/unlinked.js">
 			</arg>
 		</exec>
 	</target>
@@ -329,11 +143,11 @@
 		<mkdir dir="documentation/">
 		</mkdir>
 		<exec executable="/bin/bash">
-			<arg value="tools/jsdoc.sh">
-			</arg>
 			<arg value="'build/koralle.js'">
 			</arg>
 			<arg value="'documentation/generated'">
+			</arg>
+			<arg value="tools/jsdoc.sh">
 			</arg>
 		</exec>
 	</target>
@@ -343,11 +157,11 @@
 		<mkdir dir="documentation/structure/">
 		</mkdir>
 		<exec executable="/bin/bash">
-			<arg value="tools/graphviz.sh">
-			</arg>
 			<arg value="'documentation/structure/structure.gv'">
 			</arg>
 			<arg value="'documentation/structure/structure.svg'">
+			</arg>
+			<arg value="tools/graphviz.sh">
 			</arg>
 		</exec>
 	</target>

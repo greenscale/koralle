@@ -68,7 +68,7 @@ class class_target_gnumake extends class_target_regular<string> {
 								.map(task_ => /*branch_.concat(*/[task_.name_get()]/*)*/.join("-"))
 							)
 							.concat(
-								task.outputs().map(filepointer => filepointer.toString())
+								task.outputs().map(filepointer => filepointer.as_string(configuration.system))
 							)
 						),
 						"actions": (
@@ -96,8 +96,8 @@ class class_target_gnumake extends class_target_regular<string> {
 				rules_core.push(
 					new lib_gnumake.class_rule(
 						{
-							"name": task.outputs().map(filepointer => filepointer.toString()).join(" "), // hacky!
-							"dependencies": task.inputs().map(filepointer => filepointer.toString()),
+							"name": task.outputs().map(filepointer => filepointer.as_string(configuration.system)).join(" "), // hacky!
+							"dependencies": task.inputs().map(filepointer => filepointer.as_string(configuration.system)),
 							"actions": task.actions().map(action => this.compile_action(action)),
 							"phony": false,
 						}

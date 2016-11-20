@@ -25,7 +25,7 @@ var configuration : {
 		"interpreter": null,
 		"path": "koralle",
 	},
-	"version": "0.0.6",
+	"version": "0.0.7",
 	"tempfolder": null,
 	"path_source": "source",
 	"path_build": "build",
@@ -43,5 +43,6 @@ type type_cmdparams = {
 	path : string;
 	args ?: Array<string>;
 	output ?: string;
+	system ?: string;
 };
 

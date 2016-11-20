@@ -65,20 +65,25 @@ class class_action_exec extends class_action_adhoc {
 	 * @desc for defining directly how the action is to be converted into a target-piece
 	 * @author fenris
 	 */
-	public compilation(target_identifier : string) : any {
-		switch (target_identifier) {
+	public compilation(output_identifier : string) : any {
+		switch (output_identifier) {
 			case "gnumake": {
 				switch (configuration.system) {
 					case "unix":
 					case "win": {
 						let command : string = "";
 						{
-							let parts : Array<string> = [];
-							if (this.path_interpreter != null) parts.push(this.path_interpreter.as_string(configuration.system));
-							parts.push(this.path_script.as_string(configuration.system));
-							parts.push("'" + this.paths_input.map(filepointer => filepointer.as_string(configuration.system)).join(",") + "'");
-							parts.push("'" + this.paths_output.map(filepointer => filepointer.as_string(configuration.system)).join(",") + "'");
-							command = parts.join(" ");
+							command = lib_gnumake.macro_command(
+								{
+									"interpreter": ((this.path_interpreter != null) ? this.path_interpreter.as_string(configuration.system) : null),
+									"path": this.path_script.as_string(configuration.system),
+									"args": [
+										("'" + this.paths_input.map(filepointer => filepointer.as_string(configuration.system)).join(",") + "'"),
+										("'" + this.paths_output.map(filepointer => filepointer.as_string(configuration.system)).join(",") + "'"),
+									],
+									"system": configuration.system,
+								}
+							)
 						}
 						{
 							if (this.workdir != null) {
@@ -96,50 +101,23 @@ class class_action_exec extends class_action_adhoc {
 				break;
 			}
 			case "ant": {
-				switch (configuration.system) {
-					case "unix": {
-						return (
-							lib_ant.class_action.macro_exec(
-								{
-									"interpreter": this.path_interpreter.as_string("unix"),
-									"path": this.path_script.as_string("unix"),
-									"args": [
-										("'" + this.paths_input.map(filepointer => filepointer.as_string("unix")).join(",") + "'"),
-										("'" + this.paths_output.map(filepointer => filepointer.as_string("unix")).join(",") + "'"),
-									],
-								}
-							)
-						);
-						break;
-					}
-					case "win": {
-						let args : Array<string> = [];
-						if (this.path_interpreter != null) {
-							args.push("/c");
-							args.push(this.path_interpreter.as_string("win"));
+				return (
+					lib_ant.class_action.macro_exec(
+						{
+							"interpreter": ((this.path_interpreter != null) ? this.path_interpreter.as_string(configuration.system) : null),
+							"path": this.path_script.as_string("unix"),
+							"args": [
+								("'" + this.paths_input.map(filepointer => filepointer.as_string("unix")).join(",") + "'"),
+								("'" + this.paths_output.map(filepointer => filepointer.as_string("unix")).join(",") + "'"),
+							],
+							"system": configuration.system,
 						}
-						args.push("'" + this.paths_input.map(filepointer => filepointer.as_string("win")).join(",") + "'");
-						args.push("'" + this.paths_output.map(filepointer => filepointer.as_string("win")).join(",") + "'");
-						return (
-							lib_ant.class_action.macro_exec(
-								{
-									"interpreter": "cmd",
-									"path": this.path_script.as_string("win"),
-									"args": args,
-								}
-							)
-						);
-						break;
-					}
-					default: {
-						throw (new Error("not implemented"));
-						break;
-					}
-				}
+					)
+				);
 				break;
 			}
 			default: {
-				throw (new Error("unhandled target '" + target_identifier + "'"));
+				throw (new Error(`unhandled output '${output_identifier}'`));
 				break;
 			}
 		}

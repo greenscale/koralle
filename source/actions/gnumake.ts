@@ -16,10 +16,10 @@ class class_action_gnumake extends class_action_build {
 	 * @desc for defining directly how the action is to be converted into a target-piece
 	 * @author fenris
 	 */
-	public compilation(target_identifier : string) : any {
-		switch (target_identifier) {
+	public compilation(output_identifier : string) : any {
+		switch (output_identifier) {
 			case "gnumake": {
-				switch (configuration["system"]) {
+				switch (configuration.system) {
 					case "unix":
 					case "win": {
 						// cmd_cd1
@@ -27,8 +27,8 @@ class class_action_gnumake extends class_action_build {
 						{
 							let parts : Array<string> = [];
 							parts.push("pushd");
-							parts.push(this.workdir.as_string(configuration["system"]));
-							if (configuration["system"] == "unix") {
+							parts.push(this.workdir.as_string(configuration.system));
+							if (configuration.system == "unix") {
 								parts.push("> /dev/null");
 							}
 							cmd_cd1 = parts.join(" ");
@@ -38,7 +38,7 @@ class class_action_gnumake extends class_action_build {
 						{
 							let parts : Array<string> = [];
 							parts.push("popd");
-							if (configuration["system"] == "unix") {
+							if (configuration.system == "unix") {
 								parts.push("> /dev/null");
 							}
 							cmd_cd2 = parts.join(" ");
@@ -49,17 +49,17 @@ class class_action_gnumake extends class_action_build {
 							let parts : Array<string> = [];
 							parts.push("make");
 							parts.push("--no-print-directory");
-							parts.push("--directory=" + this.workdir.as_string(configuration["system"]));
-							parts.push("--file=" + this.filepointer.as_string(configuration["system"]));
+							parts.push("--directory=" + this.workdir.as_string(configuration.system));
+							parts.push("--file=" + this.filepointer.as_string(configuration.system));
 							cmd_make = parts.join(" ");
 						}
 						// return ((this.workdir == null) ? [cmd_make] : [cmd_cd1, cmd_make, cmd_cd2]).join(" && ");
 						return [cmd_make];
-						// break;
+						break;
 					}
 					default: {
 						throw (new Error("not implemented"));
-						// break;
+						break;
 					}
 				}
 				break;
@@ -105,11 +105,11 @@ class class_action_gnumake extends class_action_build {
 						)
 					)
 				);
-				// break;
+				break;
 			}
 			default: {
-				throw (new Error("unhandled target '" + target_identifier + "'"));
-				// break;
+				throw (new Error("unhandled target '" + output_identifier + "'"));
+				break;
 			}
 		}
 	}

@@ -8,6 +8,92 @@ type type_taskfactory = (name : string, sub : Array<class_task>, active : boolea
 /**
  * @author fenris
  */
+class class_taskparameter<type_raw, type_ready> {
+	
+	/**
+	 * @author fenris
+	 */
+	protected type : lib_meta.type_type;
+	
+	
+	/**
+	 * @author fenris
+	 */
+	protected name : string;
+	
+	
+	/**
+	 * @author fenris
+	 */
+	protected extraction : (raw : type_raw)=>type_ready;
+	
+	
+	/**
+	 * @author fenris
+	 */
+	protected key : string;
+	
+	
+	/**
+	 * @author fenris
+	 */
+	protected mandatory : boolean;
+		
+	
+	/**
+	 * @author fenris
+	 */
+	protected default_ : type_value;
+	
+	
+	/**
+	 * @author fenris
+	 */
+	protected description : string;
+	
+	
+	/**
+	 * @author fenris
+	 */
+	public constructor(
+		{
+			"type": type,
+			"name": name,
+			"key": key,
+			"mandatory": mandatory,
+			"default": default_,
+			"description": description,
+		} : {
+			type : lib_meta.type_type;
+			name : string;
+			key : string;
+			mandatory : boolean;
+			default : type_value;
+			description : string;
+		}
+	) {
+		this.type = type;
+		this.name = name;
+		this.key = key;
+		this.mandatory = mandatory;
+		this.default_ = default_;
+		this.description = description;
+	}
+	
+	
+	/**
+	 * @author fenris
+	 */
+	public toString() : string {
+		let str : string = this.name;
+	}
+	
+}
+
+
+/**
+ * @author fenris
+ */
 abstract class class_task {
 	
 	/**
@@ -36,6 +122,12 @@ abstract class class_task {
 	 * @author fenris
 	 */
 	protected active : boolean;
+	
+	
+	/**
+	 * @author fenris
+	 */
+	protected parameters : Array<class_taskparameter<any>>;
 	
 	
 	/**
@@ -68,7 +160,8 @@ abstract class class_task {
 		active : boolean = true,
 		_inputs : Array<lib_path.class_filepointer> = [],
 		_outputs : Array<lib_path.class_filepointer> = [],
-		_actions : Array<class_action> = []
+		_actions : Array<class_action> = [],
+		parameters : Array<class_taskparameter<any>>,
 	) {
 		this.identifier = lib_string.generate("task_");
 		this.name = ((name != null) ? name : this.identifier);
@@ -77,6 +170,7 @@ abstract class class_task {
 		this._inputs = _inputs;
 		this._outputs = _outputs;
 		this._actions = _actions;
+		this.parameters = parameters;
 	}
 	
 	
@@ -124,6 +218,14 @@ abstract class class_task {
 			this.sub = this.sub.filter(task_ => task_.active);
 			this.sub.forEach(task_ => task_.clean(false));
 		}
+	}
+	
+	
+	/**
+	 * @author fenris
+	 */
+	protected values(raw : Object) : Object {
+		
 	}
 	
 	

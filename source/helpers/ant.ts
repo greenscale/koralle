@@ -69,28 +69,66 @@ module lib_ant {
 				"path": path,
 				"args": args = [],
 				"output": output = null,
+				"system": system = "unix",
 			} : type_cmdparams
 		) : class_action {
-			let attributes : {[key : string] : string} = {};
-			if (interpreter == null) {
-				attributes["executable"] = path;
+			switch (system) {
+				case "unix": {
+					let attributes : {[key : string] : string} = {};
+					let args_ : Array<string> = [];
+					if (interpreter == null) {
+						attributes["executable"] = path;
+					}
+					else {
+						attributes["executable"] = interpreter;
+						args.push(path);
+					}
+					if (output != null) {
+						attributes["output"] = output;
+					}
+					args_ = args_.concat(args);
+					return (
+						new lib_ant.class_action(
+							new lib_xml.class_node_complex(
+								"exec",
+								attributes,
+								args_.map(arg => new lib_xml.class_node_complex("arg", {"value": arg}))
+							)
+						)
+					);
+					break;
+				}
+				case "win": {
+					let attributes : {[key : string] : string} = {};
+					let args_ : Array<string> = [];
+					attributes["executable"] = "cmd";
+					args_.push("/c");
+					if (interpreter == null) {
+					}
+					else {
+						args_.push(interpreter);
+					}
+					args_.push(path);
+					args_ = args_.concat(args);
+					if (output != null) {
+						attributes["output"] = output;
+					}
+					return (
+						new lib_ant.class_action(
+							new lib_xml.class_node_complex(
+								"exec",
+								attributes,
+								args_.map(arg => new lib_xml.class_node_complex("arg", {"value": arg}))
+							)
+						)
+					);
+					break;
+				}
+				default: {
+					throw (new Error(`unhandled system ${system}`));
+					break;
+				}
 			}
-			else {
-				attributes["executable"] = interpreter;
-				args.unshift(path);
-			}
-			if (output != null) {
-				attributes["output"] = output;
-			}
-			return (
-				new lib_ant.class_action(
-					new lib_xml.class_node_complex(
-						"exec",
-						attributes,
-						args.map(arg => new lib_xml.class_node_complex("arg", {"value": arg}))
-					)
-				)
-			);
 		}
 		
 		

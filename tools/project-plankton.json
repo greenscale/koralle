@@ -4,6 +4,7 @@
 	"dependencies": [
 		"../../plankton/base/project.json",
 		"../../plankton/call/project.json",
+		"../../plankton/meta/project.json",
 		"../../plankton/string/project.json",
 		"../../plankton/xml/project.json",
 		"../../plankton/object/project.json",
@@ -27,6 +28,7 @@
 					"includes": [
 						"../../plankton/base/build/schwamm.json",
 						"../../plankton/call/build/schwamm.json",
+						"../../plankton/meta/build/schwamm.json",
 						"../../plankton/string/build/schwamm.json",
 						"../../plankton/xml/build/schwamm.json",
 						"../../plankton/object/build/schwamm.json",
