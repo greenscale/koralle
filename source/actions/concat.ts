@@ -7,22 +7,22 @@ class class_action_concat extends class_action_adhoc {
 	/**
 	 * @author fenris
 	 */
-	protected filepointers_from : Array<lib_path.class_filepointer>;
+	protected sources : Array<lib_path.class_filepointer>;
 	
 	
 	/**
 	 * @author fenris
 	 */
-	protected filepointer_to : lib_path.class_filepointer;
+	protected destination : lib_path.class_filepointer;
 	
 	
 	/**
 	 * @author fenris
 	 */
-	public constructor(filepointers_from : Array<lib_path.class_filepointer>, filepointer_to : lib_path.class_filepointer) {
+	public constructor(sources : Array<lib_path.class_filepointer>, destination : lib_path.class_filepointer) {
 		super();
-		this.filepointers_from = filepointers_from;
-		this.filepointer_to = filepointer_to;
+		this.sources = sources;
+		this.destination = destination;
 	}
 	
 	
@@ -30,46 +30,51 @@ class class_action_concat extends class_action_adhoc {
 	 * @desc for defining directly how the action is to be converted into a target-piece
 	 * @author fenris
 	 */
-	public compilation(target_identifier : string) : any {
-		switch (target_identifier) {
+	public compilation(output_identifier : string) : any {
+		switch (output_identifier) {
 			case "gnumake": {
-				let parts : Array<string> = [];
-				switch (configuration["system"]) {
-					case "unix": {
-						parts.push("cat");
-						break;
-					}
-					case "win": {
-						parts.push("type");
-						break;
-					}
-					default: {
-						throw (new Error("not implemented"));
-						// break;
-					}
+				if (this.sources.length > 0) {
+					return (
+						lib_gnumake.macro_command(
+							{
+								"path": {
+									"unix": "cat",
+									"win": "type",
+								}[configuration.system],
+								"args": this.sources.map(source => source.as_string(configuration.system)),
+								"output": this.destination.as_string(configuration.system),
+							}
+						)
+					);
 				}
-				this.filepointers_from.forEach(filepointer => parts.push(filepointer.as_string(configuration["system"])));
-				parts.push(">");
-				parts.push(this.filepointer_to.as_string(configuration["system"]));
-				return parts.join(" ");
-				// break;
+				else {
+					return (
+						lib_gnumake.macro_command(
+							{
+								"path": "touch",
+								"output": this.destination.as_string(configuration.system),
+							}
+						)
+					);
+				}
+				break;
 			}
 			case "ant": {
 				return (
 					new lib_ant.class_action(
 						new lib_xml.class_node_complex(
 							"concat",
-							{"destfile": this.filepointer_to.as_string("unix")},
+							{"destfile": this.destination.as_string("unix")},
 							[
 								new lib_xml.class_node_complex(
 									"filelist",
 									{"dir": "."},
-									this.filepointers_from.map(
-										function (filepointer : lib_path.class_filepointer) : lib_xml.class_node {
+									this.sources.map(
+										function (source : lib_path.class_filepointer) : lib_xml.class_node {
 											return (
 												new lib_xml.class_node_complex(
 													"file",
-													{"name": filepointer.as_string("unix")}
+													{"name": source.as_string("unix")}
 												)
 											);
 										}
@@ -82,7 +87,7 @@ class class_action_concat extends class_action_adhoc {
 				// break;
 			}
 			default: {
-				throw (new Error("unhandled target '" + target_identifier + "'"));
+				throw (new Error(`unhandled output '${output_identifier}'`));
 				// break;
 			}
 		}

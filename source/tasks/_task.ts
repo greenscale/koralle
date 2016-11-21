@@ -1,3 +1,5 @@
+
+
 	
 /**
  * @author fenris
@@ -43,7 +45,7 @@ class class_taskparameter<type_raw, type_ready> {
 	/**
 	 * @author fenris
 	 */
-	protected default_ : type_value;
+	protected default_ : type_raw;
 	
 	
 	/**
@@ -68,7 +70,7 @@ class class_taskparameter<type_raw, type_ready> {
 			name : string;
 			key : string;
 			mandatory : boolean;
-			default : type_value;
+			default : type_raw;
 			description : string;
 		}
 	) {
@@ -85,7 +87,28 @@ class class_taskparameter<type_raw, type_ready> {
 	 * @author fenris
 	 */
 	public toString() : string {
-		let str : string = this.name;
+		let str : string = "";
+		// name
+		{
+			str = `${this.name}`;
+		}
+		// type
+		{
+			str = `${str} : ${this.type.toString()}`;
+		}
+		// mandatory & default
+		{
+			if (this.mandatory) {
+			}
+			else {
+				str = `[${str} = ${String(this.default_)}]`;
+			}
+		}
+		// description
+		{
+			str = `${str} -- ${this.description}`;
+		}
+		return str;
 	}
 	
 }
@@ -127,7 +150,7 @@ abstract class class_task {
 	/**
 	 * @author fenris
 	 */
-	protected parameters : Array<class_taskparameter<any>>;
+	// protected parameters : Array<class_taskparameter<any, any>>;
 	
 	
 	/**
@@ -161,7 +184,7 @@ abstract class class_task {
 		_inputs : Array<lib_path.class_filepointer> = [],
 		_outputs : Array<lib_path.class_filepointer> = [],
 		_actions : Array<class_action> = [],
-		parameters : Array<class_taskparameter<any>>,
+		// parameters : Array<class_taskparameter<any>> = null,
 	) {
 		this.identifier = lib_string.generate("task_");
 		this.name = ((name != null) ? name : this.identifier);
@@ -170,7 +193,7 @@ abstract class class_task {
 		this._inputs = _inputs;
 		this._outputs = _outputs;
 		this._actions = _actions;
-		this.parameters = parameters;
+		// this.parameters = parameters;
 	}
 	
 	
@@ -225,7 +248,7 @@ abstract class class_task {
 	 * @author fenris
 	 */
 	protected values(raw : Object) : Object {
-		
+		return null;
 	}
 	
 	

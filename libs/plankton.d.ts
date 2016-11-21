@@ -598,6 +598,75 @@ declare module lib_call {
      */
     function knot_condense<type_input, type_output, type_error>(knots: Array<type_knot<type_input, type_output, type_error>>): type_knot<type_input, Array<type_output>, type_error>;
 }
+declare module lib_meta {
+    /**
+     * @author frac
+     */
+    type type_type = {
+        id: string;
+        parameters?: Object;
+    };
+    /**
+     * @author frac
+     */
+    function type_toString(type: type_type): string;
+    /**
+     * @author frac
+     */
+    type type_field = {
+        path: string;
+        type: type_type;
+        display?: boolean;
+        label?: string;
+        description?: string;
+    };
+    /**
+     * @author frac
+     */
+    type type_class = {
+        fields: Array<type_field>;
+        title?: string;
+        description?: string;
+        groups?: Array<{
+            label?: string;
+            fields: Array<number>;
+        }>;
+    };
+    /**
+     * @author frac
+     */
+    function class_set(name: string, class_: type_class): void;
+    /**
+     * @author frac
+     */
+    function class_get(name: string): type_class;
+    /**
+     * @author frac
+     */
+    type type_group = {
+        label?: string;
+        fields: Array<type_field>;
+    };
+    /**
+     * @author frac
+     */
+    type type_class_grouped = {
+        label?: string;
+        groups: Array<type_group>;
+    };
+    /**
+     * @author frac
+     */
+    function transform_field(name: string, attributes: Object): type_field;
+    /**
+     * @author frac
+     */
+    function transform_description(label: string, description: Object, groups_raw?: Array<Object>): type_class;
+    /**
+     * @author frac
+     */
+    function transform_description_groups(label: string, description_model: Object, description_groups: Array<Object>): type_class_grouped;
+}
 /// <reference path="../../base/build/logic.d.ts" />
 /// <reference path="../../call/build/logic.d.ts" />
 declare var plain_text_to_html: (text: string) => string;
@@ -856,6 +925,14 @@ declare module lib_object {
      * @author fenris
      */
     function matches(object: Object, pattern: Object): boolean;
+    /**
+     * @author fenris
+     */
+    function flatten(value: any): Object;
+    /**
+     * @author frac
+     */
+    function clash(x: Object, y: Object): Object;
 }
 /**
  * @desc adapters for old syntax
@@ -866,6 +943,7 @@ declare var object_map: typeof lib_object.map;
 declare var object_a2o: typeof lib_object.from_array;
 declare var object_o2a: typeof lib_object.to_array;
 declare var object_matches: typeof lib_object.matches;
+declare var object_clash: typeof lib_object.clash;
 declare var Mapper: any;
 /**
  * @param {Object} map
@@ -936,10 +1014,6 @@ declare var getLeafs: (object: any) => any;
  * @param {function} match
  */
 declare var merge_array: (core: any, mantle: any, match?: (x: any, y: any) => boolean) => any;
-/**
- * @author frac
- */
-declare function object_clash(x: Object, y: Object): Object;
 /**
  * @desc merges two objects recursivly
  * @param {Object} object1 core
@@ -1107,7 +1181,7 @@ declare module lib_object {
         static test(): void;
     }
 }
-/// <reference path="../../object/build/logic.d.ts" />
+/// <reference path="../../../plankton/object/build/logic.d.ts" />
 declare module lib_path {
     /**
      * @author fenris

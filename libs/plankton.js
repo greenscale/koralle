@@ -1427,6 +1427,104 @@ var lib_call;
     }
     lib_call.knot_condense = knot_condense;
 })(lib_call || (lib_call = {}));
+var lib_meta;
+(function (lib_meta) {
+    /**
+     * @author frac
+     */
+    function type_toString(type) {
+        return ("<" + type.id + ">");
+    }
+    lib_meta.type_toString = type_toString;
+    /**
+     * @author frac
+     */
+    var class_pool = {};
+    /**
+     * @author frac
+     */
+    function class_set(name, class_) {
+        class_pool[name] = class_;
+    }
+    lib_meta.class_set = class_set;
+    /**
+     * @author frac
+     */
+    function class_get(name) {
+        if (name in class_pool) {
+            return class_pool[name];
+        }
+        else {
+            throw (new Error("no class registered for name '" + name + "'"));
+        }
+    }
+    lib_meta.class_get = class_get;
+    /**
+     * @author frac
+     */
+    function transform_field(name, attributes) {
+        var type = attributes["type"];
+        var path = name;
+        var label = ((attributes["title"] != undefined) ? attributes["title"] : name);
+        var display = ((attributes["display"] != undefined) ? attributes["display"] : true);
+        return ({
+            "path": path,
+            "type": type,
+            "label": label,
+            "display": display
+        });
+    }
+    lib_meta.transform_field = transform_field;
+    /**
+     * @author frac
+     */
+    function transform_description(label, description, groups_raw) {
+        if (groups_raw === void 0) { groups_raw = null; }
+        var fieldmap;
+        var fields = Object.keys(description).map(function (key) { return transform_field(key, description[key]); });
+        var groups = ((groups_raw == null)
+            ?
+                null
+            :
+                groups_raw.map(function (group_raw) {
+                    return {
+                        "label": group_raw["label"],
+                        "fields": group_raw["fields"].map(function (field_name) {
+                            var index = fields["findIndex"](function (field) { return (field.path == field_name); });
+                            if (index < 0) {
+                                throw (new Error("field " + field_name + " not found in model-description"));
+                            }
+                            return index;
+                        })
+                    };
+                }));
+        return {
+            "fields": fields,
+            "description": null,
+            "title": label,
+            "groups": groups
+        };
+    }
+    lib_meta.transform_description = transform_description;
+    /**
+     * @author frac
+     */
+    function transform_description_groups(label, description_model, description_groups) {
+        return ({
+            "label": label,
+            "groups": description_groups.map(function (group_raw) {
+                return {
+                    "label": group_raw["label"],
+                    "fields": group_raw["fields"].map(function (path) {
+                        var field_raw = description_model[path];
+                        return transform_field(path, field_raw);
+                    })
+                };
+            })
+        });
+    }
+    lib_meta.transform_description_groups = transform_description_groups;
+})(lib_meta || (lib_meta = {}));
 var plain_text_to_html = function (text) {
     var ret = text;
     ret = ret.replace(/  /g, "&nbsp;&nbsp;"); // convert multiple whitespace to forced ones
@@ -2350,19 +2448,23 @@ var lib_object;
             switch (escalation) {
                 case 0: {
                     return fallback;
+                    break;
                 }
                 case 1: {
                     var message = ("field '" + fieldname + "' not in structure");
                     message += ("; using fallback value '" + String(fallback) + "'");
                     // console.warn(message);
                     return fallback;
+                    break;
                 }
                 case 2: {
                     var message = ("field '" + fieldname + "' not in structure");
                     throw (new Error(message));
+                    break;
                 }
                 default: {
                     throw (new Error("invalid escalation level " + escalation));
+                    break;
                 }
             }
         }
@@ -2471,6 +2573,59 @@ var lib_object;
         return Object.keys(pattern).every(function (key) { return (pattern[key] == object[key]); });
     }
     lib_object.matches = matches;
+    /**
+     * @author fenris
+     */
+    function flatten(value) {
+        var integrate = function (result, key_, value_) {
+            if (value_ == null) {
+                result[key_] = value_;
+            }
+            else {
+                if (typeof (value_) != "object") {
+                    result[key_] = value_;
+                }
+                else {
+                    var result_1 = flatten(value_);
+                    Object.keys(result_1).forEach(function (key__) {
+                        var value__ = result_1[key__];
+                        result[(key_ + "." + key__)] = value__;
+                    });
+                }
+            }
+        };
+        if (value == null) {
+            return null;
+        }
+        else {
+            var result_2 = {};
+            if (typeof (value) != "object") {
+                result_2["value"] = value;
+            }
+            else {
+                if (value instanceof Array) {
+                    var array = (value);
+                    array.forEach(function (element, index) { return integrate(result_2, "element_" + index, element); });
+                }
+                else {
+                    var object_1 = (value);
+                    Object.keys(object_1).forEach(function (key) { return integrate(result_2, key, object_1[key]); });
+                }
+            }
+            return result_2;
+        }
+    }
+    lib_object.flatten = flatten;
+    /**
+     * @author frac
+     */
+    function clash(x, y) {
+        var z = {};
+        Object.keys(x).forEach(function (key) { return (z[key] = x[key]); });
+        Object.keys(y).forEach(function (key) { return (z[key] = y[key]); });
+        return z;
+    }
+    lib_object.clash = clash;
 })(lib_object || (lib_object = {}));
 /**
  * @desc adapters for old syntax
@@ -2481,6 +2636,7 @@ var object_map = lib_object.map;
 var object_a2o = lib_object.from_array;
 var object_o2a = lib_object.to_array;
 var object_matches = lib_object.matches;
+var object_clash = lib_object.clash;
 ///<reference path="../../base/build/logic.d.ts"/>
 ///<reference path="../../string/build/logic.d.ts"/>
 /**
@@ -2793,15 +2949,6 @@ var object_path_walk = function (object, path, create, null_on_missing) {
     }
     return ret;
 };
-/**
- * @author frac
- */
-function object_clash(x, y) {
-    var z = {};
-    Object.keys(x).forEach(function (key) { return (z[key] = x[key]); });
-    Object.keys(y).forEach(function (key) { return (z[key] = y[key]); });
-    return z;
-}
 /**
  * @desc merges two objects recursivly
  * @param {Object} object1 core
