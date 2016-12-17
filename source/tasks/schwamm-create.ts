@@ -38,6 +38,9 @@ class class_task_schwamm_create extends class_task {
 			adhoc_raw,
 			x => lib_object.map<Array<string>, Array<lib_path.class_filepointer>>(x, members => members.map(member => lib_path.filepointer_read(member)))
 		);
+		if (output_raw == undefined) {
+			throw (new Error(class_task.errormessage_mandatoryparamater("schamm-create", name, "output")));
+		}
 		let output : lib_path.class_filepointer = lib_call.use(
 			output_raw,
 			x => lib_path.filepointer_read(x)
