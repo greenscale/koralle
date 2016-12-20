@@ -71,3 +71,8 @@ documentation/structure/structure.svg:  documentation/structure/structure.gv
 	@ mkdir -p documentation/structure/
 	@ /bin/bash tools/graphviz.sh 'documentation/structure/structure.gv' 'documentation/structure/structure.svg'
 
+install:
+	@ mkdir -p /usr/local/lib/greenscale/ 2>&1 > /dev/null
+	@ cp build/koralle.js /usr/local/lib/greenscale/
+	@ echo -e "node /usr/local/lib/greenscale/koralle.js $$@" > /usr/local/bin/koralle
+	@ chmod +x /usr/local/bin/koralle
