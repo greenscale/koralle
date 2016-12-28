@@ -45,8 +45,9 @@ class class_action_babel extends class_action_adhoc {
 			case "gnumake": {
 				let parts : Array<string> = [];
 				switch (configuration["system"]) {
-					case "unix": 
-					case "win": 
+					case "linux":
+					case "bsd":
+					case "win": {
 						parts.push("babel");
 						parts.push("--no-babelrc");
 						// input
@@ -74,6 +75,7 @@ class class_action_babel extends class_action_adhoc {
 						}
 						return parts.join(" ");
 						break;
+					}
 					default: {
 						throw (new Error("not implemented"));
 						// break;

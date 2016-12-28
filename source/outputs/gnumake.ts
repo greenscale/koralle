@@ -18,7 +18,11 @@ class class_target_gnumake extends class_target_regular<string> {
 	 */
 	public tempfolder() : string {
 		switch (configuration.system) {
-			case "unix": {
+			case "linux": {
+				return "/tmp/";
+				break;
+			}
+			case "bsd": {
 				return "/tmp/";
 				break;
 			}

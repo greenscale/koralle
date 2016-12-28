@@ -13,11 +13,12 @@ module lib_gnumake {
 			"path": path,
 			"args": args = [],
 			"output": output = null,
-			"system": system = "unix",
+			"system": system = "linux",
 		} : type_cmdparams
 	) : string {
 		switch (system) {
-			case "unix": {
+			case "bsd":
+			case "linux": {
 				let command : string = path;
 				{
 					if (interpreter != null) {

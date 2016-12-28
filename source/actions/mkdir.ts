@@ -29,8 +29,11 @@ class class_action_mkdir extends class_action_adhoc {
 				let parts : Array<string> = [];
 				parts.push("mkdir");
 				switch (configuration["system"]) {
-					case "unix": {
-						// parts.push("--parents");
+					case "linux": {
+						parts.push("--parents");
+						break;
+					}
+					case "bsd": {
 						parts.push("-p");
 						break;
 					}
@@ -51,7 +54,7 @@ class class_action_mkdir extends class_action_adhoc {
 					new lib_ant.class_action(
 						new lib_xml.class_node_complex(
 							"mkdir",
-							{"dir": this.location.as_string("unix")}
+							{"dir": this.location.as_string("linux")}
 						)
 					)
 				);

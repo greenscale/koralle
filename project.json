@@ -1,6 +1,6 @@
 {
 	"name": "koralle",
-	"version": "0.0.7",
+	"version": "0.0.8",
 	"roottask": {
 		"active": true,
 		"name": "all",
@@ -94,7 +94,7 @@
 							"outputs": [
 								"documentation/generated"
 							],
-							"interpreter": "/bin/bash",
+							"interpreter": "/bin/sh",
 							"path": "tools/jsdoc.sh"
 						}
 					},
@@ -109,7 +109,7 @@
 							"outputs": [
 								"documentation/structure/structure.svg"
 							],
-							"interpreter": "/bin/bash",
+							"interpreter": "/bin/sh",
 							"path": "tools/graphviz.sh"
 						}
 					}

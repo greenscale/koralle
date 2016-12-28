@@ -28,7 +28,7 @@ class class_action_gitpull extends class_action_adhoc {
 		switch (target_identifier) {
 			case "gnumake": {
 				switch (configuration["system"]) {
-					case "unix":
+					case "linux":
 					case "win": {
 						let parts : Array<string> = [];
 						parts.push("git pull");

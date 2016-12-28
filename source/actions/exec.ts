@@ -69,7 +69,8 @@ class class_action_exec extends class_action_adhoc {
 		switch (output_identifier) {
 			case "gnumake": {
 				switch (configuration.system) {
-					case "unix":
+					case "linux":
+					case "bsd":
 					case "win": {
 						let command : string = "";
 						{
@@ -105,10 +106,10 @@ class class_action_exec extends class_action_adhoc {
 					lib_ant.class_action.macro_exec(
 						{
 							"interpreter": ((this.path_interpreter != null) ? this.path_interpreter.as_string(configuration.system) : null),
-							"path": this.path_script.as_string("unix"),
+							"path": this.path_script.as_string("linux"),
 							"args": [
-								("'" + this.paths_input.map(filepointer => filepointer.as_string("unix")).join(",") + "'"),
-								("'" + this.paths_output.map(filepointer => filepointer.as_string("unix")).join(",") + "'"),
+								("'" + this.paths_input.map(filepointer => filepointer.as_string("linux")).join(",") + "'"),
+								("'" + this.paths_output.map(filepointer => filepointer.as_string("linux")).join(",") + "'"),
 							],
 							"system": configuration.system,
 						}

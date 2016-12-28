@@ -33,7 +33,8 @@ class class_action_lessc extends class_action_adhoc {
 		switch (target_identifier) {
 			case "gnumake": {
 				switch (configuration["system"]) {
-					case "unix":
+					case "linux":
+					case "bsd":
 					case "win": {
 						let parts : Array<string> = [];
 						parts.push("lessc");
@@ -51,7 +52,7 @@ class class_action_lessc extends class_action_adhoc {
 			}
 			case "ant": {
 				switch (configuration["system"]) {
-					case "unix": {
+					case "linux": {
 						return (
 							new lib_ant.class_action(
 								new lib_xml.class_node_complex(

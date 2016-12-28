@@ -38,7 +38,8 @@ class class_action_concat extends class_action_adhoc {
 						lib_gnumake.macro_command(
 							{
 								"path": {
-									"unix": "cat",
+									"linux": "cat",
+									"bsd": "cat",
 									"win": "type",
 								}[configuration.system],
 								"args": this.sources.map(source => source.as_string(configuration.system)),
@@ -64,7 +65,7 @@ class class_action_concat extends class_action_adhoc {
 					new lib_ant.class_action(
 						new lib_xml.class_node_complex(
 							"concat",
-							{"destfile": this.destination.as_string("unix")},
+							{"destfile": this.destination.as_string("linux")},
 							[
 								new lib_xml.class_node_complex(
 									"filelist",
@@ -74,7 +75,7 @@ class class_action_concat extends class_action_adhoc {
 											return (
 												new lib_xml.class_node_complex(
 													"file",
-													{"name": source.as_string("unix")}
+													{"name": source.as_string("linux")}
 												)
 											);
 										}
@@ -84,11 +85,11 @@ class class_action_concat extends class_action_adhoc {
 						)
 					)
 				);
-				// break;
+				break;
 			}
 			default: {
 				throw (new Error(`unhandled output '${output_identifier}'`));
-				// break;
+				break;
 			}
 		}
 	}

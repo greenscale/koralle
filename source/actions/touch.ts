@@ -27,7 +27,8 @@ class class_action_touch extends class_action_adhoc {
 		switch (target_identifier) {
 			case "gnumake": {
 				switch (configuration["system"]) {
-					case "unix": {
+					case "bsd":
+					case "linux": {
 						let parts : Array<string> = [];
 						parts.push("touch");
 						parts.push(this.filepointer.toString());

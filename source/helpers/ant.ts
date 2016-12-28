@@ -69,11 +69,11 @@ module lib_ant {
 				"path": path,
 				"args": args = [],
 				"output": output = null,
-				"system": system = "unix",
+				"system": system = "linux",
 			} : type_cmdparams
 		) : class_action {
 			switch (system) {
-				case "unix": {
+				case "linux": {
 					let attributes : {[key : string] : string} = {};
 					let args_ : Array<string> = [];
 					if (interpreter == null) {

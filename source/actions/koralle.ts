@@ -60,7 +60,8 @@ class class_action_koralle extends class_action_adhoc {
 		switch (output_identifier) {
 			case "gnumake": {
 				switch (configuration.system) {
-					case "unix":
+					case "linux":
+					case "bsd":
 					case "win": {
 						let parts : Array<string> = [];
 						if (configuration.invocation.interpreter != null) {
@@ -86,10 +87,10 @@ class class_action_koralle extends class_action_adhoc {
 			}
 			case "ant": {
 				switch (configuration.system) {
-					case "unix":
+					case "linux":
 					case "win": {
 						let args : Array<string> = [];
-						args.push(this.filepointer_in.as_string("unix"));
+						args.push(this.filepointer_in.as_string("linux"));
 						args.push(`--output=${this.output}`);
 						args.push(`--system=${configuration.system}`);
 						if (this.raw) {

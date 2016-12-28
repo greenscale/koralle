@@ -28,12 +28,17 @@ class class_action_echo extends class_action_adhoc {
 		switch (target_identifier) {
 			case "gnumake": {
 				switch (configuration["system"]) {
-					case "unix":
+					case "linux":
+					case "bsd":
 					case "win": {
-						let parts : Array<string> = [];
-						parts.push("echo");
-						parts.push("\"" + this.message + "\"");
-						return parts.join(" ");
+						return (
+							lib_gnumake.macro_command(
+								{
+									"path": "echo",
+									"args": ["\"" + this.message + "\""],
+								}
+							)
+						);
 						break;
 					}
 					default: {

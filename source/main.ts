@@ -116,7 +116,7 @@ function main(args : Array<string>) : void {
 					"name": "output",
 					"type": "string",
 					"default": "gnumake",
-					"info": "the output build system; valid values are 'gnumake','ant'",
+					"info": "the output build system; valid values are 'gnumake', 'ant'",
 					"kind": "volatile",
 					"parameters": {
 						"indicators_long": ["output"],
@@ -128,8 +128,8 @@ function main(args : Array<string>) : void {
 				{
 					"name": "system",
 					"type": "string",
-					"default": "unix",
-					"info": "the target platform; valid values are 'unix', 'win'; default is 'unix'",
+					"default": "linux",
+					"info": "the target platform; valid values are 'linux', 'bsd', 'win'; default is 'linux'",
 					"kind": "volatile",
 					"parameters": {
 						"indicators_long": ["system"],
@@ -338,6 +338,7 @@ function main(args : Array<string>) : void {
 							filepointer = new lib_path.class_filepointer(
 								// new lib_path.class_location(null, new lib_path.class_path(["."])),
 								lib_path.location_read(configuration.tempfolder, configuration.system),
+								// lib_path.class_location.tempfolder(configuration.system),
 								"_koralle_"
 							);
 						}

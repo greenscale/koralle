@@ -18,7 +18,11 @@ class class_target_ant extends class_target_regular<lib_ant.class_action> {
 	 */
 	public tempfolder() : string {
 		switch (configuration.system) {
-			case "unix": {
+			case "linux": {
+				return "/tmp/";
+				break;
+			}
+			case "bsd": {
 				return "/tmp/";
 				break;
 			}

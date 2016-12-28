@@ -20,12 +20,13 @@ class class_action_ant extends class_action_build {
 		switch (target_identifier) {
 			case "gnumake": {
 				switch (configuration["system"]) {
-					case "unix": {
+					case "linux":
+					case "bsd": {
 						// cmd_cd1
 						let cmd_cd1 : string;
 						{
 							let parts : Array<string> = [];
-							parts.push("cd");
+							parts.push("pushd");
 							parts.push(this.workdir.toString());
 							cmd_cd1 = parts.join(" ");
 						}
@@ -33,8 +34,7 @@ class class_action_ant extends class_action_build {
 						let cmd_cd2 : string;
 						{
 							let parts : Array<string> = [];
-							parts.push("cd");
-							parts.push("-");
+							parts.push("popd");
 							cmd_cd2 = parts.join(" ") + " > /dev/null";
 						}
 						// cmd_ant

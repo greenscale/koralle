@@ -47,37 +47,84 @@ var lib_base;
     }
     lib_base.environment = environment;
 })(lib_base || (lib_base = {}));
-function hash(value) {
-    if (typeof (value) === "object") {
-        if ("hash" in value)
-            return value.hash();
-        else
-            throw (new Error("[hash]" + " " + "object has no hash-method"));
+/**
+ * @author fenris
+ */
+var instance_verbosity = 0;
+/**
+ * @author fenris
+ */
+function instance_collate(value1, value2) {
+    if (typeof (value1) === "object") {
+        if ("_collate" in value1) {
+            return value1["_collate"](value2);
+        }
+        else {
+            throw (new Error("[collate]" + " " + "object has no such method"));
+        }
     }
     else {
-        return value.toString();
+        if (instance_verbosity >= 1) {
+            console.warn("[collate]" + " " + "primitive value; using default implementation");
+        }
+        return (value1 === value2);
     }
 }
-function equals(value_x, value_y) {
-    if (typeof (value_x) === "object") {
-        if ("equals" in value_x)
-            return value_x.equals(value_y);
-        else
-            throw (new Error("[equals]" + " " + "object has no equals-method"));
+/**
+ * @author fenris
+ */
+function instance_clone(value) {
+    if (typeof (value) === "object") {
+        if ("_clone" in value) {
+            return value["_clone"]();
+        }
+        else {
+            throw (new Error("[clone]" + " " + "object has no such method"));
+        }
     }
     else {
-        return (value_x === value_y);
+        if (instance_verbosity >= 1) {
+            console.warn("[clone]" + " " + "primitive value; using default implementation");
+        }
+        return value;
     }
 }
-function show(value) {
+/**
+ * @author fenris
+ */
+function instance_hash(value) {
     if (typeof (value) === "object") {
-        if ("show" in value)
-            return value.show();
-        else
-            throw (new Error("[show]" + " " + "object has no show-method"));
+        if ("_hash" in value) {
+            return value["_hash"]();
+        }
+        else {
+            throw (new Error("[hash]" + " " + "object has no such method"));
+        }
     }
     else {
-        return value.toString();
+        if (instance_verbosity >= 1) {
+            console.warn("[hash]" + " " + "primitive value; using default implementation");
+        }
+        return String(value);
+    }
+}
+/**
+ * @author fenris
+ */
+function instance_show(value) {
+    if (typeof (value) === "object") {
+        if ("_show" in value) {
+            return value["_show"]();
+        }
+        else {
+            throw (new Error("[show]" + " " + "object has no such method"));
+        }
+    }
+    else {
+        if (instance_verbosity >= 1) {
+            console.warn("[show]" + " " + "primitive value; using default implementation");
+        }
+        return String(value);
     }
 }
 /**
@@ -328,439 +375,6 @@ var class_error = (function (_super) {
     };
     return class_error;
 }(Error));
-// module lib_base {
-// import _instances = require("instances");
-// declare var hash;
-// declare var equals;
-/**
- * @author frac
- */
-/*export*/ var Pair = (function () {
-    function Pair(first, second) {
-        this.first = first;
-        this.second = second;
-    }
-    Pair.prototype.equals = function (pair) {
-        var first_equals;
-        var second_equals;
-        var exceptions = new Array();
-        try {
-            first_equals = equals(this.first, pair.first);
-        }
-        catch (exception) {
-            exceptions.push(exception);
-        }
-        try {
-            second_equals = equals(this.second, pair.second);
-        }
-        catch (exception) {
-            exceptions.push(exception);
-        }
-        if (exceptions.length == 0) {
-            return (first_equals && second_equals);
-        }
-        else {
-            throw (new Exception("Pair:equals:components", "Missing equality-implementation for components while trying to compute equality of pairs", exceptions));
-        }
-    };
-    Pair.prototype.hash = function () {
-        var first_hash;
-        var second_hash;
-        var exceptions = new Array();
-        try {
-            first_hash = hash(this.first);
-        }
-        catch (exception) {
-            exceptions.push(exception);
-        }
-        try {
-            second_hash = hash(this.second);
-        }
-        catch (exception) {
-            exceptions.push(exception);
-        }
-        if (exceptions.length == 0) {
-            return (first_hash + "_" + second_hash);
-        }
-        else {
-            throw (new Exception("Pair:hash:components", "Missing hash for components while trying to retrieve hash of pair", exceptions));
-        }
-    };
-    Pair.prototype.toString = function () {
-        return ("(" + this.first.toString() + ", " + this.second.toString() + ")");
-    };
-    return Pair;
-}());
-/**
- * @author frac
- */
-/*export*/ var AbstractMap = (function () {
-    function AbstractMap() {
-        this.size = 0;
-    }
-    AbstractMap.prototype.get = function (key) {
-        throw (new ExceptionAbstract("Map:get"));
-    };
-    AbstractMap.prototype.get_fallback = function (key, fallback) {
-        if (fallback === void 0) { fallback = null; }
-        try {
-            return this.get(key);
-        }
-        catch (exception) {
-            if (exception_is(exception, "Map:get:not_found"))
-                return fallback;
-            else
-                throw exception;
-        }
-    };
-    AbstractMap.prototype.has = function (key) {
-        throw (new ExceptionAbstract("Map:has"));
-    };
-    AbstractMap.prototype.set = function (key, value) {
-        throw (new ExceptionAbstract("Map:set"));
-    };
-    AbstractMap.prototype.extend = function (map) {
-        (function (this_) {
-            map.forEach(function (value, key) {
-                this_.set(key, value);
-            });
-        })(this);
-    };
-    AbstractMap.prototype.delete = function (key) {
-        throw (new ExceptionAbstract("Map:delete"));
-    };
-    AbstractMap.prototype.clear = function () {
-        throw (new ExceptionAbstract("Map:clear"));
-    };
-    AbstractMap.prototype.forEach = function (action) {
-        throw (new ExceptionAbstract("Map:get"));
-    };
-    AbstractMap.prototype.pairs = function () {
-        var pairs = new Array();
-        this.forEach(function (value, key) {
-            pairs.push(new Pair(key, value));
-        });
-        return pairs;
-    };
-    AbstractMap.prototype.toString = function () {
-        return ("{" + this.pairs().map(function (pair) { return (pair.first.toString() + ": " + pair.second.toString()); }).join(", ") + "}");
-    };
-    return AbstractMap;
-}());
-/**
- * @author frac
- */
-/*export*/ var EqualityMap = (function (_super) {
-    __extends(EqualityMap, _super);
-    function EqualityMap() {
-        _super.call(this);
-        this.clear();
-    }
-    EqualityMap.prototype.get_index = function (key) {
-        var index = this.pairs_["findIndex"](function (pair) { return equals(pair.first, key); });
-        return ((index < 0) ? null : index);
-    };
-    EqualityMap.prototype.get_pair = function (key) {
-        var index = this.get_index(key);
-        return ((index == null) ? null : this.pairs_[index]);
-    };
-    EqualityMap.prototype.get = function (key) {
-        return this.get_pair(key).second;
-    };
-    EqualityMap.prototype.has = function (key) {
-        try {
-            this.get(key);
-            return true;
-        }
-        catch (exception) {
-            if (exception_is(exception, "Map:get:not_found"))
-                return false;
-            else
-                throw exception;
-        }
-    };
-    EqualityMap.prototype.set = function (key, value) {
-        var pair = this.get_pair(key);
-        if (pair != null) {
-            console.warn("overwriting value for the following key: ", key);
-            pair.second = value;
-        }
-        else {
-            this.pairs_.push(new Pair(key, value));
-            this.size += 1;
-        }
-        return this;
-    };
-    EqualityMap.prototype.delete = function (key) {
-        var index;
-        var present;
-        try {
-            index = this.get_index(key);
-            present = true;
-        }
-        catch (exception) {
-            if (exception_is(exception, "Map:get:not_found"))
-                present = false;
-            else
-                throw exception;
-        }
-        if (present) {
-            this.pairs_ = this.pairs_.splice(index, 1);
-            this.size -= 1;
-            return true;
-        }
-        else {
-            return false;
-        }
-    };
-    EqualityMap.prototype.clear = function () {
-        this.pairs_ = new Array();
-        this.size = 0;
-    };
-    EqualityMap.prototype.forEach = function (action) {
-        (function (this_) {
-            this_.pairs_.forEach(function (pair) {
-                action(pair.second, pair.first, this_);
-            });
-        })(this);
-    };
-    return EqualityMap;
-}(AbstractMap));
-/**
- * @author frac
- */
-/*export*/ var HashMap = (function (_super) {
-    __extends(HashMap, _super);
-    function HashMap() {
-        _super.call(this);
-        this.clear();
-    }
-    HashMap.prototype.get = function (key) {
-        var hashvalue = hash(key);
-        if (hashvalue in this.object)
-            return this.object[hashvalue];
-        else
-            throw (new Exception("Map:get:not_found", "no entry for the given key (hashvalue: '" + hashvalue + "')"));
-    };
-    HashMap.prototype.has = function (key) {
-        return (hash(key) in this.object);
-    };
-    HashMap.prototype.set = function (key, value) {
-        var hashvalue = hash(key);
-        if (hashvalue in this.object) {
-            console.warn("overwriting value for key with hashvalue '" + hashvalue + "'");
-            this.object[hashvalue] = value;
-        }
-        else {
-            this.keys_original.push(key);
-            this.object[hashvalue] = value;
-            this.size += 1;
-        }
-        return this;
-    };
-    HashMap.prototype.delete = function (key) {
-        var hashvalue = hash(key);
-        if (hashvalue in this.object) {
-            this.keys_original = this.keys_original.filter(function (key_) {
-                return (hash(key_) != hashvalue);
-            });
-            delete this.object[hashvalue];
-            this.size -= 1;
-            return true;
-        }
-        else {
-            return false;
-        }
-    };
-    HashMap.prototype.clear = function () {
-        this.keys_original = new Array();
-        this.object = {};
-        this.size = 0;
-    };
-    HashMap.prototype.forEach = function (action) {
-        (function (this_) {
-            this_.keys_original.forEach(function (key) {
-                var hashvalue = hash(key);
-                var value = this_.object[hashvalue];
-                action(value, key, this_);
-            });
-        })(this);
-    };
-    return HashMap;
-}(AbstractMap));
-/**
- * @author frac
- */
-/*exports*/ var SimpleMap = (function (_super) {
-    __extends(SimpleMap, _super);
-    function SimpleMap() {
-        _super.call(this);
-    }
-    return SimpleMap;
-}(HashMap));
-/**
- * @author frac
- */
-/*export*/ var Tree = (function () {
-    // constructors
-    function Tree(parent, value, children) {
-        if (parent === void 0) { parent = null; }
-        if (value === void 0) { value = null; }
-        if (children === void 0) { children = new Array(); }
-        this.parent = parent;
-        this.value = value;
-        this.children = children;
-        var this_ = this;
-        if (children != null)
-            this.children.forEach(function (tree) { tree.parent = this_; });
-    }
-    // accessors
-    Tree.prototype.value_get = function () {
-        return this.value;
-    };
-    Tree.prototype.map = function (transformator, parent) {
-        if (parent === void 0) { parent = null; }
-        var tree = new Tree(parent, transformator(this.value));
-        tree.children = this.children.map(function (tree_) { return tree_.map(transformator, tree); });
-        return tree;
-    };
-    /*
-    public children_iterate():void
-    {
-        this.children.forEach(function (tree:Tree<Value>) {yield tree;});
-    }
-    */
-    Tree.prototype.flatten = function (postorder) {
-        if (postorder === void 0) { postorder = false; }
-        var reduce = postorder ? 'reduceRight' : 'reduce';
-        return this.children[reduce](function (list, tree) { return list.concat(tree.flatten(postorder)); }, [this]);
-    };
-    Tree.prototype.traverse = function (postorder) {
-        if (postorder === void 0) { postorder = false; }
-        return this.flatten().map(function (tree) { return tree.value; });
-    };
-    Tree.prototype.graph = function (prefix) {
-        if (prefix === void 0) { prefix = "x"; }
-        var vertices = new Array();
-        var edges = new Array();
-        vertices.push(new Pair(prefix, this.value));
-        this.children.forEach(function (tree, index) {
-            var prefix_ = prefix + "_" + index.toString();
-            edges.push(new Pair(new Pair(prefix, prefix_), null));
-            var graph = tree.graph(prefix_);
-            vertices = vertices.concat(graph.get_vertices());
-            edges = edges.concat(graph.get_edges());
-        });
-        return new Graph(vertices, edges);
-    };
-    // mutators
-    Tree.prototype.value_set = function (value) {
-        this.value = value;
-    };
-    Tree.prototype.children_add = function (tree) {
-        this.children.push(tree);
-        tree.parent = this;
-    };
-    return Tree;
-}());
-/**
- * @author frac
- */
-/*export*/ var Graph = (function () {
-    function Graph(vertices, edges) {
-        // [ToDo] check consistency
-        this.vertices = vertices;
-        this.edges = edges;
-    }
-    Graph.prototype.get_vertices = function () {
-        return this.vertices;
-    };
-    Graph.prototype.get_edges = function () {
-        return this.edges;
-    };
-    Graph.prototype.graphviz = function (name) {
-        if (name === void 0) { name = "conversion"; }
-        var script = "";
-        script += ("digraph " + name + "\n");
-        script += ("{\n");
-        this.vertices.forEach(function (vertex) {
-            var line = "";
-            line += ("\t" + vertex.first);
-            var parameters = new HashMap();
-            parameters.set("shape", "circle");
-            if (vertex.first != null)
-                parameters.set("label", vertex.second.toString());
-            line += (" [" + parameters.pairs().map(function (pair) { return (pair.first + "='" + pair.second + "'"); }).join(",") + "]");
-            line += "\n";
-            script += line;
-        });
-        script += ("\t\n");
-        this.edges.forEach(function (edge) {
-            var line = "";
-            line += ("\t" + edge.first.first + " -> " + edge.first.second);
-            var parameters = new HashMap();
-            if (edge.second != null)
-                parameters.set("label", edge.second.toString());
-            line += (" [" + parameters.pairs().map(function (pair) { return (pair.first + "='" + pair.second + "'"); }).join(",") + "]");
-            line += "\n";
-            script += line;
-        });
-        script += ("}\n");
-        return script;
-    };
-    return Graph;
-}());
-/*export*/ function tree_test() {
-    var tree = new Tree(null, 3, [
-        new Tree(null, 1, [
-            new Tree(null, 0),
-            new Tree(null, 2),
-        ]),
-        new Tree(null, 5, [
-            new Tree(null, 4),
-            new Tree(null, 6),
-        ]),
-    ]);
-    return tree;
-}
-/*
-*/
-// }
-/**
- * @author frac
- */
-var class_set = (function () {
-    /**
-     * @author frac
-     */
-    function class_set(elements) {
-        var _this = this;
-        if (elements === void 0) { elements = []; }
-        this.elements = [];
-        elements.forEach(function (element) { return _this.add(element); });
-    }
-    /**
-     * @author frac
-     */
-    class_set.prototype.elements_get = function () {
-        return this.elements;
-    };
-    /**
-     * @author frac
-     */
-    class_set.prototype.add = function (element) {
-        if (this.elements.indexOf(element) < 0) {
-            this.elements.push(element);
-        }
-    };
-    /**
-     * @author frac
-     */
-    class_set.prototype.forEach = function (action) {
-        this.elements.forEach(action);
-    };
-    return class_set;
-}());
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -792,7 +406,7 @@ var lib_call;
     }
     lib_call.schedule = schedule;
 })(lib_call || (lib_call = {}));
-///<reference path="../../base/build/logic.d.ts"/>
+///<reference path="../../base/build/logic-decl.d.ts"/>
 var lib_call;
 (function (lib_call) {
     /**
@@ -901,7 +515,7 @@ var lib_call;
     }(class_wait));
     lib_call.class_wait_parallel = class_wait_parallel;
 })(lib_call || (lib_call = {}));
-///<reference path="../../base/build/logic.d.ts"/>
+///<reference path="../../base/build/logic-decl.d.ts"/>
 var lib_call;
 (function (lib_call) {
     /**
@@ -1084,7 +698,7 @@ var lib_call;
     }
     lib_call.simple_process = simple_process;
 })(lib_call || (lib_call = {}));
-///<reference path="../../base/build/logic.d.ts"/>
+///<reference path="../../base/build/logic-decl.d.ts"/>
 "use strict";
 var lib_call;
 (function (lib_call) {
@@ -1145,7 +759,18 @@ var lib_call;
             }
             else {
                 return executors[0](state)(function (result) {
-                    lib_call.schedule(function () { return executor_chain(result, executors.slice(1))(resolve, reject); });
+                    /*
+                    schedule(
+                        () => executor_chain(result, executors.slice(1))(resolve, reject)
+                    );
+                     */
+                    /*
+                    setTimeout(
+                        () => executor_chain(result, executors.slice(1))(resolve, reject),
+                        0
+                    );
+                     */
+                    executor_chain(result, executors.slice(1))(resolve, reject);
                 }, reject);
             }
         });
@@ -1360,11 +985,32 @@ var lib_call;
      * @author fenris
      */
     function knot_chain(knots) {
-        return (knots.reduce(knot_compose_sequential, knot_id()));
+        /*
+        return (
+            knots.reduce<type_knot<type_input, type_output, type_error>>(
+                knot_compose_sequential,
+                knot_id<any, type_error>()
+            )
+        );
+         */
+        if (knots.length == 0) {
+            return (function (input) { return function (resolve, reject) {
+                resolve(input);
+            }; });
+        }
+        else {
+            return (function (input) { return function (resolve, reject) {
+                return knots[0](input)(function (result) {
+                    return knot_chain(knots.slice(1))(result)(resolve, reject);
+                }, function (error) {
+                    return reject(error);
+                });
+            }; });
+        }
     }
     lib_call.knot_chain = knot_chain;
     /**
-     * @author frac
+     * @author fenris
      */
     /*
     export function knot_compose_parallel<>(
@@ -1418,14 +1064,166 @@ var lib_call;
     }
     lib_call.knot_bunch = knot_bunch;
     /**
-     * @author frac
+     * @author fenris
      */
     function knot_condense(knots) {
-        return (function (input) { return knot_chain(knots.map(function (knot) { return function (list) { return function (resolve, reject) {
-            knot(input)(function (element) { return resolve(list.concat([element])); }, reject);
-        }; }; }))([]); });
+        /*
+        return (
+            input => knot_chain<Array<type_output>, Array<type_output>, type_error>(
+                knots.map<type_knot<Array<type_output>, Array<type_output>, type_error>>(
+                    knot => list => (resolve, reject) => {
+                        knot(input)(
+                            element => resolve(list.concat([element])),
+                            reject
+                        );
+                    }
+                )
+            )([])
+        );
+         */
+        if (knots.length == 0) {
+            return (function (input) { return function (resolve, reject) {
+                resolve([]);
+            }; });
+        }
+        else {
+            return (function (input) { return function (resolve, reject) {
+                knots[0](input)(function (element) {
+                    knot_condense(knots.slice(1))(input)(function (restlist) {
+                        resolve([element].concat(restlist));
+                    }, reject);
+                }, function (error) {
+                    reject(error);
+                });
+            }; });
+        }
     }
     lib_call.knot_condense = knot_condense;
+    /**
+     * @author fenris
+     */
+    function knot_first(knots) {
+        return (function (input) { return function (resolve, reject) {
+            knot_condense(knots.map(function (knot) { return function (input_) { return function (resolve_, reject_) { return knot(input)(reject_, resolve_); }; }; }))(input)(reject, resolve);
+        }; });
+    }
+    lib_call.knot_first = knot_first;
+    /**
+     * @author fenris
+     */
+    function knot_repeat(knot, attempts, delay) {
+        if (attempts === void 0) { attempts = 5; }
+        if (delay === void 0) { delay = (function (attempt) { return 250; }); }
+        var seq = (function (n) { return ((n == 0) ? [] : seq(n - 1).concat([n - 1])); });
+        return (knot_first(seq(attempts).map(function (_, attempt) { return function (input) { return function (resolve, reject) { return knot(input)(resolve, function (error) {
+            setTimeout(function () { return reject(error); }, delay(attempt));
+        }); }; }; })));
+    }
+    lib_call.knot_repeat = knot_repeat;
+    /**
+     * @author fenris
+     */
+    var class_knot_initializer = (function () {
+        /**
+         * @author fenris
+         */
+        function class_knot_initializer(fetcher) {
+            /**
+             * @author fenris
+             * 0 : initial
+             * 1 : waiting
+             * 2 : done, successful
+             * 3 : done, failed
+             */
+            this.state = 0;
+            /**
+             * @author fenris
+             */
+            this.output = null;
+            /**
+             * @author fenris
+             */
+            this.error = null;
+            this.fetcher = fetcher;
+            this.state = 0;
+            this.queue = [];
+            this.output = null;
+            this.error = null;
+        }
+        /**
+         * @author fenris
+         */
+        class_knot_initializer.prototype.actuate = function () {
+            var _this = this;
+            switch (this.state) {
+                case 2: {
+                    this.queue.forEach(function (entry) { return entry.resolve(_this.output); });
+                    break;
+                }
+                case 3: {
+                    this.queue.forEach(function (entry) { return entry.reject(_this.error); });
+                    break;
+                }
+                default: {
+                    throw (new Error("unhandled state " + this.state));
+                    break;
+                }
+            }
+        };
+        /**
+         * @author fenris
+         */
+        class_knot_initializer.prototype.get = function (input) {
+            var _this = this;
+            switch (this.state) {
+                case 0: {
+                    this.state = 1;
+                    return (function (_) { return function (resolve, reject) {
+                        _this.fetcher(input)(function (output) {
+                            _this.state = 2;
+                            _this.output = output;
+                            resolve(output);
+                            _this.actuate();
+                        }, function (error) {
+                            _this.state = 3;
+                            _this.error = error;
+                            reject(error);
+                            _this.actuate();
+                        });
+                    }; });
+                    break;
+                }
+                case 1: {
+                    return (function (_) { return function (resolve, reject) { return _this.queue.push({ "resolve": resolve, "reject": reject }); }; });
+                    break;
+                }
+                case 2: {
+                    return knot_resolver(this.output);
+                    break;
+                }
+                case 3: {
+                    return knot_rejector(this.error);
+                    break;
+                }
+                default: {
+                    throw (new Error("unhandled state " + this.state));
+                    break;
+                }
+            }
+        };
+        return class_knot_initializer;
+    }());
+    lib_call.class_knot_initializer = class_knot_initializer;
+})(lib_call || (lib_call = {}));
+var lib_call;
+(function (lib_call) {
+    /**
+     * @author fenris
+     */
+    function promise_chain(microprograms) {
+        return (function (input) { return microprograms.reduce /*<Promise<type_value, type_error>, type_microprogram<type_value, type_value, type_error>>*/(function (x, y) { return x.then(y); }, Promise.resolve(input)); });
+    }
+    lib_call.promise_chain = promise_chain;
 })(lib_call || (lib_call = {}));
 var lib_meta;
 (function (lib_meta) {
@@ -1433,7 +1231,8 @@ var lib_meta;
      * @author frac
      */
     function type_toString(type) {
-        return ("<" + type.id + ">");
+        // return ("<" + type.id + ">");
+        return JSON.stringify(type);
     }
     lib_meta.type_toString = type_toString;
     /**
@@ -1671,7 +1470,7 @@ var make_eml_body = (function () {
     };
     return exports;
 })();
-///<reference path="../../base/build/logic.d.ts"/>
+///<reference path="../../base/build/logic-decl.d.ts"/>
 var lib_string;
 (function (lib_string) {
     /**
@@ -2249,7 +2048,7 @@ function locale_date(date, ignore_error) {
     }
 }
 ;
-///<reference path="../../call/build/logic.d.ts"/>
+///<reference path="../../call/build/logic-decl.d.ts"/>
 var make_logger = (function () {
     var _loggers = {};
     var make_logger = function (prefix, current_loglevel) {
@@ -2339,8 +2138,8 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-///<reference path="../../base/build/logic.d.ts"/>
-///<reference path="../../string/build/logic.d.ts"/>
+///<reference path="../../base/build/logic-decl.d.ts"/>
+///<reference path="../../string/build/logic-decl.d.ts"/>
 /**
  * @author fenris
  */
@@ -2432,7 +2231,7 @@ var lib_xml;
     }(class_node));
     lib_xml.class_node_complex = class_node_complex;
 })(lib_xml || (lib_xml = {}));
-///<reference path="../../base/build/logic.d.ts"/>
+///<reference path="../../base/build/logic-decl.d.ts"/>
 var lib_object;
 (function (lib_object) {
     /**
@@ -2479,6 +2278,20 @@ var lib_object;
         return object_to;
     }
     lib_object.map = map;
+    /**
+     * @author fenris
+     */
+    function filter(object_from, predicate) {
+        var object_to = {};
+        Object.keys(object_from).forEach(function (key) {
+            var value = object_from[key];
+            if (predicate(value, key)) {
+                object_to[key] = value;
+            }
+        });
+        return object_to;
+    }
+    lib_object.filter = filter;
     /**
      * @author fenris
      */
@@ -2637,8 +2450,8 @@ var object_a2o = lib_object.from_array;
 var object_o2a = lib_object.to_array;
 var object_matches = lib_object.matches;
 var object_clash = lib_object.clash;
-///<reference path="../../base/build/logic.d.ts"/>
-///<reference path="../../string/build/logic.d.ts"/>
+///<reference path="../../base/build/logic-decl.d.ts"/>
+///<reference path="../../string/build/logic-decl.d.ts"/>
 /**
  * @param {Object} map
  * @return {string}
@@ -3489,7 +3302,7 @@ var lib_path;
     }
     lib_path.step_read = step_read;
 })(lib_path || (lib_path = {}));
-///<reference path="../../../plankton/object/build/logic.d.ts"/>
+///<reference path="../../../plankton/object/build/logic-decl.d.ts"/>
 var lib_path;
 (function (lib_path) {
     /**
@@ -3507,9 +3320,10 @@ var lib_path;
          * @author fenris
          */
         class_chain.splitter = function (system) {
-            if (system === void 0) { system = "unix"; }
+            if (system === void 0) { system = "linux"; }
             return (object_fetch({
-                "unix": "/",
+                "linux": "/",
+                "bsd": "/",
                 "win": "\\"
             }, system, "/", 2));
         };
@@ -3575,7 +3389,7 @@ var lib_path;
          * @author fenris
          */
         class_chain.prototype.as_string = function (system) {
-            if (system === void 0) { system = "unix"; }
+            if (system === void 0) { system = "linux"; }
             var splitter = class_chain.splitter(system);
             return ((this.steps.length == 0) ? ("." + splitter) : this.steps.map(function (step) { return (step.toString() + splitter); }).join(""));
         };
@@ -3592,7 +3406,7 @@ var lib_path;
      * @author fenris
      */
     function chain_read(str, system) {
-        if (system === void 0) { system = "unix"; }
+        if (system === void 0) { system = "linux"; }
         var splitter = class_chain.splitter(system);
         var parts = str.split(splitter);
         if (parts[parts.length - 1] == "")
@@ -3601,7 +3415,7 @@ var lib_path;
     }
     lib_path.chain_read = chain_read;
 })(lib_path || (lib_path = {}));
-///<reference path="../../../plankton/object/build/logic.d.ts"/>
+///<reference path="../../../plankton/object/build/logic-decl.d.ts"/>
 var lib_path;
 (function (lib_path) {
     /**
@@ -3619,9 +3433,10 @@ var lib_path;
          * @author fenris
          */
         class_location.anchorpattern = function (system) {
-            if (system === void 0) { system = "unix"; }
+            if (system === void 0) { system = "linux"; }
             return (object_fetch({
-                "unix": new RegExp("/"),
+                "linux": new RegExp("/"),
+                "bsd": new RegExp("/"),
                 "win": new RegExp("[A-Z]:\\\\>")
             }, system, new RegExp("/"), 1));
         };
@@ -3665,7 +3480,7 @@ var lib_path;
          * @author fenris
          */
         class_location.prototype.as_string = function (system) {
-            if (system === void 0) { system = "unix"; }
+            if (system === void 0) { system = "linux"; }
             return (((this.anchor != null) ? this.anchor : "") + this.chain.as_string(system));
         };
         /**
@@ -3685,9 +3500,10 @@ var lib_path;
          * @author fenris
          */
         class_location.tempfolder = function (system) {
-            if (system === void 0) { system = "unix"; }
+            if (system === void 0) { system = "linux"; }
             return (object_fetch({
-                "unix": new class_location("/", new lib_path.class_chain([new lib_path.class_step_regular("tmp")])),
+                "linux": new class_location("/", new lib_path.class_chain([new lib_path.class_step_regular("tmp")])),
+                "bsd": new class_location("/", new lib_path.class_chain([new lib_path.class_step_regular("tmp")])),
                 "win": new class_location(null, new lib_path.class_chain([new lib_path.class_step_regular("%TEMP%")]))
             }, system, null, 2));
         };
@@ -3698,7 +3514,7 @@ var lib_path;
      * @author fenris
      */
     function location_read(str, system) {
-        if (system === void 0) { system = "unix"; }
+        if (system === void 0) { system = "linux"; }
         var regexp = class_location.anchorpattern(system);
         var matching = regexp.exec(str);
         if ((matching == null) || (matching.index > 0)) {
@@ -3739,7 +3555,7 @@ var lib_path;
          * @author fenris
          */
         class_filepointer.prototype.as_string = function (system) {
-            if (system === void 0) { system = "unix"; }
+            if (system === void 0) { system = "linux"; }
             return (this.location.as_string(system) /* + "/"*/ + ((this.filename == null) ? "" : this.filename));
         };
         /**
@@ -3755,7 +3571,7 @@ var lib_path;
      * @author fenris
      */
     function filepointer_read(str, system) {
-        if (system === void 0) { system = "unix"; }
+        if (system === void 0) { system = "linux"; }
         var splitter = lib_path.class_chain.splitter(system);
         var parts = str.split(splitter);
         var last = parts[parts.length - 1];
@@ -3768,8 +3584,8 @@ var lib_path;
     }
     lib_path.filepointer_read = filepointer_read;
 })(lib_path || (lib_path = {}));
-///<reference path="../../base/build/logic.d.ts"/>
-///<reference path="../../call/build/logic.d.ts"/>
+///<reference path="../../base/build/logic-decl.d.ts"/>
+///<reference path="../../call/build/logic-decl.d.ts"/>
 var lib_file;
 (function (lib_file) {
     /**
@@ -4169,7 +3985,7 @@ var lib_args;
     }());
     lib_args.class_argument = class_argument;
 })(lib_args || (lib_args = {}));
-///<reference path="../../base/build/logic.d.ts"/>
+///<reference path="../../base/build/logic-decl.d.ts"/>
 var lib_args;
 (function (lib_args) {
     /**

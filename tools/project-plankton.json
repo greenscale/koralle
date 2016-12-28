@@ -17,8 +17,8 @@
 		"parameters": {
 			"path": "../temp/schwamm.json",
 			"outputs": {
-				"logic": "../libs/plankton.js",
-				"logic_dec": "../libs/plankton.d.ts"
+				"logic-impl": "../libs/plankton.js",
+				"logic-decl": "../libs/plankton.d.ts"
 			}
 		},
 		"sub": [

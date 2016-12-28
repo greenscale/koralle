@@ -42,7 +42,8 @@ class class_action_move extends class_action_adhoc {
 		switch (output_identifier) {
 			case "gnumake": {
 				switch (configuration.system) {
-					case "unix":
+					case "linux":
+					case "bsd":
 					case "win": {
 						let from : string = this.from.as_string(configuration.system);
 						let to : string = this.to.as_string(configuration.system);
@@ -51,7 +52,8 @@ class class_action_move extends class_action_adhoc {
 							command = lib_gnumake.macro_command(
 								{
 									"path": "mv",
-									"args": ["--verbose", from, to],
+									// "args": ["--verbose", from, to],
+									"args": ["-v", from, to],
 									"system": configuration.system,
 								}
 							)
@@ -75,8 +77,8 @@ class class_action_move extends class_action_adhoc {
 						new lib_xml.class_node_complex(
 							"move",
 							{
-								"file": this.from.as_string("unix"),
-								"tofile": this.to.as_string("unix"),
+								"file": this.from.as_string("linux"),
+								"tofile": this.to.as_string("linux"),
 							}
 						)
 					)
