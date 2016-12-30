@@ -52,6 +52,7 @@ class class_action_copy extends class_action_adhoc {
 						else {
 							args.push(this.filepointer_from.as_string(configuration.system));
 						}
+						args.push(this.filepointer_to.as_string(configuration.system));
 						return (
 							lib_gnumake.macro_command(
 								{
@@ -73,6 +74,7 @@ class class_action_copy extends class_action_adhoc {
 						else {
 							args.push(this.filepointer_from.as_string(configuration.system));
 						}
+						args.push(this.filepointer_to.as_string(configuration.system));
 						return (
 							lib_gnumake.macro_command(
 								{
