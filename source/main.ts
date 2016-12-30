@@ -129,7 +129,7 @@ function main(args : Array<string>) : void {
 					"name": "system",
 					"type": "string",
 					"default": "linux",
-					"info": "the target platform; valid values are 'linux', 'bsd', 'win'; default is 'linux'",
+					"info": "the target platform; valid values are 'linux', 'bsd', 'win'",
 					"kind": "volatile",
 					"parameters": {
 						"indicators_long": ["system"],
