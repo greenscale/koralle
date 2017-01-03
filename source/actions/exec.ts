@@ -88,7 +88,8 @@ class class_action_exec extends class_action_adhoc {
 						}
 						{
 							if (this.workdir != null) {
-								command = `pushd ${this.workdir.as_string(configuration.system)} && ${command} ; popd`
+								// command = `pushd ${this.workdir.as_string(configuration.system)} && ${command} ; popd`
+								command = `cd ${this.workdir.as_string(configuration.system)} && ${command} ; cd -`
 							}
 						}
 						return command;
