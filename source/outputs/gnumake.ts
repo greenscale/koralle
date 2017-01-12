@@ -207,8 +207,7 @@ class class_target_gnumake extends class_target_regular<string> {
 					[
 						// `--directory=${workdir}`,
 						// `--file=${filepointer.as_string(configuration.system)}`,
-						'-f',
-						filepointer.as_string(configuration.system),
+						`-f ${filepointer.as_string(configuration.system)}`,
 					],
 					{}
 				);
