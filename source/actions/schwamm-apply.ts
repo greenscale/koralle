@@ -13,7 +13,13 @@ class class_action_schwamm_apply extends class_action_adhoc {
 	/**
 	 * @author fenris
 	 */
-	protected outputs : {[group : string] : lib_path.class_filepointer};
+	protected output_group : string;
+	
+	
+	/**
+	 * @author fenris
+	 */
+	protected output_filepointer : lib_path.class_filepointer;
 	
 	
 	/**
@@ -21,11 +27,13 @@ class class_action_schwamm_apply extends class_action_adhoc {
 	 */
 	public constructor(
 		path : lib_path.class_filepointer,
-		outputs : {[group : string] : lib_path.class_filepointer}
+		output_group : string,
+		output_filepointer : lib_path.class_filepointer
 	) {
 		super();
 		this.path = path;
-		this.outputs = outputs;
+		this.output_group = output_group;
+		this.output_filepointer = output_filepointer;
 	}
 	
 	
@@ -35,17 +43,13 @@ class class_action_schwamm_apply extends class_action_adhoc {
 	 */
 	public compilation(target_identifier : string) : any {
 		let args : Array<string> = [];
-		args.push("apply");
-		args.push(`--file=${this.path.as_string(configuration["system"])}`);
-		Object.keys(this.outputs).forEach(
-			groupname => {
-				let filepointer : lib_path.class_filepointer = lib_path.filepointer_read(configuration["path"]).foo(this.outputs[groupname]);
-				args.push(`--output=${groupname}:${filepointer.as_string(configuration["system"])}`);
-			}
-		);
+		args.push(`--include=${this.path.as_string(configuration["system"])}`);
+		args.push(`--output=dump:${this.output_group}`);
+		let filepointer : lib_path.class_filepointer = lib_path.filepointer_read(configuration["path"]).foo(this.output_filepointer);
 		let cmdparams : type_cmdparams = {
 			"path": "schwamm",
 			"args": args,
+			"output": filepointer.as_string(configuration["system"]),
 		};
 		switch (target_identifier) {
 			case "gnumake": {

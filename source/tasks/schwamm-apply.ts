@@ -45,22 +45,19 @@ class class_task_schwamm_apply extends class_task {
 			[path],
 			lib_object.to_array(outputs).map(x => x.value),
 			(
-				[]
-				.concat(
-					lib_object.to_array(outputs).map(
-						pair => new class_action_mkdir(
+				lib_object.to_array(outputs).map(
+					pair => [
+						new class_action_mkdir(
 							pair.value.location
 						),
-					)
-				)
-				.concat(
-					[
 						new class_action_schwamm_apply(
 							path,
-							outputs
+							pair.key,
+							pair.value
 						),
 					]
 				)
+				.reduce((x, y) => x.concat(y), [])
 			)
 		);
 	}	

@@ -2,7 +2,7 @@
 /**
  * @author fenris
  */
-class class_action_schwamm_create extends class_action_adhoc {
+class class_action_schwamm extends class_action_adhoc {
 	
 	/**
 	 * @author fenris
@@ -13,19 +13,25 @@ class class_action_schwamm_create extends class_action_adhoc {
 	/**
 	 * @author fenris
 	 */
-	protected adhoc : {[group : string] : Array<lib_path.class_filepointer>};
+	protected inputs : {[domain : string] : Array<lib_path.class_filepointer>};
 	
 	
 	/**
 	 * @author fenris
 	 */
-	protected output : lib_path.class_filepointer;
+	protected save : lib_path.class_filepointer;
 	
 	
 	/**
 	 * @author fenris
 	 */
-	protected dir : lib_path.class_location;
+	protected dump_group : string;
+	
+	
+	/**
+	 * @author fenris
+	 */
+	protected dump_filepointer : lib_path.class_filepointer;
 	
 	
 	/**
@@ -33,15 +39,17 @@ class class_action_schwamm_create extends class_action_adhoc {
 	 */
 	public constructor(
 		includes : Array<lib_path.class_filepointer>,
-		adhoc : {[group : string] : Array<lib_path.class_filepointer>},
-		output : lib_path.class_filepointer,
-		dir : lib_path.class_location
+		inputs : {[domain : string] : Array<lib_path.class_filepointer>},
+		save : lib_path.class_filepointer,
+		dump_group : string = null,
+		dump_filepointer : lib_path.class_filepointer = null,
 	) {
 		super();
 		this.includes = includes;
-		this.adhoc = adhoc;
-		this.output = output;
-		this.dir = dir;
+		this.inputs = inputs;
+		this.save = save;
+		this.dump_group = dump_group;
+		this.dump_filepointer = dump_filepointer;
 	}
 	
 	
@@ -56,23 +64,31 @@ class class_action_schwamm_create extends class_action_adhoc {
 				args.push(`--include=${include.as_string(configuration["system"])}`);
 			}
 		);
-		Object.keys(this.adhoc).forEach(
-			group => {
-				this.adhoc[group].forEach(
+		lib_object.to_array(this.inputs).forEach(
+			pair => {
+				pair.value.forEach(
 					member => {
 						let filepointer : lib_path.class_filepointer = /*lib_path.filepointer_read(configuration["path"]).foo(member)*/member;
-						args.push(`--input=${filepointer.as_string(configuration["system"])}:${group}`);
+						args.push(`--input=${filepointer.as_string(configuration["system"])}:${pair.key}`);
 					}
 				);
 			}
 		);
-		args.push(`--output=native`);
 		// args.push(`--file=${this.output.as_string(configuration["system"])}`);
-		// args.push(`--dir=${((this.dir != null) ? this.dir : this.output.location).as_string("linux")}`);
+		// args.push(`--dir=${((this.dir != null) ? this.dir : this.output.location).as_string("system")}`);
+		let target : lib_path.class_filepointer;
+		if (this.save != undefined) {
+			args.push(`--output=native`);
+			target = this.save;
+		}
+		else {
+			args.push(`--output=dump:${this.dump_group}`);
+			target = this.dump_filepointer;
+		}
 		let cmdparams : type_cmdparams = {
 			"path": "schwamm",
 			"args": args,
-			"output": this.output.as_string(configuration["system"]),
+			"output": target.as_string(configuration["system"]),
 		};
 		switch (target_identifier) {
 			case "gnumake": {

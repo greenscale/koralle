@@ -25,7 +25,7 @@ var configuration : {
 		"interpreter": null,
 		"path": "koralle",
 	},
-	"version": "0.0.8",
+	"version": "0.0.9",
 	"tempfolder": null,
 	"path_source": "source",
 	"path_build": "build",
