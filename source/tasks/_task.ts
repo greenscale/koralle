@@ -1,10 +1,20 @@
 
-
-	
 /**
  * @author fenris
  */
 type type_taskfactory = (name : string, sub : Array<class_task>, active : boolean, parameters : Object)=>class_task;
+
+
+/**
+ * @author fenris
+ */
+type type_rawtask = {
+	type ?: string;
+	name ?: string;
+	active ?: boolean;
+	parameters ?: Object;
+	sub ?: Array<type_rawtask>;
+};
 
 
 /**
@@ -276,6 +286,29 @@ abstract class class_task {
 	 */
 	public actions() : Array<class_action> {
 		return this._actions;
+	}
+	
+	
+	/**
+	 * @author fenris
+	 */
+	public static create(
+		{
+			"name": name = null,
+			"type": type = null,
+			"sub": sub = [],
+			"active": active = true,
+			"parameters": parameters = {},
+		} : type_rawtask
+	) : class_task {
+		return (
+			class_task.get(type)(
+				name,
+				sub.map(rawtask => class_task.create(rawtask)),
+				active,
+				parameters
+			)
+		);
 	}
 	
 	

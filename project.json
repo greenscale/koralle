@@ -55,6 +55,7 @@
 								"source/actions/schwamm-create.ts",
 								"source/actions/schwamm-apply.ts",
 								"source/tasks/_task.ts",
+								"source/tasks/main.ts",
 								"source/tasks/group.ts",
 								"source/tasks/dependency.ts",
 								"source/tasks/script.ts",

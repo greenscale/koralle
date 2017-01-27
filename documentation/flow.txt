@@ -1,0 +1,9 @@
+- go to the directory of the description file
+- read the content of the description file
+- scan all dependencies into a graph
+- apply topologic sorting
+- construct core task
+- construct main task from core task and dependencies
+- construct project from meta data and main task
+- generate output
+

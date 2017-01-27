@@ -1,5 +1,4 @@
 
-
 /**
  * scans a project and its subprojects and constructs a dependency-graph
  * @param {class_filepointer} filepointet the filepointer to the project.json, relative to the current working directory
@@ -312,12 +311,20 @@ function main(args : Array<string>) : void {
 				},
 				// setup project
 				state => (resolve, reject) => {
-					state.project = class_project.create(state.project_raw);
-					resolve(state);
+					lib_call.executor_condense<string>(
+						state.order.map(
+							path => lib_file.read_json(path)
+						)
+					)(
+						dependencies_raw => {
+							state.project = class_project.create(state.project_raw, dependencies_raw);
+							resolve(state);
+						},
+						reject
+					);
 				},
 				// generate
 				state => (resolve, reject) => {
-					state.project.dependencies_set(state.order);
 					try {
 						let script : string = state.output.compile_project_string(state.project, configuration.raw);
 						state.script = script;
