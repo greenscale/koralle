@@ -15,7 +15,7 @@ class class_task_main
 	) {
 		super(
 			"__root",
-			dependencies.concat([core]),
+			[],
 			true,
 			[],
 			[],

@@ -136,6 +136,16 @@ class class_project {
 
 	
 	/**
+	 * @desc [mutator] [setter]
+	 * @author fenris
+	 */
+	public graph_set(graph : class_graph<type_depgraphnode>) : void {
+		this.graph = graph;
+	}
+	
+	
+	/**
+	 * @desc [accessor] [getter]
 	 * @author fenris
 	 */
 	public graph_get() : class_graph<type_depgraphnode> {
@@ -179,37 +189,60 @@ class class_project {
 				let node : type_depgraphnode = {"filepointer": filepointer, "rawproject": null};
 				scan(node)(
 					graph => {
-						let {
-							"name": name = "(nameless project)",
-							"version": version = "0.0.0",
-							"dependencies": dependencies = [],
-							"roottask": roottask = null,
-						} : type_rawproject = node.rawproject;
+						let dependencynodes : Array<type_depgraphnode> = null;
+						let error : Error = null;
 						try {
-							let order : Array<string> = graph
+							dependencynodes = graph
 								.topsort()
-								.map(x => x.filepointer.toString())
-								.filter(path => (path != filepointer.toString()))
+								.filter(node => (node.filepointer.toString() != filepointer.toString()))
 							;
+							error = null;
 						}
 						catch (exception) {
+							error = new class_error("could not sort dependencies; probably circular structure", [exception])
+						}
+						if (error == null) {
+							let core : class_task = class_task.create(node.rawproject.roottask);
+							let dependencies : Array<class_task> = dependencynodes.map(
+								node => {
+									let task : class_task = class_task.create(node.rawproject.roottask);
+									task.context_set(node.filepointer.location);
+									return task;
+								}
+							);
+							let task : class_task = new class_task_group(
+								{
+									"name": "__root",
+									"sub": [
+										new class_task_group(
+											{
+												"name": "__deps",
+												"sub": dependencies,
+											}
+										),
+										new class_task_group(
+											{
+												"name": "__core",
+												"sub": [core],
+											}
+										),
+									]
+								}
+							);
+							let project : class_project = new class_project(
+								node.rawproject.name || "(nameless project)",
+								node.rawproject.version || "0.0.0",
+								task
+							);
+							project.graph = graph;
+							resolve(project);
+						}
+						else {
+							reject(error);
 						}
 					},
 					reason => reject(new class_error("scanning dependencies failed", [reason]))
 				);
-				/*
-				// dependencies_raw : Array<type_rawproject> = []
-				let core : class_task = class_task.create(roottask);
-				let dependencies : Array<class_task> = dependencies_raw.map(dependency_raw => class_task.create(dependency_raw.roottask));
-				let main : class_task = new class_task_main(core, dependencies);
-				let project : class_project = new class_project(name, version, main);
-				scan(filepointer)(
-					graph => {
-						project.graph = graph;
-						resolve(project);
-					}
-				)
-				 */
 			}
 		);
 	}

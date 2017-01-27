@@ -1,6 +1,5 @@
 #!/bin/bash
 
-pushd tools
+cd tools
 koralle project-plankton.json --execute
-popd
-
+cd -

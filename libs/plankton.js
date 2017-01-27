@@ -5,6 +5,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 // module lib_base {
 // }
+;
 var lib_base;
 (function (lib_base) {
     /**
@@ -90,6 +91,7 @@ function instance_clone(value) {
     }
 }
 /**
+ * @desc the ability to generate a string out of the element, which identifies it to a high degree
  * @author fenris
  */
 function instance_hash(value) {
@@ -109,6 +111,7 @@ function instance_hash(value) {
     }
 }
 /**
+ * @desc the ability to map the element to a textual representation (most likely not injective)
  * @author fenris
  */
 function instance_show(value) {
@@ -271,8 +274,9 @@ export interface interface_writeable<type_value> {
      */
     function class_nothing(reason) {
         if (reason === void 0) { reason = null; }
-        _super.call(this);
-        this.reason = reason;
+        var _this = _super.call(this) || this;
+        _this.reason = reason;
+        return _this;
     }
     /**
      * @author frac
@@ -316,8 +320,9 @@ export interface interface_writeable<type_value> {
      * @author frac
      */
     function class_just(value) {
-        _super.call(this);
-        this.value = value;
+        var _this = _super.call(this) || this;
+        _this.value = value;
+        return _this;
     }
     /**
      * @author frac
@@ -362,9 +367,10 @@ var class_error = (function (_super) {
      */
     function class_error(message, suberrors) {
         if (suberrors === void 0) { suberrors = []; }
-        _super.call(this, message);
-        this.suberrors = suberrors;
-        this.mess = message;
+        var _this = _super.call(this, message) || this;
+        _this.suberrors = suberrors;
+        _this.mess = message;
+        return _this;
     }
     /**
      * @override
@@ -430,9 +436,10 @@ var lib_call;
          */
         function class_wait_sequential(dependencies, action) {
             if (action === void 0) { action = function () { console.log("all done"); }; }
-            _super.call(this);
-            this.dependencies = dependencies;
-            this.action = action;
+            var _this = _super.call(this) || this;
+            _this.dependencies = dependencies;
+            _this.action = action;
+            return _this;
         }
         /**
          * @author frac
@@ -465,13 +472,13 @@ var lib_call;
          * @author frac
          */
         function class_wait_parallel(dependencies, action) {
-            var _this = this;
             if (action === void 0) { action = function () { console.log("all done"); }; }
-            _super.call(this);
-            this.index = 0;
-            this.dependencies = {};
-            this.action = action;
+            var _this = _super.call(this) || this;
+            _this.index = 0;
+            _this.dependencies = {};
+            _this.action = action;
             dependencies.forEach(function (dependency) { return _this.add_dependency(dependency); });
+            return _this;
         }
         /**
          * @author frac
@@ -984,7 +991,8 @@ var lib_call;
     /**
      * @author fenris
      */
-    function knot_chain(knots) {
+    function knot_chain(knots, log) {
+        if (log === void 0) { log = false; }
         /*
         return (
             knots.reduce<type_knot<type_input, type_output, type_error>>(
@@ -993,15 +1001,18 @@ var lib_call;
             )
         );
          */
-        if (knots.length == 0) {
+        var knots_ = (log
+            ? knots
+            : knots.map(knot_wrap_log));
+        if (knots_.length == 0) {
             return (function (input) { return function (resolve, reject) {
                 resolve(input);
             }; });
         }
         else {
             return (function (input) { return function (resolve, reject) {
-                return knots[0](input)(function (result) {
-                    return knot_chain(knots.slice(1))(result)(resolve, reject);
+                return knots_[0](input)(function (result) {
+                    return knot_chain(knots_.slice(1))(result)(resolve, reject);
                 }, function (error) {
                     return reject(error);
                 });
@@ -1214,16 +1225,6 @@ var lib_call;
         return class_knot_initializer;
     }());
     lib_call.class_knot_initializer = class_knot_initializer;
-})(lib_call || (lib_call = {}));
-var lib_call;
-(function (lib_call) {
-    /**
-     * @author fenris
-     */
-    function promise_chain(microprograms) {
-        return (function (input) { return microprograms.reduce /*<Promise<type_value, type_error>, type_microprogram<type_value, type_value, type_error>>*/(function (x, y) { return x.then(y); }, Promise.resolve(input)); });
-    }
-    lib_call.promise_chain = promise_chain;
 })(lib_call || (lib_call = {}));
 var lib_meta;
 (function (lib_meta) {
@@ -3217,7 +3218,7 @@ var lib_path;
     var class_step_stay = (function (_super) {
         __extends(class_step_stay, _super);
         function class_step_stay() {
-            _super.apply(this, arguments);
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         /**
          * @author fenris
@@ -3240,7 +3241,7 @@ var lib_path;
     var class_step_back = (function (_super) {
         __extends(class_step_back, _super);
         function class_step_back() {
-            _super.apply(this, arguments);
+            return _super !== null && _super.apply(this, arguments) || this;
         }
         /**
          * @author fenris
@@ -3266,8 +3267,9 @@ var lib_path;
          * @author fenris
          */
         function class_step_regular(name) {
-            _super.call(this);
-            this.name = name;
+            var _this = _super.call(this) || this;
+            _this.name = name;
+            return _this;
         }
         /**
          * @author fenris
@@ -3339,7 +3341,7 @@ var lib_path;
             }
             // filter "regular-back"
             {
-                var _loop_1 = function() {
+                var _loop_1 = function () {
                     if (steps.length < 1) {
                         return "break";
                     }
@@ -3362,7 +3364,8 @@ var lib_path;
                 };
                 while (true) {
                     var state_1 = _loop_1();
-                    if (state_1 === "break") break;
+                    if (state_1 === "break")
+                        break;
                 }
             }
             return (new class_chain(steps));
@@ -3441,6 +3444,13 @@ var lib_path;
             }, system, new RegExp("/"), 1));
         };
         /**
+         * @desc [accessor]
+         * @author fenris
+         */
+        class_location.prototype.is_absolute = function () {
+            return (this.anchor != null);
+        };
+        /**
          * @author fenris
          */
         class_location.prototype.normalize = function () {
@@ -3451,6 +3461,18 @@ var lib_path;
          */
         class_location.prototype.extend = function (chain) {
             return (new class_location(this.anchor, this.chain.extend(chain)));
+        };
+        /**
+         * @desc [accessor]
+         * @author fenris
+         */
+        class_location.prototype.relocate = function (location) {
+            if (this.is_absolute()) {
+                return (new class_location(this.anchor, this.chain));
+            }
+            else {
+                return location.extend(this.chain);
+            }
         };
         /**
          * @author fenris
@@ -3550,6 +3572,13 @@ var lib_path;
          */
         class_filepointer.prototype.foo = function (filepointer) {
             return (new class_filepointer(this.location.extend(filepointer.location.chain), filepointer.filename));
+        };
+        /**
+         * @desc [accessor]
+         * @author fenris
+         */
+        class_filepointer.prototype.relocate = function (location) {
+            return (new class_filepointer(this.location.relocate(location), this.filename));
         };
         /**
          * @author fenris
@@ -4333,3 +4362,4 @@ var lib_args;
     }());
     lib_args.class_handler = class_handler;
 })(lib_args || (lib_args = {}));
+

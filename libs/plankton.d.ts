@@ -2,6 +2,10 @@ declare type int = number;
 declare type float = number;
 declare var process: any;
 declare var require: any;
+declare class Buffer {
+    constructor(x: string, modifier?: string);
+    toString(modifier?: string): string;
+}
 declare var java: any;
 declare module lib_base {
     /**
@@ -14,6 +18,7 @@ declare module lib_base {
  */
 declare var instance_verbosity: int;
 /**
+ * @desc the ability to check for equality with another element of the same domain
  * @author fenris
  */
 interface interface_collatable<type_value> {
@@ -27,6 +32,7 @@ interface interface_collatable<type_value> {
  */
 declare function instance_collate<type_value>(value1: type_value, value2: type_value): boolean;
 /**
+ * @desc the ability to create an exact copy
  * @author fenris
  */
 interface interface_cloneable<type_value> {
@@ -49,6 +55,7 @@ interface interface_hashable {
     _hash(): string;
 }
 /**
+ * @desc the ability to generate a string out of the element, which identifies it to a high degree
  * @author fenris
  */
 declare function instance_hash<type_value>(value: type_value): string;
@@ -62,6 +69,7 @@ interface interface_showable {
     _show(): string;
 }
 /**
+ * @desc the ability to map the element to a textual representation (most likely not injective)
  * @author fenris
  */
 declare function instance_show<type_value>(value: type_value): string;
@@ -515,7 +523,7 @@ declare module lib_call {
     /**
      * @author fenris
      */
-    function knot_chain<type_error>(knots: Array<type_knot<any, any, type_error>>): type_knot<any, any, type_error>;
+    function knot_chain<type_error>(knots: Array<type_knot<any, any, type_error>>, log?: boolean): type_knot<any, any, type_error>;
     /**
      * @author fenris
      */
@@ -584,37 +592,6 @@ declare module lib_call {
          */
         get(input: type_input): type_knot<void, type_output, type_error>;
     }
-}
-/**
- * @author fenris
- */
-declare class Promise<type_result, type_reason> {
-    /**
-     * @author fenris
-     */
-    constructor(executor: lib_call.type_executor<type_result, type_reason>);
-    /**
-     * @author fenris
-     */
-    then<type_result_, type_reason_>(onFulfilled: (result: type_result) => any, onRejected?: (reason: type_reason) => any): Promise<type_result_, type_reason_>;
-    /**
-     * @author fenris
-     */
-    catch<type_result_, type_reason_>(onRejected: (reason: type_reason) => any): Promise<type_result_, type_reason_>;
-    /**
-     * @author fenris
-     */
-    static resolve<type_result, type_reason>(result: type_result): Promise<type_result, type_reason>;
-}
-declare module lib_call {
-    /**
-     * @author fenris
-     */
-    type type_microprogram<type_input, type_output, type_error> = (input: type_input) => Promise<type_output, type_error>;
-    /**
-     * @author fenris
-     */
-    function promise_chain<type_value, type_error>(microprograms: Array<type_microprogram<type_value, type_value, type_error>>): type_microprogram<type_value, type_value, type_error>;
 }
 declare module lib_meta {
     /**
@@ -1345,6 +1322,11 @@ declare module lib_path {
          */
         constructor(anchor: string, chain: class_chain);
         /**
+         * @desc [accessor]
+         * @author fenris
+         */
+        is_absolute(): boolean;
+        /**
          * @author fenris
          */
         normalize(): class_location;
@@ -1352,6 +1334,11 @@ declare module lib_path {
          * @author fenris
          */
         extend(chain: class_chain): class_location;
+        /**
+         * @desc [accessor]
+         * @author fenris
+         */
+        relocate(location: class_location): class_location;
         /**
          * @author fenris
          */
@@ -1407,6 +1394,11 @@ declare module lib_path {
          * @author fenris
          */
         foo(filepointer: class_filepointer): class_filepointer;
+        /**
+         * @desc [accessor]
+         * @author fenris
+         */
+        relocate(location: class_location): class_filepointer;
         /**
          * @author fenris
          */
@@ -1608,3 +1600,4 @@ declare module lib_args {
         }): string;
     }
 }
+

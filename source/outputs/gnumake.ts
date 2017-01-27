@@ -42,12 +42,22 @@ class class_target_gnumake extends class_target_regular<string> {
 	 * @author fenris
 	 */
 	protected compile_task(
-		task : class_task,
-		branch : Array<string> = [],
-		depth : int = 0,
-		prefix : string = null
+		{
+			"task": task,
+			"branch": branch = [],
+			"depth": depth = 0,
+			"context": context = null,
+			"prefix": prefix = null
+		} : {
+			task : class_task;
+			branch ?: Array<string>;
+			depth ?: int;
+			context ?: lib_path.class_location;
+			prefix ?: string;
+		}
 	) : Array<lib_gnumake.class_rule> {
-		let branch_ : Array<string> = /*branch.concat(*/[task.name_get()]/*)*/;
+		let aggregate : boolean = true;
+		let branch_ : Array<string> = (aggregate ? branch.concat([task.name_get()]) : [task.name_get()]);
 		let logging_begin : class_action = new class_action_echo(
 			(new class_message("processing '" + branch_.join("-") + "' ...", {"type": "log", "depth": depth, "prefix": prefix})).generate()
 		);
@@ -69,16 +79,29 @@ class class_target_gnumake extends class_target_regular<string> {
 							.concat(
 								task.sub_get()
 								.filter(task_ => task_.active_get())
-								.map(task_ => /*branch_.concat(*/[task_.name_get()]/*)*/.join("-"))
+								.map(
+									task_ => {
+										return (aggregate ? branch_.concat([task_.name_get()]) : [task_.name_get()]).join("-");
+									}
+								)
 							)
 							.concat(
-								task.outputs().map(filepointer => filepointer.as_string(configuration.system))
+								task.outputs().map(
+									filepointer => {
+										let filepointer_ : lib_path.class_filepointer = (
+											(context == null)
+											? filepointer
+											: filepointer.relocate(context)
+										);
+										return filepointer_.as_string(configuration.system);
+									}
+								)
 							)
 						),
 						"actions": (
 							[]
 							.concat((task.outputs().length == 0) ? task.actions() : [])
-							// .concat([logging_end])
+							.concat([logging_end])
 							.map(action => this.compile_action(action))
 						),
 						"phony": true,
@@ -100,9 +123,37 @@ class class_target_gnumake extends class_target_regular<string> {
 				rules_core.push(
 					new lib_gnumake.class_rule(
 						{
-							"name": task.outputs().map(filepointer => filepointer.as_string(configuration.system)).join(" "), // hacky!
-							"dependencies": task.inputs().map(filepointer => filepointer.as_string(configuration.system)),
-							"actions": task.actions().map(action => this.compile_action(action)),
+							"name": task.outputs().map(
+								filepointer => {
+									let filepointer_ : lib_path.class_filepointer = (
+										(context == null)
+										? filepointer
+										: filepointer.relocate(context)
+									);
+									return filepointer_.as_string(configuration.system);
+								}
+							).join(" "), // hacky!
+							"dependencies": task.inputs().map(
+								filepointer => {
+									let filepointer_ : lib_path.class_filepointer = (
+										(context == null)
+										? filepointer
+										: filepointer.relocate(context)
+									);
+									return filepointer_.as_string(configuration.system);
+								}
+							),
+							"actions": task.actions().map(
+								action => {
+									let x : string = this.compile_action(action);
+									if (context == null) {
+										return x;
+									}
+									else {
+										return `cd ${context.as_string(configuration.system)} > /dev/null && ${x} ; cd - > /dev/null`;
+									}
+								}
+							),
 							"phony": false,
 						}
 					)
@@ -112,8 +163,21 @@ class class_target_gnumake extends class_target_regular<string> {
 		let rules_sub : Array<lib_gnumake.class_rule> = [];
 		{
 			rules_sub = task.sub_get()
-				.map(task_ => this.compile_task(task_, branch_, depth+1, prefix))
-				.reduce((x, y) => x.concat(y), [])
+				.map(
+					task_ => this.compile_task(
+						{
+							"task": task_,
+							"branch": branch_,
+							"depth": depth+1,
+							"context": (context == null) ? task_.context_get() : ((task_.context_get() == null) ? context : context.relocate(task_.context_get())),
+							"prefix": prefix,
+						}
+					)
+				)
+				.reduce(
+					(x, y) => x.concat(y),
+					[]
+				)
 			;
 		}
 		return [].concat(rules_core).concat(rules_sub);
@@ -181,7 +245,12 @@ class class_target_gnumake extends class_target_regular<string> {
 			)
 			 */
 			.concat(
-				this.compile_task(project.roottask_get(), undefined, undefined, project.name_get())
+				this.compile_task(
+					{
+						"task": project.roottask_get(),
+						"prefix": project.name_get(),
+					}
+				)
 			)
 		;
 		return (new lib_gnumake.class_sheet(rules, comments));

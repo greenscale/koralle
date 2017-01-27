@@ -1,6 +1,5 @@
 {
 	"name": "koralle-libs",
-	"version": "0.0.1",
 	"dependencies": [
 		"../../plankton/base/project.json",
 		"../../plankton/call/project.json",
@@ -13,33 +12,26 @@
 		"../../plankton/args/project.json"
 	],
 	"roottask": {
-		"type": "schwamm-apply",
+		"type": "schwamm",
 		"parameters": {
-			"path": "../temp/schwamm.json",
-			"outputs": {
-				"logic-impl": "../libs/plankton.js",
-				"logic-decl": "../libs/plankton.d.ts"
-			}
-		},
-		"sub": [
-			{
-				"type": "schwamm-create",
-				"parameters": {
-					"includes": [
-						"../../plankton/base/build/schwamm.json",
-						"../../plankton/call/build/schwamm.json",
-						"../../plankton/meta/build/schwamm.json",
-						"../../plankton/string/build/schwamm.json",
-						"../../plankton/xml/build/schwamm.json",
-						"../../plankton/object/build/schwamm.json",
-						"../../plankton/path/build/schwamm.json",
-						"../../plankton/file/build/schwamm.json",
-						"../../plankton/args/build/schwamm.json"
-					],
-					"output": "../temp/schwamm.json"
+			"includes": [
+				"../../plankton/base/build/schwamm.json",
+				"../../plankton/call/build/schwamm.json",
+				"../../plankton/meta/build/schwamm.json",
+				"../../plankton/string/build/schwamm.json",
+				"../../plankton/xml/build/schwamm.json",
+				"../../plankton/object/build/schwamm.json",
+				"../../plankton/path/build/schwamm.json",
+				"../../plankton/file/build/schwamm.json",
+				"../../plankton/args/build/schwamm.json"
+			],
+			"output": {
+				"dump": {
+					"logic-impl": "../libs/plankton.js",
+					"logic-decl": "../libs/plankton.d.ts"
 				}
 			}
-		]
+		}
 	}
 }
 
