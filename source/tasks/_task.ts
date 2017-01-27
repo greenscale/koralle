@@ -187,6 +187,12 @@ abstract class class_task {
 	/**
 	 * @author fenris
 	 */
+	public context : lib_path.class_location;
+	
+	
+	/**
+	 * @author fenris
+	 */
 	public constructor(
 		name : string,
 		sub : Array<class_task> = [],
@@ -204,6 +210,7 @@ abstract class class_task {
 		this._outputs = _outputs;
 		this._actions = _actions;
 		// this.parameters = parameters;
+		this.context = null;
 	}
 	
 	
@@ -236,6 +243,14 @@ abstract class class_task {
 	 */
 	public active_get() : boolean {
 		return this.active;
+	}
+	
+	
+	/**
+	 * @author fenris
+	 */
+	public context_get() : lib_path.class_location {
+		return this.context;
 	}
 	
 	

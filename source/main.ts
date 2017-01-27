@@ -1,63 +1,5 @@
 
 /**
- * scans a project and its subprojects and constructs a dependency-graph
- * @param {class_filepointer} filepointet the filepointer to the project.json, relative to the current working directory
- * @author fenris
- */
-type type_depgraphnode = {filepointer : lib_path.class_filepointer; label : string;}
-function scan(
-	filepointer : lib_path.class_filepointer,
-	data : Object,
-	graph : class_graph<type_depgraphnode> = null,
-	depth : int = 0
-) : lib_call.type_executor<class_graph<type_depgraphnode>, Error> {
-	if (graph == null) {
-		graph = new class_graph<type_depgraphnode>(
-			(x, y) => (x.filepointer.toString() == y.filepointer.toString())
-		);
-	}
-	function make_node(filepointer : lib_path.class_filepointer, data : Object) : type_depgraphnode {
-		let name : string = lib_object.fetch<string>(data, "name", filepointer.toString(), 1);
-		let node : type_depgraphnode = {"filepointer": filepointer, "label": name};
-		return node;
-	}
-	let node : type_depgraphnode = make_node(filepointer, data);
-	if (graph.has(node)) {
-		return lib_call.executor_resolve<class_graph<type_depgraphnode>, Error>(graph);
-	}
-	else {
-		graph.nodes.push(node);
-		return (
- 			lib_call.executor_chain<class_graph<type_depgraphnode>, Error>(
-				graph,
-				lib_object.fetch<Array<string>>(data, "dependencies", [], 0).map(
-					path => graph_ => (resolve__, reject__) => {
-						let filepointer_ : lib_path.class_filepointer = filepointer.foo(lib_path.filepointer_read(path));
-						lib_file.read_json(filepointer_.toString())(
-							data_ => {
-								scan(filepointer_, data_, graph_, depth+1)(
-									graph_ => {
-										let node_ : type_depgraphnode = make_node(filepointer_, data_);
-										let edge : type_edge<type_depgraphnode> = {"from": node_, "to": node};
-										graph_.edges.push(edge);
-										resolve__(graph_/*.hasse()*/);
-									},
-									reject__
-								);
-							},
-							reason => {
-								reject__(reason);
-							}
-						);
-					}
-				)
-			)
-		);
-	}
-}
-
-
-/**
  * @author fenris
  */
 function main(args : Array<string>) : void {
@@ -267,61 +209,28 @@ function main(args : Array<string>) : void {
 						reject(new class_error("couldn't setup temp folder", [exception]));
 					}
 				},
-				// get jsondata
-				state => (resolve, reject) => {
-					lib_file.read_json(state.filepointer.filename)(
-						data => {state.project_raw = data; resolve(state);},
-						reason => reject(new class_error(`project description file '${state.filepointer.toString()}' couldn't be read`, [reason]))
-					);
-				},
-				// scan dependencies
-				state => (resolve, reject) => {
-					if (configuration.raw) {
-						state.order = [/*state.filepointer.toString()*/];
-						resolve(state);
-					}
-					else {
-						scan(state.filepointer, state.project_raw)(
-							graph => {
-								if (configuration.showgraph) {
-									let output : string = graph
-										.hasse()
-										.output_graphviz(
-											node => node.label
-										)
-									;
-									(new class_message(output)).stderr();								
-								}
-								try {
-									let order : Array<string> = graph
-										.topsort()
-										.map(x => x.filepointer.toString())
-										.filter(path => (path != state.filepointer.toString()))
-									;
-									state.order = order;
-									resolve(state);
-								}
-								catch (exception) {
-									reject(<Error>(exception));
-								}
-							},
-							reason => reject(new class_error("scanning dependencies failed", [reason]))
-						);
-					}
-				},
 				// setup project
 				state => (resolve, reject) => {
-					lib_call.executor_condense<string>(
-						state.order.map(
-							path => lib_file.read_json(path)
-						)
-					)(
-						dependencies_raw => {
-							state.project = class_project.create(state.project_raw, dependencies_raw);
-							resolve(state);
+					class_project.create(state.filepointer/*,state.project_raw*/)(
+						project => {
+							state.project = project;
+							resolve(state)
 						},
 						reject
 					);
+				},
+				// show graph
+				state => (resolve, reject) => {
+					if (configuration.showgraph) {
+						let output : string = state.project.graph_get()
+							.hasse()
+							.output_graphviz(
+								node => node.rawproject.name || node.filepointer.toString()
+							)
+						;
+						(new class_message(output)).stderr();								
+					}
+					resolve(state);
 				},
 				// generate
 				state => (resolve, reject) => {
