@@ -53,7 +53,7 @@ class class_action_move extends class_action_adhoc {
 								{
 									"path": "mv",
 									// "args": ["--verbose", from, to],
-									"args": ["-v", from, to],
+									"args": [from, to],
 									"system": globalvars.configuration.system,
 								}
 							)

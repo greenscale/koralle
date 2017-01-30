@@ -59,7 +59,6 @@ class class_message {
 	 */
 	public generate(with_type : boolean = true) : string {
 		let output : string = "";
-		output += lib_string.repeat("\t", this.depth);
 		if (with_type) {
 			if (this.type != null) {
 				output += ("[" + this.type + "]" + " ");
@@ -68,6 +67,7 @@ class class_message {
 		if (this.prefix != null) {
 			output += ("<" + this.prefix + ">" + " ");
 		}
+		output += lib_string.repeat("\t", this.depth);
 		output += this.content;
 		if (this.linebreak) {
 			output += "\n";

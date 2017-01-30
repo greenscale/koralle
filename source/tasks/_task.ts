@@ -329,12 +329,13 @@ abstract class class_task {
 			"sub": sub = [],
 			"active": active = true,
 			"parameters": parameters = {},
-		} : type_rawtask
+		} : type_rawtask,
+		nameprefix : string = null
 	) : class_task {
 		return (
 			class_task.get(type)(
-				name,
-				sub.map(rawtask => class_task.create(rawtask)),
+				((nameprefix == null) ? `${name}` : `${nameprefix}-${name}`),
+				sub.map(rawtask => class_task.create(rawtask, nameprefix)),
 				active,
 				parameters
 			)

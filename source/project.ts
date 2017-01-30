@@ -189,7 +189,7 @@ class class_project {
 	/**
 	 * @author fenris
 	 */
-	public static create(filepointer : lib_path.class_filepointer) : lib_call.type_executor<class_project, Error> {
+	public static create(filepointer : lib_path.class_filepointer, nameprefix : string = null) : lib_call.type_executor<class_project, Error> {
 		return (
 			(resolve, reject) => {
 				let node : type_depgraphnode = {"filepointer": filepointer, "rawproject": null};
@@ -215,8 +215,11 @@ class class_project {
 							let core : class_task = class_task.create(node.rawproject.roottask);
 							log("creating dependency tasks", 3);
 							let dependencies : Array<class_task> = dependencynodes.map(
-								node => {
-									let task : class_task = class_task.create(node.rawproject.roottask);
+								(node, index) => {
+									let task : class_task = class_task.create(
+										node.rawproject.roottask,
+										"__dependency_" + (node.rawproject.name || lib_string.generate())
+									);
 									task.context_set(node.filepointer.location);
 									return task;
 								}
@@ -228,7 +231,7 @@ class class_project {
 									"sub": [
 										new class_task_group(
 											{
-												"name": "__deps",
+												"name": "__dependencies",
 												"sub": dependencies,
 											}
 										),

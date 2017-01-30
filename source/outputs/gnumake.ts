@@ -56,13 +56,17 @@ class class_target_gnumake extends class_target_regular<string> {
 			prefix ?: string;
 		}
 	) : Array<lib_gnumake.class_rule> {
-		let aggregate : boolean = true;
+		let log_begin : boolean = true;
+		let log_end : boolean = false;
+		let aggregate : boolean = false;
 		let branch_ : Array<string> = (aggregate ? branch.concat([task.name_get()]) : [task.name_get()]);
 		let logging_begin : class_action = new class_action_echo(
-			(new class_message("processing '" + branch_.join("-") + "' ...", {"type": "log", "depth": depth, "prefix": prefix})).generate()
+			// (new class_message("processing '" + branch_.join("-") + "' ...", {"type": "log", "depth": depth, "prefix": prefix})).generate()
+			(new class_message(branch_.join("-") + " …", {"type": "log", "depth": depth, "prefix": prefix})).generate()
 		);
 		let logging_end : class_action = new class_action_echo(
-			(new class_message("... finished '" + branch_.join("-") + "'", {"type": "log", "depth": depth, "prefix": prefix})).generate()
+			// (new class_message("... finished '" + branch_.join("-") + "'", {"type": "log", "depth": depth, "prefix": prefix})).generate()
+			(new class_message("✔", {"type": "log", "depth": depth, "prefix": prefix})).generate()
 		);
 		let rules_core : Array<lib_gnumake.class_rule> = [];
 		{
@@ -74,7 +78,9 @@ class class_target_gnumake extends class_target_regular<string> {
 						"dependencies": (
 							[]
 							.concat(
-								["__logging_" + branch_.join("-")]
+								log_begin
+								? ["__logging_" + branch_.join("-")]
+								: []
 							)
 							.concat(
 								task.sub_get()
@@ -101,7 +107,11 @@ class class_target_gnumake extends class_target_regular<string> {
 						"actions": (
 							[]
 							.concat((task.outputs().length == 0) ? task.actions() : [])
-							.concat([logging_end])
+							.concat(
+								log_end
+								? [logging_end]
+								: []
+							)
 							.map(action => this.compile_action(action))
 						),
 						"phony": true,
@@ -109,15 +119,17 @@ class class_target_gnumake extends class_target_regular<string> {
 				)
 			);
 			// logging
-			rules_core.push(
-				new lib_gnumake.class_rule(
-					{
-						"name": ("__logging_" + branch_.join("-")),
-						"actions": [logging_begin].map(action => this.compile_action(action)),
-						"phony": true,
-					}
-				)
-			);
+			if (log_begin) {
+				rules_core.push(
+					new lib_gnumake.class_rule(
+						{
+							"name": ("__logging_" + branch_.join("-")),
+							"actions": [logging_begin].map(action => this.compile_action(action)),
+							"phony": true,
+						}
+					)
+				);
+			}
 			// actual rule
 			if (task.outputs().length > 0) {
 				rules_core.push(
