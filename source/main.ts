@@ -3,7 +3,7 @@ globalvars.invocation = {
 	"path": "koralle",
 };
 globalvars.configuration = {
-	"version": "0.0.9",
+	"version": "0.1.0",
 	"tempfolder": null,
 	"path_source": "source",
 	"path_build": "build",
