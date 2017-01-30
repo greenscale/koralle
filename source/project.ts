@@ -29,11 +29,13 @@ function scan(
 	graph : class_graph<type_depgraphnode> = null,
 	depth : int = 0
 ) : lib_call.type_executor<class_graph<type_depgraphnode>, Error> {
+	log("exploring node " + JSON.stringify(node), 4);
 	let make_node = function (filepointer : lib_path.class_filepointer, rawproject : type_rawproject = null) : type_depgraphnode {
 		let node : type_depgraphnode = {"filepointer": filepointer, "rawproject": rawproject};
 		return node;
 	};
 	if (graph == null) {
+		log("creating new graph", 4);
 		graph = new class_graph<type_depgraphnode>(
 			(x, y) => (x.filepointer.toString() == y.filepointer.toString())
 		);
@@ -41,16 +43,20 @@ function scan(
 	}
 	return (
 		(resolve, reject) => {
+			log("reading description file", 4);
 			lib_file.read_json(node.filepointer.toString())(
 				data => {
+					log("got data", 4);
 					node.rawproject = data;
 		 			lib_call.executor_chain<class_graph<type_depgraphnode>, Error>(
 						graph,
 						lib_object.fetch<Array<string>>(lib_object.fetch<type_rawproject>(node, "rawproject", {}, 0), "dependencies", [], 0).map(
 							path => graph_ => (resolve_, reject_) => {
+								log("looking through path " + path, 4);
 								let node_ : type_depgraphnode = make_node(node.filepointer.foo(lib_path.filepointer_read(path)));
 								if (graph.has(node_)) {
-									return lib_call.executor_resolve<class_graph<type_depgraphnode>, Error>(graph);
+									// return lib_call.executor_resolve<class_graph<type_depgraphnode>, Error>(graph);
+									resolve_(graph_);
 								}
 								else {
 									graph.nodes.push(node_);
@@ -187,11 +193,14 @@ class class_project {
 		return (
 			(resolve, reject) => {
 				let node : type_depgraphnode = {"filepointer": filepointer, "rawproject": null};
+				log("scanning dependencies", 3);
 				scan(node)(
 					graph => {
+						log("got dependency graph", 3);
 						let dependencynodes : Array<type_depgraphnode> = null;
 						let error : Error = null;
 						try {
+							log("applying topsort", 3);
 							dependencynodes = graph
 								.topsort()
 								.filter(node => (node.filepointer.toString() != filepointer.toString()))
@@ -202,7 +211,9 @@ class class_project {
 							error = new class_error("could not sort dependencies; probably circular structure", [exception])
 						}
 						if (error == null) {
+							log("creating core task", 3);
 							let core : class_task = class_task.create(node.rawproject.roottask);
+							log("creating dependency tasks", 3);
 							let dependencies : Array<class_task> = dependencynodes.map(
 								node => {
 									let task : class_task = class_task.create(node.rawproject.roottask);
@@ -210,6 +221,7 @@ class class_project {
 									return task;
 								}
 							);
+							log("creating root task", 3);
 							let task : class_task = new class_task_group(
 								{
 									"name": "__root",
@@ -229,6 +241,7 @@ class class_project {
 									]
 								}
 							);
+							log("creating project", 3);
 							let project : class_project = new class_project(
 								node.rawproject.name || "(nameless project)",
 								node.rawproject.version || "0.0.0",

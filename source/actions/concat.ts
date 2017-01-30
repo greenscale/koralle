@@ -41,9 +41,9 @@ class class_action_concat extends class_action_adhoc {
 									"linux": "cat",
 									"bsd": "cat",
 									"win": "type",
-								}[configuration.system],
-								"args": this.sources.map(source => source.as_string(configuration.system)),
-								"output": this.destination.as_string(configuration.system),
+								}[globalvars.configuration.system],
+								"args": this.sources.map(source => source.as_string(globalvars.configuration.system)),
+								"output": this.destination.as_string(globalvars.configuration.system),
 							}
 						)
 					);
@@ -53,7 +53,7 @@ class class_action_concat extends class_action_adhoc {
 						lib_gnumake.macro_command(
 							{
 								"path": "touch",
-								"output": this.destination.as_string(configuration.system),
+								"output": this.destination.as_string(globalvars.configuration.system),
 							}
 						)
 					);

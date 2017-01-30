@@ -38,7 +38,7 @@ abstract class class_target {
 	/**
 	 * @author fenris
 	 */
-	public abstract compile_project_string(project : class_project, without_dependencies ?: boolean) : string;
+	public abstract compile_project_string(project : class_project) : string;
 	
 	
 	/**

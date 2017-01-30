@@ -27,7 +27,7 @@ class class_action_gitpull extends class_action_adhoc {
 	public compilation(target_identifier : string) : any {
 		switch (target_identifier) {
 			case "gnumake": {
-				switch (configuration["system"]) {
+				switch (globalvars.configuration["system"]) {
 					case "linux":
 					case "win": {
 						let parts : Array<string> = [];

@@ -44,7 +44,7 @@ class class_action_babel extends class_action_adhoc {
 		switch (target_identifier) {
 			case "gnumake": {
 				let parts : Array<string> = [];
-				switch (configuration["system"]) {
+				switch (globalvars.configuration["system"]) {
 					case "linux":
 					case "bsd":
 					case "win": {
@@ -52,12 +52,12 @@ class class_action_babel extends class_action_adhoc {
 						parts.push("--no-babelrc");
 						// input
 						{
-							this.filepointers_from.forEach(filepointer => parts.push(filepointer.as_string(configuration["system"])));
+							this.filepointers_from.forEach(filepointer => parts.push(filepointer.as_string(globalvars.configuration["system"])));
 						}
 						// output
 						{
 							parts.push("--out-file");
-							parts.push(this.filepointer_to.as_string(configuration["system"]));
+							parts.push(this.filepointer_to.as_string(globalvars.configuration["system"]));
 						}
 						// presets
 						{

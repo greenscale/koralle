@@ -32,7 +32,7 @@ class class_action_lessc extends class_action_adhoc {
 	public compilation(target_identifier : string) : any {
 		switch (target_identifier) {
 			case "gnumake": {
-				switch (configuration["system"]) {
+				switch (globalvars.configuration["system"]) {
 					case "linux":
 					case "bsd":
 					case "win": {
@@ -51,7 +51,7 @@ class class_action_lessc extends class_action_adhoc {
 				break;
 			}
 			case "ant": {
-				switch (configuration["system"]) {
+				switch (globalvars.configuration["system"]) {
 					case "linux": {
 						return (
 							new lib_ant.class_action(

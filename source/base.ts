@@ -1,43 +1,40 @@
 declare var process;
 declare var require;
 
-var _child_process = require("child_process");
-var _fs = require("fs");
+var nm_child_process = require("child_process");
+var nm_fs = require("fs");
 
-var configuration : {
+
+/**
+ * @author fenris
+ */
+var globalvars : {
 	invocation ?: {
 		interpreter ?: string;
 		path ?: string;
 	};
-	version ?: string;
-	tempfolder ?: string;
-	path_source ?: string;
-	path_build ?: string;
-	system ?: string;
-	raw ?: boolean;
-	execute ?: boolean;
-	file ?: string;
-	output ?: string;
-	path ?: string;
-	showgraph ?: boolean;
+	configuration ?: {
+		version ?: string;
+		tempfolder ?: string;
+		path_source ?: string;
+		path_build ?: string;
+		system ?: string;
+		raw ?: boolean;
+		execute ?: boolean;
+		file ?: string;
+		output ?: string;
+		path ?: string;
+		showgraph ?: boolean;
+		verbosity ?: int;
+	};
 } = {
-	"invocation": {
-		"interpreter": null,
-		"path": "koralle",
-	},
-	"version": "0.0.9",
-	"tempfolder": null,
-	"path_source": "source",
-	"path_build": "build",
-	"system": "linux",
-	"raw": false,
-	"execute": false,
-	"output": "gnumake",
-	"file": null,
-	"path": "project.json",
-	"showgraph": false,
+	"configuration": {},
 };
 
+
+/**
+ * @author fenris
+ */
 type type_cmdparams = {
 	interpreter ?: string;
 	path : string;
