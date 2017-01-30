@@ -181,7 +181,7 @@ class class_target_gnumake extends class_target_regular<string> {
 							"task": task_,
 							"branch": branch_,
 							"depth": depth+1,
-							"context": (context == null) ? task_.context_get() : ((task_.context_get() == null) ? context : context.relocate(task_.context_get())),
+							"context": ((context == null) ? task_.context_get() : ((task_.context_get() == null) ? context : context.relocate(task_.context_get()))),
 							"prefix": prefix,
 						}
 					)

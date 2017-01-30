@@ -275,6 +275,7 @@ function main(args : Array<string>) : void {
 						resolve(state);
 					}
 					catch (exception) {
+console.error(exception);
 						reject(new class_error("generating build script failed", [exception]));
 					}
 				},
