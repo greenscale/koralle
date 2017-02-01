@@ -1,3 +1,44 @@
+/**
+ * @author fenris
+ */
+function dirwrap(location : lib_path.class_location, core : string) : string {
+	if (location == null) {
+		return core;
+	}
+	else {
+		return `cd ${location.as_string(globalvars.configuration.system)} > /dev/null && ${core} ; cd - > /dev/null`;
+	}
+}
+
+
+/**
+ * @author fenris
+ */
+function path_augment(path : Array<string>, step : string, aggregate : boolean = true) : Array<string> {
+	if (aggregate) {
+		return path.concat([step]);
+	}
+	else {
+		return [step];
+	}
+}
+
+
+/**
+ * @author fenris
+ */
+function filepointer_adjust(filepointer : lib_path.class_filepointer, location : lib_path.class_location) : lib_path.class_filepointer {
+	return ((location == null) ? filepointer : filepointer.relocate(location));
+}
+
+
+/**
+ * @author fenris
+ */
+function path_dump(path : Array<string>) : string {
+	return path.join(globalvars.configuration.name_splitter);
+}
+
 
 /**
  * @author fenris
@@ -59,13 +100,11 @@ class class_target_gnumake extends class_target_regular<string> {
 		let log_begin : boolean = true;
 		let log_end : boolean = false;
 		let aggregate : boolean = false;
-		let branch_ : Array<string> = (aggregate ? branch.concat([task.name_get()]) : [task.name_get()]);
+		let branch_ : Array<string> = path_augment(branch, task.name_get(), aggregate);
 		let logging_begin : class_action = new class_action_echo(
-			// (new class_message("processing '" + branch_.join("-") + "' ...", {"type": "log", "depth": depth, "prefix": prefix})).generate()
-			(new class_message(branch_.join("-") + " …", {"type": "log", "depth": depth, "prefix": prefix})).generate()
+			(new class_message(path_dump(branch_) + " …", {"type": "log", "depth": depth, "prefix": prefix})).generate()
 		);
 		let logging_end : class_action = new class_action_echo(
-			// (new class_message("... finished '" + branch_.join("-") + "'", {"type": "log", "depth": depth, "prefix": prefix})).generate()
 			(new class_message("✔", {"type": "log", "depth": depth, "prefix": prefix})).generate()
 		);
 		let rules_core : Array<lib_gnumake.class_rule> = [];
@@ -74,45 +113,38 @@ class class_target_gnumake extends class_target_regular<string> {
 			rules_core.push(
 				new lib_gnumake.class_rule(
 					{
-						"name": branch_.join("-"),
+						"name": path_dump(branch_),
 						"dependencies": (
 							[]
 							.concat(
 								log_begin
-								? ["__logging_" + branch_.join("-")]
+								? [path_dump(path_augment(branch_, name_mark("logging"), true))]
 								: []
 							)
 							.concat(
 								task.sub_get()
 								.filter(task_ => task_.active_get())
-								.map(
-									task_ => {
-										return (aggregate ? branch_.concat([task_.name_get()]) : [task_.name_get()]).join("-");
-									}
-								)
+								.map(task_ => path_dump(path_augment(branch_, task_.name_get(), aggregate)))
 							)
 							.concat(
-								task.outputs().map(
-									filepointer => {
-										let filepointer_ : lib_path.class_filepointer = (
-											(context == null)
-											? filepointer
-											: filepointer.relocate(context)
-										);
-										return filepointer_.as_string(globalvars.configuration.system);
-									}
-								)
+								task.outputs().map(filepointer => filepointer_adjust(filepointer, context).as_string(globalvars.configuration.system))
 							)
 						),
 						"actions": (
 							[]
-							.concat((task.outputs().length == 0) ? task.actions() : [])
 							.concat(
-								log_end
-								? [logging_end]
+								(task.outputs().length == 0)
+								? task.actions().map(action => dirwrap(context, this.compile_action(action)))
 								: []
 							)
-							.map(action => this.compile_action(action))
+							.concat(
+								(
+									log_end
+									? [logging_end]
+									: []
+								)
+								.map(action => this.compile_action(action))
+							)
 						),
 						"phony": true,
 					}
@@ -123,7 +155,7 @@ class class_target_gnumake extends class_target_regular<string> {
 				rules_core.push(
 					new lib_gnumake.class_rule(
 						{
-							"name": ("__logging_" + branch_.join("-")),
+							"name": path_dump(path_augment(branch_, name_mark("logging"), true)),
 							"actions": [logging_begin].map(action => this.compile_action(action)),
 							"phony": true,
 						}
@@ -135,37 +167,9 @@ class class_target_gnumake extends class_target_regular<string> {
 				rules_core.push(
 					new lib_gnumake.class_rule(
 						{
-							"name": task.outputs().map(
-								filepointer => {
-									let filepointer_ : lib_path.class_filepointer = (
-										(context == null)
-										? filepointer
-										: filepointer.relocate(context)
-									);
-									return filepointer_.as_string(globalvars.configuration.system);
-								}
-							).join(" "), // hacky!
-							"dependencies": task.inputs().map(
-								filepointer => {
-									let filepointer_ : lib_path.class_filepointer = (
-										(context == null)
-										? filepointer
-										: filepointer.relocate(context)
-									);
-									return filepointer_.as_string(globalvars.configuration.system);
-								}
-							),
-							"actions": task.actions().map(
-								action => {
-									let x : string = this.compile_action(action);
-									if (context == null) {
-										return x;
-									}
-									else {
-										return `cd ${context.as_string(globalvars.configuration.system)} > /dev/null && ${x} ; cd - > /dev/null`;
-									}
-								}
-							),
+							"name": task.outputs().map(filepointer => filepointer_adjust(filepointer, context).as_string(globalvars.configuration.system)).join(" "), // hacky!
+							"dependencies": task.inputs().map(filepointer => filepointer_adjust(filepointer, context).as_string(globalvars.configuration.system)),
+							"actions": task.actions().map(action => this.compile_action(action)).map(x => dirwrap(context, x)),
 							"phony": false,
 						}
 					)

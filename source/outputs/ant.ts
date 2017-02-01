@@ -52,7 +52,16 @@ class class_target_ant extends class_target_regular<lib_ant.class_action> {
 			context ?: lib_path.class_location;
 		}
 	) : Array<lib_ant.class_target> {
-		let path_ : Array<string> = /*path.concat(*/[task.name_get()]/*)*/;
+		let aggregate : boolean = false;
+		let path_augment = (path : Array<string>, task : class_task) : Array<string> => {
+			if (aggregate) {
+				return path.concat([task.name_get()]);
+			}
+			else {
+				return [task.name_get()];
+			}
+		};
+		let path_ : Array<string> = path_augment(path, task);
 		let targets_core : Array<lib_ant.class_target> = [
 			new lib_ant.class_target(
 				{
@@ -60,23 +69,26 @@ class class_target_ant extends class_target_regular<lib_ant.class_action> {
 					"dependencies": (
 						task.sub_get()
 						.filter(task_ => task_.active_get())
-						.map(task_ => /*path_.concat(*/[task_.name_get()]/*)*/.join("-"))
+						.map(task_ => path_augment(path_, task_).join("-"))
 					),
 					"actions": (
 						[]
 						.concat(
 							(context == null)
 							? (
-								task.actions()
-								// .concat([new class_action_echo(task.name_get())])
-								.map(action => this.compile_action(action))
+								[]
+								.concat(
+									task.actions()
+									// .concat([new class_action_echo(task.name_get())])
+									.map(action => this.compile_action(action))
+								)
 							)
 							: [
 								new lib_ant.class_action(
 									new lib_xml.class_node_complex(
 										"ant",
 										{
-											// "antfile": "/tmp/_koralle_",
+											"antfile": "${ant.file}",
 											"dir": context.as_string("linux"),
 											"target": path_.concat(["__core"]).join("-"),
 											"inheritAll": String(true),
@@ -164,22 +176,37 @@ class class_target_ant extends class_target_regular<lib_ant.class_action> {
 	public execute(filepointer : lib_path.class_filepointer, workdir : string = ".") : lib_call.type_executor<void, Error> {
 		return (
 			(resolve, reject) => {
-				let command : string = [
+				let cp : any = nm_child_process.spawn(
 					"ant",
-					"-file " + filepointer.toString(),
-				].join(" ");
-				nm_child_process.exec(
-					command,
-					{},
-					function (stdout : string, stderr : string, error : Error) : void {
-						if (error == null) {
+					[
+						`-f`,
+						`${filepointer.as_string(globalvars.configuration.system)}`,
+					],
+					{}
+				);
+				cp.stdout.on(
+					"data",
+					[x => x.toString(), x => x.slice(0, x.length-1), console.log].reduce(lib_call.compose)
+				);
+				cp.stderr.on(
+					"data",
+					[x => x.toString(), x => x.slice(0, x.length-1), console.error].reduce(lib_call.compose)
+				);
+				cp.on(
+					"error",
+					error => reject(new class_error("subprocess not finish successfully", [error]))
+				);
+				cp.on(
+					"close",
+					code => {
+						if (code == 0) {
 							resolve(undefined);
 						}
 						else {
-							reject(error);
+							reject(new Error("unknown error while subprocess execution"));
 						}
 					}
-				)
+				);
 			}
 		);
 	}

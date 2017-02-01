@@ -3,7 +3,7 @@ globalvars.invocation = {
 	"path": "koralle",
 };
 globalvars.configuration = {
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"tempfolder": null,
 	"path_source": "source",
 	"path_build": "build",
@@ -14,6 +14,8 @@ globalvars.configuration = {
 	"path": "project.json",
 	"showgraph": false,
 	"verbosity": 0,
+	"name_splitter": "_",
+	"name_prefix": "~",
 };
 
 
@@ -275,7 +277,6 @@ function main(args : Array<string>) : void {
 						resolve(state);
 					}
 					catch (exception) {
-console.error(exception);
 						reject(new class_error("generating build script failed", [exception]));
 					}
 				},
@@ -292,7 +293,7 @@ console.error(exception);
 								// new lib_path.class_location(null, new lib_path.class_path(["."])),
 								lib_path.location_read(globalvars.configuration.tempfolder, globalvars.configuration.system),
 								// lib_path.class_location.tempfolder(globalvars.configuration.system),
-								"_koralle_"
+								"__koralle"
 							);
 						}
 					}
@@ -340,7 +341,7 @@ console.error(exception);
 			},
 			function (reason : Error) : void {
 				// throw reason;
-				// console.error(reason);
+				console.error(reason);
 				(new class_message(`the following error occured: '${reason.toString()}'`, {"type": "error", "prefix": "koralle"})).stderr();
 				process.exit(-1);
 			}

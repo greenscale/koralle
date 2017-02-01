@@ -26,6 +26,8 @@ var globalvars : {
 		path ?: string;
 		showgraph ?: boolean;
 		verbosity ?: int;
+		name_splitter ?: string;
+		name_prefix ?: string;
 	};
 } = {
 	"configuration": {},
@@ -42,4 +44,12 @@ type type_cmdparams = {
 	output ?: string;
 	system ?: string;
 };
+
+
+/**
+ * @author fenris
+ */
+function name_mark(name : string) : string {
+	return (globalvars.configuration.name_prefix + name);
+}
 

@@ -218,7 +218,7 @@ class class_project {
 								(node, index) => {
 									let task : class_task = class_task.create(
 										node.rawproject.roottask,
-										"__dependency_" + (node.rawproject.name || lib_string.generate())
+										name_mark("dependency_" + (node.rawproject.name || lib_string.generate()))
 									);
 									task.context_set(node.filepointer.location);
 									return task;
@@ -227,17 +227,17 @@ class class_project {
 							log("creating root task", 3);
 							let task : class_task = new class_task_group(
 								{
-									"name": "__root",
+									"name": name_mark("root"),
 									"sub": [
 										new class_task_group(
 											{
-												"name": "__dependencies",
+												"name": name_mark("dependencies"),
 												"sub": dependencies,
 											}
 										),
 										new class_task_group(
 											{
-												"name": "__core",
+												"name": name_mark("core"),
 												"sub": [core],
 											}
 										),
