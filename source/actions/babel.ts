@@ -74,7 +74,7 @@ class class_action_babel extends class_action_adhoc {
 			}
 		}
 		let cmdparams : type_cmdparams = {
-			"path": "schwamm",
+			"path": "babel",
 			"args": args,
 			"output": this.filepointer_to.as_string(globalvars.configuration.system),
 		};
