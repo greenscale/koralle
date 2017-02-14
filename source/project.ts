@@ -54,6 +54,8 @@ function scan(
 							path => graph_ => (resolve_, reject_) => {
 								log("looking through path " + path, 4);
 								let node_ : type_depgraphnode = make_node(node.filepointer.foo(lib_path.filepointer_read(path)));
+								let edge : type_edge<type_depgraphnode> = {"from": node_, "to": node};
+								graph_.edges.push(edge);
 								if (graph.has(node_)) {
 									// return lib_call.executor_resolve<class_graph<type_depgraphnode>, Error>(graph);
 									resolve_(graph_);
@@ -62,8 +64,6 @@ function scan(
 									graph.nodes.push(node_);
 									scan(node_, graph_, depth+1)(
 										graph_ => {
-											let edge : type_edge<type_depgraphnode> = {"from": node_, "to": node};
-											graph_.edges.push(edge);
 											resolve_(graph_/*.hasse()*/);
 										},
 										reject_
