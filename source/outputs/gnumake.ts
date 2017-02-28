@@ -1,44 +1,3 @@
-/**
- * @author fenris
- */
-function dirwrap(location : lib_path.class_location, core : string) : string {
-	if (location == null) {
-		return core;
-	}
-	else {
-		return `cd ${location.as_string(globalvars.configuration.system)} > /dev/null && ${core} ; cd - > /dev/null`;
-	}
-}
-
-
-/**
- * @author fenris
- */
-function path_augment(path : Array<string>, step : string, aggregate : boolean = true) : Array<string> {
-	if (aggregate) {
-		return path.concat([step]);
-	}
-	else {
-		return [step];
-	}
-}
-
-
-/**
- * @author fenris
- */
-function filepointer_adjust(filepointer : lib_path.class_filepointer, location : lib_path.class_location) : lib_path.class_filepointer {
-	return ((location == null) ? filepointer : filepointer.relocate(location));
-}
-
-
-/**
- * @author fenris
- */
-function path_dump(path : Array<string>) : string {
-	return path.join(globalvars.configuration.name_splitter);
-}
-
 
 /**
  * @author fenris
@@ -102,7 +61,7 @@ class class_target_gnumake extends class_target_regular<string> {
 		let aggregate : boolean = false;
 		let branch_ : Array<string> = path_augment(branch, task.name_get(), aggregate);
 		let logging_begin : class_action = new class_action_echo(
-			(new class_message(path_dump(branch_) + " …", {"type": "log", "depth": depth, "prefix": prefix})).generate()
+			(new class_message(path_dump(branch_), {"type": "log", "depth": depth, "prefix": prefix})).generate()
 		);
 		let logging_end : class_action = new class_action_echo(
 			(new class_message("✔", {"type": "log", "depth": depth, "prefix": prefix})).generate()

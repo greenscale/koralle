@@ -53,23 +53,15 @@ class class_target_ant extends class_target_regular<lib_ant.class_action> {
 		}
 	) : Array<lib_ant.class_target> {
 		let aggregate : boolean = false;
-		let path_augment = (path : Array<string>, task : class_task) : Array<string> => {
-			if (aggregate) {
-				return path.concat([task.name_get()]);
-			}
-			else {
-				return [task.name_get()];
-			}
-		};
-		let path_ : Array<string> = path_augment(path, task);
+		let path_ : Array<string> = path_augment(path, task.name_get(), aggregate);
 		let targets_core : Array<lib_ant.class_target> = [
 			new lib_ant.class_target(
 				{
-					"name": path_.join("-"),
+					"name": path_dump(path_),
 					"dependencies": (
 						task.sub_get()
 						.filter(task_ => task_.active_get())
-						.map(task_ => path_augment(path_, task_).join("-"))
+						.map(task_ => path_dump(path_augment(path_, task_.name_get(), aggregate)))
 					),
 					"actions": (
 						[]
@@ -90,7 +82,7 @@ class class_target_ant extends class_target_regular<lib_ant.class_action> {
 										{
 											"antfile": "${ant.file}",
 											"dir": context.as_string("linux"),
-											"target": path_.concat(["__core"]).join("-"),
+											"target": path_dump(path_augment(path_, name_mark("inner"))),
 											"inheritAll": String(true),
 											"inheritRefs": String(true),
 										}
@@ -109,7 +101,7 @@ class class_target_ant extends class_target_regular<lib_ant.class_action> {
 				: [
 					new lib_ant.class_target(
 						{
-							"name": path_.concat(["__core"]).join("-"),
+							"name": path_dump(path_augment(path_, name_mark("inner"))),
 							"dependencies": [],
 							"actions": (
 								task.actions()
@@ -151,7 +143,7 @@ class class_target_ant extends class_target_regular<lib_ant.class_action> {
 			new lib_ant.class_project(
 				{
 					"name": project.name_get(),
-					"default": "__root",
+					"default": name_mark("root"),
 					"comments": comments,
 					"targets": targets,
 				}

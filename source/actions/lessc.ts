@@ -27,88 +27,28 @@ class class_action_lessc extends class_action_adhoc {
 	
 	
 	/**
+	 * @override
 	 * @author fenris
 	 */
 	public compilation(target_identifier : string) : any {
+		let args : Array<string> = [];
+		args.push(this.filepointer_from.as_string(globalvars.configuration.system));
+		let cmdparams : type_cmdparams = {
+			"path": "lessc",
+			"args": args,
+			"output": this.filepointer_to.as_string(globalvars.configuration.system),
+		};
 		switch (target_identifier) {
 			case "gnumake": {
-				switch (globalvars.configuration["system"]) {
-					case "linux":
-					case "bsd":
-					case "win": {
-						let parts : Array<string> = [];
-						parts.push("lessc");
-						parts.push(this.filepointer_from.toString());
-						parts.push(this.filepointer_to.toString());
-						return parts.join(" ");
-						break;
-					}
-					default: {
-						throw (new Error("not implemented"));
-						break;
-					}
-				}
+				return lib_gnumake.macro_command(cmdparams);
 				break;
 			}
 			case "ant": {
-				switch (globalvars.configuration["system"]) {
-					case "linux": {
-						return (
-							new lib_ant.class_action(
-								new lib_xml.class_node_complex(
-									"exec",
-									{
-										"executable": "lessc",
-										"output": this.filepointer_to.toString(),
-									},
-									[
-										new lib_xml.class_node_complex(
-											"arg",
-											{"value": this.filepointer_from.toString()}
-										),
-									]
-								)
-							)
-						);
-						// break;
-					}
-					case "win": {
-						return (
-							new lib_ant.class_action(
-								new lib_xml.class_node_complex(
-									"exec",
-									{
-										"executable": "cmd",
-										"output": this.filepointer_to.toString(),
-									},
-									[
-										new lib_xml.class_node_complex(
-											"arg",
-											{"value": "/c"}
-										),
-										new lib_xml.class_node_complex(
-											"arg",
-											{"value": "lessc"}
-										),
-										new lib_xml.class_node_complex(
-											"arg",
-											{"value": this.filepointer_from.toString()}
-										),
-									]
-								)
-							)
-						);
-						// break;
-					}
-					default: {
-						throw (new Error("not implemented"));
-						// break;
-					}
-				}
+				return lib_ant.class_action.macro_command(cmdparams);
 				break;
 			}
 			default: {
-				throw (new Error("unhandled target '" + target_identifier + "'"));
+				throw (new Error(`unhandled target '${target_identifier}'`));
 				break;
 			}
 		}
