@@ -56,6 +56,11 @@ class class_action_babel extends class_action_adhoc {
 		{
 			this.filepointers_from.forEach(filepointer => args.push(filepointer.as_string(globalvars.configuration.system)));
 		}
+		// output
+		{
+			args.push("--out-file");
+			args.push(this.filepointer_to.as_string(globalvars.configuration.system));
+		}
 		// presets
 		{
 			let presets : Array<string> = [];
