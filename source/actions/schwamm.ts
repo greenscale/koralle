@@ -37,12 +37,33 @@ class class_action_schwamm extends class_action_adhoc {
 	/**
 	 * @author fenris
 	 */
+	protected locmerge_domain : string;
+	
+	
+	/**
+	 * @author fenris
+	 */
+	protected locmerge_identifier : string;
+	
+	
+	/**
+	 * @author fenris
+	 */
+	protected locmerge_filepointer : lib_path.class_filepointer;
+	
+	
+	/**
+	 * @author fenris
+	 */
 	public constructor(
 		includes : Array<lib_path.class_filepointer>,
 		inputs : {[domain : string] : Array<lib_path.class_filepointer>},
 		save : lib_path.class_filepointer,
 		dump_group : string = null,
 		dump_filepointer : lib_path.class_filepointer = null,
+		locmerge_domain : string = null,
+		locmerge_identifier : string = null,
+		locmerge_filepointer : lib_path.class_filepointer = null
 	) {
 		super();
 		this.includes = includes;
@@ -50,6 +71,9 @@ class class_action_schwamm extends class_action_adhoc {
 		this.save = save;
 		this.dump_group = dump_group;
 		this.dump_filepointer = dump_filepointer;
+		this.locmerge_domain = locmerge_domain;
+		this.locmerge_identifier = locmerge_identifier;
+		this.locmerge_filepointer = locmerge_filepointer;
 	}
 	
 	
@@ -81,9 +105,16 @@ class class_action_schwamm extends class_action_adhoc {
 			args.push(`--output=native`);
 			target = this.save;
 		}
-		else {
+		else if (this.dump_group != null) {
 			args.push(`--output=dump:${this.dump_group}`);
 			target = this.dump_filepointer;
+		}
+		else if (this.locmerge_domain != null) {
+			args.push(`--output=locmerge:${this.locmerge_domain}:${this.locmerge_identifier}`);
+			target = this.locmerge_filepointer;
+		}
+		else {
+			console.warn("output missing?");
 		}
 		let cmdparams : type_cmdparams = {
 			"path": "schwamm",
