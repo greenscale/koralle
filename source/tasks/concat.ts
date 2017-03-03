@@ -2,6 +2,24 @@
 /**
  * @author fenris
  */
+type_schwamminput_raw = {
+	path : string;
+	group : string;
+};
+
+
+/**
+ * @author fenris
+ */
+type_schwamminput = {
+	path : lib_path.class_filepointer;
+	group : string;
+};
+
+
+/**
+ * @author fenris
+ */
 class class_task_concat extends class_task {
 	
 	/**
@@ -14,6 +32,7 @@ class class_task_concat extends class_task {
 			"active": active,
 			"parameters": {
 				"inputs": inputs_raw = [],
+				"input_from_schwamm": schwamminput_raw = null,
 				"output": output_raw = undefined,
 			},
 		} : {
@@ -22,6 +41,7 @@ class class_task_concat extends class_task {
 			active ?: boolean;
 			parameters ?: {
 				inputs ?: Array<string>;
+				input_from_schwamm ?: type_schwamminput_raw;
 				output ?: string;
 			};
 		}
@@ -33,6 +53,14 @@ class class_task_concat extends class_task {
 			inputs_raw,
 			x => x.map(y => lib_path.filepointer_read(y))
 		);
+		let schwamminput : type_schwamminput = (
+			(schwamminput_raw == null)
+			? null
+			: {
+				"path": lib_path.filepointer_read(schwamminput_raw.path),
+				"group:": schwamminput_raw.group,
+			};
+		);
 		if (output_raw == undefined) {
 			throw (new Error(class_task.errormessage_mandatoryparamater("concat", name, "output")));
 		}
@@ -42,7 +70,15 @@ class class_task_concat extends class_task {
 		);
 		super(
 			name, sub, active,
-			inputs,
+			(
+				[]
+				.concat(inputs)
+				.concat(
+					(schwamminput == null)
+					? []
+					: [schwamminput.path]
+				)
+			),
 			[output],
 			[
 				new class_action_mkdir(

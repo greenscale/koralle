@@ -19,10 +19,17 @@ class class_action_concat extends class_action_adhoc {
 	/**
 	 * @author fenris
 	 */
-	public constructor(sources : Array<lib_path.class_filepointer>, destination : lib_path.class_filepointer) {
+	protected schwamminput : type_schwamminput
+	
+	
+	/**
+	 * @author fenris
+	 */
+	public constructor(sources : Array<lib_path.class_filepointer>, destination : lib_path.class_filepointer, schwamminput : type_schwamminput = null) {
 		super();
 		this.sources = sources;
 		this.destination = destination;
+		this.schwamminput = schwamminput;
 	}
 	
 	
