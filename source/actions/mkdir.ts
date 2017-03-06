@@ -28,7 +28,7 @@ class class_action_mkdir extends class_action_adhoc {
 			case "gnumake": {
 				let parts : Array<string> = [];
 				parts.push("mkdir");
-				switch (configuration["system"]) {
+				switch (globalvars.configuration["system"]) {
 					case "linux": {
 						parts.push("--parents");
 						break;
@@ -45,7 +45,7 @@ class class_action_mkdir extends class_action_adhoc {
 						break;
 					}
 				}
-				parts.push(this.location.as_string(configuration["system"]));
+				parts.push(this.location.as_string(globalvars.configuration["system"]));
 				return parts.join(" ");
 				// break;
 			}

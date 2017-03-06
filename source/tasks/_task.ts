@@ -1,10 +1,20 @@
 
-
-	
 /**
  * @author fenris
  */
 type type_taskfactory = (name : string, sub : Array<class_task>, active : boolean, parameters : Object)=>class_task;
+
+
+/**
+ * @author fenris
+ */
+type type_rawtask = {
+	type ?: string;
+	name ?: string;
+	active ?: boolean;
+	parameters ?: Object;
+	sub ?: Array<type_rawtask>;
+};
 
 
 /**
@@ -177,6 +187,12 @@ abstract class class_task {
 	/**
 	 * @author fenris
 	 */
+	public context : lib_path.class_location;
+	
+	
+	/**
+	 * @author fenris
+	 */
 	public constructor(
 		name : string,
 		sub : Array<class_task> = [],
@@ -194,10 +210,12 @@ abstract class class_task {
 		this._outputs = _outputs;
 		this._actions = _actions;
 		// this.parameters = parameters;
+		this.context = null;
 	}
 	
 	
 	/**
+	 * @desc [accessor] [getter]
 	 * @author fenris
 	 */
 	public identifier_get() : string {
@@ -206,6 +224,7 @@ abstract class class_task {
 	
 	
 	/**
+	 * @desc [accessor] [getter]
 	 * @author fenris
 	 */
 	public name_get() : string {
@@ -214,6 +233,7 @@ abstract class class_task {
 	
 	
 	/**
+	 * @desc [accessor] [getter]
 	 * @author fenris
 	 */
 	public sub_get() : Array<class_task> {
@@ -222,10 +242,29 @@ abstract class class_task {
 	
 	
 	/**
+	 * @desc [accessor] [getter]
 	 * @author fenris
 	 */
 	public active_get() : boolean {
 		return this.active;
+	}
+	
+	
+	/**
+	 * @desc [mutator] [setter]
+	 * @author fenris
+	 */
+	public context_set(context : lib_path.class_location) : void {
+		this.context = context;
+	}
+	
+	
+	/**
+	 * @desc [accessor] [getter]
+	 * @author fenris
+	 */
+	public context_get() : lib_path.class_location {
+		return this.context;
 	}
 	
 	
@@ -245,6 +284,7 @@ abstract class class_task {
 	
 	
 	/**
+	 * @desc [accessor] [getter]
 	 * @author fenris
 	 */
 	protected values(raw : Object) : Object {
@@ -253,7 +293,7 @@ abstract class class_task {
 	
 	
 	/**
-	 * @desc a list of paths which represent input-files of the task
+	 * @desc [accessor] [getter] a list of paths which represent input-files of the task
 	 * @author fenris
 	 */
 	public inputs() : Array<lib_path.class_filepointer> {
@@ -262,7 +302,7 @@ abstract class class_task {
 	
 	
 	/**
-	 * @desc a list of paths which represent output-files of the task
+	 * @desc [accessor] [getter] a list of paths which represent output-files of the task
 	 * @author fenris
 	 */
 	public outputs() : Array<lib_path.class_filepointer> {
@@ -271,11 +311,35 @@ abstract class class_task {
 	
 	
 	/**
-	 * @desc generates all actions which have to be executed in order to fulfil the task
+	 * @desc [accessor] [getter] generates all actions which have to be executed in order to fulfil the task
 	 * @author fenris
 	 */
 	public actions() : Array<class_action> {
 		return this._actions;
+	}
+	
+	
+	/**
+	 * @author fenris
+	 */
+	public static create(
+		{
+			"name": name = null,
+			"type": type = null,
+			"sub": sub = [],
+			"active": active = true,
+			"parameters": parameters = {},
+		} : type_rawtask,
+		nameprefix : string = null
+	) : class_task {
+		return (
+			class_task.get(type)(
+				((nameprefix == null) ? `${name}` : `${nameprefix}-${name}`),
+				sub.map(rawtask => class_task.create(rawtask, nameprefix)),
+				active,
+				parameters
+			)
+		);
 	}
 	
 	

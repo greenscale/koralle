@@ -73,7 +73,8 @@ module lib_ant {
 			} : type_cmdparams
 		) : class_action {
 			switch (system) {
-				case "linux": {
+				case "linux":
+				case "bsd": {
 					let attributes : {[key : string] : string} = {};
 					let args_ : Array<string> = [];
 					if (interpreter == null) {

@@ -41,7 +41,7 @@ class class_task_lesscss extends class_task {
 			x => lib_path.filepointer_read(x)
 		);
 		let filepointer_temp : lib_path.class_filepointer = new lib_path.class_filepointer(
-			lib_path.location_read(configuration["tempfolder"]),
+			lib_path.location_read(globalvars.configuration["tempfolder"]),
 			"_.less"
 		);
 		super(

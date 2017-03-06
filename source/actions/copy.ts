@@ -40,19 +40,19 @@ class class_action_copy extends class_action_adhoc {
 	public compilation(target_identifier : string) : any {
 		switch (target_identifier) {
 			case "gnumake": {
-				switch (configuration.system) {
+				switch (globalvars.configuration.system) {
 					case "linux": {
 						let args : Array<string> = [];
 						if (this.folder) {
 							args.push("--recursive");
 							args.push("--update");
 							args.push("--verbose");
-							args.push((new lib_path.class_filepointer(this.filepointer_from.location, "*")).as_string(configuration.system));
+							args.push((new lib_path.class_filepointer(this.filepointer_from.location, "*")).as_string(globalvars.configuration.system));
 						}
 						else {
-							args.push(this.filepointer_from.as_string(configuration.system));
+							args.push(this.filepointer_from.as_string(globalvars.configuration.system));
 						}
-						args.push(this.filepointer_to.as_string(configuration.system));
+						args.push(this.filepointer_to.as_string(globalvars.configuration.system));
 						return (
 							lib_gnumake.macro_command(
 								{
@@ -69,12 +69,12 @@ class class_action_copy extends class_action_adhoc {
 							args.push("-r");
 							// args.push("-u");
 							args.push("-v");
-							args.push((new lib_path.class_filepointer(this.filepointer_from.location, "*")).as_string(configuration.system));
+							args.push((new lib_path.class_filepointer(this.filepointer_from.location, "*")).as_string(globalvars.configuration.system));
 						}
 						else {
-							args.push(this.filepointer_from.as_string(configuration.system));
+							args.push(this.filepointer_from.as_string(globalvars.configuration.system));
 						}
-						args.push(this.filepointer_to.as_string(configuration.system));
+						args.push(this.filepointer_to.as_string(globalvars.configuration.system));
 						return (
 							lib_gnumake.macro_command(
 								{

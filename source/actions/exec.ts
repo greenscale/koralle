@@ -68,7 +68,7 @@ class class_action_exec extends class_action_adhoc {
 	public compilation(output_identifier : string) : any {
 		switch (output_identifier) {
 			case "gnumake": {
-				switch (configuration.system) {
+				switch (globalvars.configuration.system) {
 					case "linux":
 					case "bsd":
 					case "win": {
@@ -76,20 +76,20 @@ class class_action_exec extends class_action_adhoc {
 						{
 							command = lib_gnumake.macro_command(
 								{
-									"interpreter": ((this.path_interpreter != null) ? this.path_interpreter.as_string(configuration.system) : null),
-									"path": this.path_script.as_string(configuration.system),
+									"interpreter": ((this.path_interpreter != null) ? this.path_interpreter.as_string(globalvars.configuration.system) : null),
+									"path": this.path_script.as_string(globalvars.configuration.system),
 									"args": [
-										("'" + this.paths_input.map(filepointer => filepointer.as_string(configuration.system)).join(",") + "'"),
-										("'" + this.paths_output.map(filepointer => filepointer.as_string(configuration.system)).join(",") + "'"),
+										("'" + this.paths_input.map(filepointer => filepointer.as_string(globalvars.configuration.system)).join(",") + "'"),
+										("'" + this.paths_output.map(filepointer => filepointer.as_string(globalvars.configuration.system)).join(",") + "'"),
 									],
-									"system": configuration.system,
+									"system": globalvars.configuration.system,
 								}
 							)
 						}
 						{
 							if (this.workdir != null) {
-								// command = `pushd ${this.workdir.as_string(configuration.system)} && ${command} ; popd`
-								command = `cd ${this.workdir.as_string(configuration.system)} && ${command} ; cd -`
+								// command = `pushd ${this.workdir.as_string(globalvars.configuration.system)} && ${command} ; popd`
+								command = `cd ${this.workdir.as_string(globalvars.configuration.system)} && ${command} ; cd -`
 							}
 						}
 						return command;
@@ -106,13 +106,13 @@ class class_action_exec extends class_action_adhoc {
 				return (
 					lib_ant.class_action.macro_exec(
 						{
-							"interpreter": ((this.path_interpreter != null) ? this.path_interpreter.as_string(configuration.system) : null),
+							"interpreter": ((this.path_interpreter != null) ? this.path_interpreter.as_string(globalvars.configuration.system) : null),
 							"path": this.path_script.as_string("linux"),
 							"args": [
 								("'" + this.paths_input.map(filepointer => filepointer.as_string("linux")).join(",") + "'"),
 								("'" + this.paths_output.map(filepointer => filepointer.as_string("linux")).join(",") + "'"),
 							],
-							"system": configuration.system,
+							"system": globalvars.configuration.system,
 						}
 					)
 				);

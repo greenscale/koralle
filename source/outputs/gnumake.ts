@@ -17,7 +17,7 @@ class class_target_gnumake extends class_target_regular<string> {
 	 * @author fenris
 	 */
 	public tempfolder() : string {
-		switch (configuration.system) {
+		switch (globalvars.configuration.system) {
 			case "linux": {
 				return "/tmp/";
 				break;
@@ -31,7 +31,7 @@ class class_target_gnumake extends class_target_regular<string> {
 				break;
 			}
 			default: {
-				throw (new Error(`invalid system '${configuration.system}'`));
+				throw (new Error(`invalid system '${globalvars.configuration.system}'`));
 				break;
 			}
 		}
@@ -42,17 +42,29 @@ class class_target_gnumake extends class_target_regular<string> {
 	 * @author fenris
 	 */
 	protected compile_task(
-		task : class_task,
-		branch : Array<string> = [],
-		depth : int = 0,
-		prefix : string = null
+		{
+			"task": task,
+			"branch": branch = [],
+			"depth": depth = 0,
+			"context": context = null,
+			"prefix": prefix = null
+		} : {
+			task : class_task;
+			branch ?: Array<string>;
+			depth ?: int;
+			context ?: lib_path.class_location;
+			prefix ?: string;
+		}
 	) : Array<lib_gnumake.class_rule> {
-		let branch_ : Array<string> = /*branch.concat(*/[task.name_get()]/*)*/;
+		let log_begin : boolean = true;
+		let log_end : boolean = false;
+		let aggregate : boolean = false;
+		let branch_ : Array<string> = path_augment(branch, task.name_get(), aggregate);
 		let logging_begin : class_action = new class_action_echo(
-			(new class_message("processing '" + branch_.join("-") + "' ...", {"type": "log", "depth": depth, "prefix": prefix})).generate()
+			(new class_message(path_dump(branch_), {"type": "log", "depth": depth, "prefix": prefix})).generate()
 		);
 		let logging_end : class_action = new class_action_echo(
-			(new class_message("... finished '" + branch_.join("-") + "'", {"type": "log", "depth": depth, "prefix": prefix})).generate()
+			(new class_message("✔", {"type": "log", "depth": depth, "prefix": prefix})).generate()
 		);
 		let rules_core : Array<lib_gnumake.class_rule> = [];
 		{
@@ -60,49 +72,63 @@ class class_target_gnumake extends class_target_regular<string> {
 			rules_core.push(
 				new lib_gnumake.class_rule(
 					{
-						"name": branch_.join("-"),
+						"name": path_dump(branch_),
 						"dependencies": (
 							[]
 							.concat(
-								["__logging_" + branch_.join("-")]
+								log_begin
+								? [path_dump(path_augment(branch_, name_mark("logging"), true))]
+								: []
 							)
 							.concat(
 								task.sub_get()
 								.filter(task_ => task_.active_get())
-								.map(task_ => /*branch_.concat(*/[task_.name_get()]/*)*/.join("-"))
+								.map(task_ => path_dump(path_augment(branch_, task_.name_get(), aggregate)))
 							)
 							.concat(
-								task.outputs().map(filepointer => filepointer.as_string(configuration.system))
+								task.outputs().map(filepointer => filepointer_adjust(filepointer, context).as_string(globalvars.configuration.system))
 							)
 						),
 						"actions": (
 							[]
-							.concat((task.outputs().length == 0) ? task.actions() : [])
-							// .concat([logging_end])
-							.map(action => this.compile_action(action))
+							.concat(
+								(task.outputs().length == 0)
+								? task.actions().map(action => dirwrap(context, this.compile_action(action)))
+								: []
+							)
+							.concat(
+								(
+									log_end
+									? [logging_end]
+									: []
+								)
+								.map(action => this.compile_action(action))
+							)
 						),
 						"phony": true,
 					}
 				)
 			);
 			// logging
-			rules_core.push(
-				new lib_gnumake.class_rule(
-					{
-						"name": ("__logging_" + branch_.join("-")),
-						"actions": [logging_begin].map(action => this.compile_action(action)),
-						"phony": true,
-					}
-				)
-			);
+			if (log_begin) {
+				rules_core.push(
+					new lib_gnumake.class_rule(
+						{
+							"name": path_dump(path_augment(branch_, name_mark("logging"), true)),
+							"actions": [logging_begin].map(action => this.compile_action(action)),
+							"phony": true,
+						}
+					)
+				);
+			}
 			// actual rule
 			if (task.outputs().length > 0) {
 				rules_core.push(
 					new lib_gnumake.class_rule(
 						{
-							"name": task.outputs().map(filepointer => filepointer.as_string(configuration.system)).join(" "), // hacky!
-							"dependencies": task.inputs().map(filepointer => filepointer.as_string(configuration.system)),
-							"actions": task.actions().map(action => this.compile_action(action)),
+							"name": task.outputs().map(filepointer => filepointer_adjust(filepointer, context).as_string(globalvars.configuration.system)).join(" "), // hacky!
+							"dependencies": task.inputs().map(filepointer => filepointer_adjust(filepointer, context).as_string(globalvars.configuration.system)),
+							"actions": task.actions().map(action => this.compile_action(action)).map(x => dirwrap(context, x)),
 							"phony": false,
 						}
 					)
@@ -112,8 +138,21 @@ class class_target_gnumake extends class_target_regular<string> {
 		let rules_sub : Array<lib_gnumake.class_rule> = [];
 		{
 			rules_sub = task.sub_get()
-				.map(task_ => this.compile_task(task_, branch_, depth+1, prefix))
-				.reduce((x, y) => x.concat(y), [])
+				.map(
+					task_ => this.compile_task(
+						{
+							"task": task_,
+							"branch": branch_,
+							"depth": depth+1,
+							"context": ((context == null) ? task_.context_get() : ((task_.context_get() == null) ? context : context.relocate(task_.context_get()))),
+							"prefix": prefix,
+						}
+					)
+				)
+				.reduce(
+					(x, y) => x.concat(y),
+					[]
+				)
 			;
 		}
 		return [].concat(rules_core).concat(rules_sub);
@@ -123,65 +162,17 @@ class class_target_gnumake extends class_target_regular<string> {
 	/**
 	 * @author fenris
 	 */
-	protected compile_project(project : class_project, without_dependencies : boolean = false) : lib_gnumake.class_sheet {
+	protected compile_project(project : class_project) : lib_gnumake.class_sheet {
 		let comments : Array<string> = [
 			`Project \"${project.name_get()}\"`,
-			`This makefile was generated by Koralle ${configuration.version}`,
+			`This makefile was generated by Koralle ${globalvars.configuration.version}`,
 		].map(x => x);
-		let dependencies : Array<class_task> = project.dependencytasks(this.identifier);
-		let rules : Array<lib_gnumake.class_rule> = []
-			.concat(
-				[
-					new lib_gnumake.class_rule(
-						{
-							"name": "__default",
-							"dependencies": ["__root"],
-							"actions": [],
-							"phony": true,
-						}
-					)
-				]
-			)
-			.concat(
-				[
-					new lib_gnumake.class_rule(
-						{
-							"name": "__root",
-							"dependencies": ["__dependencies", "__core"],
-							"phony": true,
-						}
-					)
-				]
-			)
-			.concat(
-				[
-					new lib_gnumake.class_rule(
-						{
-							"name": "__dependencies",
-							"dependencies": without_dependencies ? [] : dependencies.map(dependency => dependency.name_get()),
-							"phony": true,
-						}
-					)
-				]
-			)
-			.concat(
-				dependencies.map(dependency => this.compile_task(dependency)).reduce((x, y) => x.concat(y), [])
-			)
-			.concat(
-				[
-					new lib_gnumake.class_rule(
-						{
-							"name": "__core",
-							"dependencies": [project.roottask_get().name_get()],
-							"phony": true,
-						}
-					)
-				]
-			)
-			.concat(
-				this.compile_task(project.roottask_get(), undefined, undefined, project.name_get())
-			)
-		;
+		let rules : Array<lib_gnumake.class_rule> = this.compile_task(
+			{
+				"task": project.roottask_get(),
+				"prefix": project.name_get(),
+			}
+		);
 		return (new lib_gnumake.class_sheet(rules, comments));
 	}
 	
@@ -190,8 +181,8 @@ class class_target_gnumake extends class_target_regular<string> {
 	 * @override
 	 * @author fenris
 	 */
-	public compile_project_string(project : class_project, without_dependencies : boolean = false) : string {
-		return (this.compile_project(project, without_dependencies).compile(true));
+	public compile_project_string(project : class_project) : string {
+		return (this.compile_project(project).compile(true));
 	}
 	
 	
@@ -202,13 +193,13 @@ class class_target_gnumake extends class_target_regular<string> {
 	public execute(filepointer : lib_path.class_filepointer, workdir : string = process.cwd()) : lib_call.type_executor<void, Error> {
 		return (
 			(resolve, reject) => {
-				let cp = _child_process.spawn(
+				let cp : any = nm_child_process.spawn(
 					"make",
 					[
 						// `--directory=${workdir}`,
-						// `--file=${filepointer.as_string(configuration.system)}`,
+						// `--file=${filepointer.as_string(globalvars.configuration.system)}`,
 						`-f`,
-						`${filepointer.as_string(configuration.system)}`,
+						`${filepointer.as_string(globalvars.configuration.system)}`,
 					],
 					{}
 				);

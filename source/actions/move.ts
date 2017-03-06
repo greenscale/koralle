@@ -41,20 +41,20 @@ class class_action_move extends class_action_adhoc {
 	public compilation(output_identifier : string) : any {
 		switch (output_identifier) {
 			case "gnumake": {
-				switch (configuration.system) {
+				switch (globalvars.configuration.system) {
 					case "linux":
 					case "bsd":
 					case "win": {
-						let from : string = this.from.as_string(configuration.system);
-						let to : string = this.to.as_string(configuration.system);
+						let from : string = this.from.as_string(globalvars.configuration.system);
+						let to : string = this.to.as_string(globalvars.configuration.system);
 						let command : string = "";
 						{
 							command = lib_gnumake.macro_command(
 								{
 									"path": "mv",
 									// "args": ["--verbose", from, to],
-									"args": ["-v", from, to],
-									"system": configuration.system,
+									"args": [from, to],
+									"system": globalvars.configuration.system,
 								}
 							)
 						}

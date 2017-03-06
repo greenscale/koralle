@@ -53,26 +53,26 @@ class class_action_schwamm_create extends class_action_adhoc {
 		let args : Array<string> = [];
 		this.includes.forEach(
 			include => {
-				args.push(`--include=${include.as_string(configuration["system"])}`);
+				args.push(`--include=${include.as_string(globalvars.configuration["system"])}`);
 			}
 		);
 		Object.keys(this.adhoc).forEach(
 			group => {
 				this.adhoc[group].forEach(
 					member => {
-						let filepointer : lib_path.class_filepointer = /*lib_path.filepointer_read(configuration["path"]).foo(member)*/member;
-						args.push(`--input=${filepointer.as_string(configuration["system"])}:${group}`);
+						let filepointer : lib_path.class_filepointer = /*lib_path.filepointer_read(globalvars.configuration["path"]).foo(member)*/member;
+						args.push(`--input=${filepointer.as_string(globalvars.configuration["system"])}:${group}`);
 					}
 				);
 			}
 		);
 		args.push(`--output=native`);
-		// args.push(`--file=${this.output.as_string(configuration["system"])}`);
+		// args.push(`--file=${this.output.as_string(globalvars.configuration["system"])}`);
 		// args.push(`--dir=${((this.dir != null) ? this.dir : this.output.location).as_string("linux")}`);
 		let cmdparams : type_cmdparams = {
 			"path": "schwamm",
 			"args": args,
-			"output": this.output.as_string(configuration["system"]),
+			"output": this.output.as_string(globalvars.configuration["system"]),
 		};
 		switch (target_identifier) {
 			case "gnumake": {

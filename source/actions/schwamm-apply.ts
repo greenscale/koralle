@@ -43,13 +43,13 @@ class class_action_schwamm_apply extends class_action_adhoc {
 	 */
 	public compilation(target_identifier : string) : any {
 		let args : Array<string> = [];
-		args.push(`--include=${this.path.as_string(configuration["system"])}`);
+		args.push(`--include=${this.path.as_string(globalvars.configuration["system"])}`);
 		args.push(`--output=dump:${this.output_group}`);
-		let filepointer : lib_path.class_filepointer = lib_path.filepointer_read(configuration["path"]).foo(this.output_filepointer);
+		let filepointer : lib_path.class_filepointer = lib_path.filepointer_read(globalvars.configuration["path"]).foo(this.output_filepointer);
 		let cmdparams : type_cmdparams = {
 			"path": "schwamm",
 			"args": args,
-			"output": filepointer.as_string(configuration["system"]),
+			"output": filepointer.as_string(globalvars.configuration["system"]),
 		};
 		switch (target_identifier) {
 			case "gnumake": {

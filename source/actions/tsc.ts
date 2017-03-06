@@ -65,27 +65,27 @@ class class_action_tsc extends class_action_adhoc {
 			}
 		}
 		{
-			if (this.declaration != null) {
-				args.push("--declaration");
-			}
-		}
-		{
 			if (this.target != null) {
 				args.push("--target");
 				args.push(this.target);
 			}
 		}
 		{
-			this.paths_input.forEach(filepointer => args.push(filepointer.as_string(configuration.system)));
+			this.paths_input.forEach(filepointer => args.push(filepointer.as_string(globalvars.configuration.system)));
+		}
+		{
+			if (this.declaration != null) {
+				args.push("--declaration");
+			}
 		}
 		{
 			args.push("--outFile");
-			args.push(this.path_output.as_string(configuration.system));
+			args.push(this.path_output.as_string(globalvars.configuration.system));
 		}
 		let cmdparams : type_cmdparams = {
 			"path": "tsc",
 			"args": args,
-			"system": configuration.system,
+			"system": globalvars.configuration.system,
 		};
 		switch (output_identifier) {
 			case "gnumake": {

@@ -14,82 +14,86 @@ class class_task_babel extends class_task {
 	 * @author neu3no
 	 */
 	protected output_ : lib_path.class_filepointer;
-
+	
+	
+	/**
+	 * @author neu3no
+	 */
 	protected preset : string;
-
+	
+	
+	/**
+	 * @author neu3no
+	 */
 	protected minify : boolean;
 	
 	/**
 	 * @author neu3no
 	 */
 	constructor(
-		name : string = null,
-		sub : Array<class_task> = [],
-		active : boolean = true,
-		inputs_ : Array<lib_path.class_filepointer> = [],
-		output_ : lib_path.class_filepointer = null,
-		preset : string = null,
-		minify : boolean = null
+		{
+			"name": name,
+			"sub": sub,
+			"active": active,
+			"parameters": {
+				"minify": minify,
+				"preset": preset,
+				"inputs": inputs_raw,
+				"output": output_raw,
+			}
+		} : {
+			name ?: string;
+			sub ?: Array<class_task>;
+			active ?: boolean;
+			parameters ?: {
+				minify ?: boolean;
+				preset ?: string;
+				inputs ?: Array<string>;
+				output ?: string;
+			};
+		}
 	) {
-		super(name, sub, active);
-		this.inputs_ = inputs_;
-		this.output_ = output_;
-		this.preset = preset;
-		this.minify = minify;
-	}
-	
-	
-	/**
-	 * @author neu3no
-	 */
-	public static create(name : string, sub : Array<class_task>, active : boolean, parameters : Object) : class_task_babel {
-		return (
-			new class_task_babel(
-				name, sub, active,
-				object_fetch<Array<string>>(parameters, "inputs", null, 2).map(x => lib_path.filepointer_read(x)),
-				lib_path.filepointer_read(object_fetch<string>(parameters, "output", null, 2)),
-				object_fetch<string>(parameters, "preset", null, 0),
-				object_fetch<boolean>(parameters, "minify", false, 0)
-			)
+		if (inputs_raw == undefined) {
+			throw (new Error(class_task.errormessage_mandatoryparamater("babel", name, "inputs")));
+		}
+		let inputs : Array<lib_path.class_filepointer> = lib_call.use(
+			inputs_raw,
+			x => x.map(y => lib_path.filepointer_read(y))
 		);
-	}
-	
-	
-	/**
-	 * @override
-	 * @author neu3no
-	 */
-	public inputs() : Array<lib_path.class_filepointer> {
-		return this.inputs_;
-	}
-	
-	
-	/**
-	 * @override
-	 * @author neu3no
-	 */
-	public outputs() : Array<lib_path.class_filepointer> {
-		return [this.output_];
-	}
-	
-	
-	/**
-	 * @author neu3no
-	 */
-	public actions() : Array<class_action> {
-		return [
-			new class_action_mkdir(
-				this.output_.location
-			),
-			new class_action_babel(
-				this.inputs_,
-				this.output_,
-				this.preset,
-				this.minify
-			),
-		];
+		if (output_raw == undefined) {
+			throw (new Error(class_task.errormessage_mandatoryparamater("babel", name, "output")));
+		}
+		let output : lib_path.class_filepointer = lib_call.use(
+			output_raw,
+			x => lib_path.filepointer_read(x)
+		);
+		super(
+			name, sub, active,
+			inputs,
+			[output],
+			[
+				new class_action_mkdir(
+					output.location
+				),
+				new class_action_babel(
+					inputs,
+					output,
+					preset,
+					minify
+				),
+			]
+		);
 	}
 	
 }
 
-class_task.register("babel", /*(name, sub, active, parameters) => */class_task_babel.create/*(name, sub, active, parameters)*/);
+class_task.register(
+	"babel",
+	(name, sub, active, parameters) => new class_task_babel(
+		{
+			"name": name, "sub": sub, "active": active,
+			"parameters": parameters,
+		}
+	)
+);
+

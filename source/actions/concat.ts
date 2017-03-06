@@ -19,10 +19,17 @@ class class_action_concat extends class_action_adhoc {
 	/**
 	 * @author fenris
 	 */
-	public constructor(sources : Array<lib_path.class_filepointer>, destination : lib_path.class_filepointer) {
+	protected schwamminput : type_schwamminput
+	
+	
+	/**
+	 * @author fenris
+	 */
+	public constructor(sources : Array<lib_path.class_filepointer>, destination : lib_path.class_filepointer, schwamminput : type_schwamminput = null) {
 		super();
 		this.sources = sources;
 		this.destination = destination;
+		this.schwamminput = schwamminput;
 	}
 	
 	
@@ -41,9 +48,9 @@ class class_action_concat extends class_action_adhoc {
 									"linux": "cat",
 									"bsd": "cat",
 									"win": "type",
-								}[configuration.system],
-								"args": this.sources.map(source => source.as_string(configuration.system)),
-								"output": this.destination.as_string(configuration.system),
+								}[globalvars.configuration.system],
+								"args": this.sources.map(source => source.as_string(globalvars.configuration.system)),
+								"output": this.destination.as_string(globalvars.configuration.system),
 							}
 						)
 					);
@@ -53,7 +60,7 @@ class class_action_concat extends class_action_adhoc {
 						lib_gnumake.macro_command(
 							{
 								"path": "touch",
-								"output": this.destination.as_string(configuration.system),
+								"output": this.destination.as_string(globalvars.configuration.system),
 							}
 						)
 					);
