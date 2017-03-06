@@ -2,24 +2,6 @@
 /**
  * @author fenris
  */
-type_schwamminput_raw = {
-	path : string;
-	group : string;
-};
-
-
-/**
- * @author fenris
- */
-type_schwamminput = {
-	path : lib_path.class_filepointer;
-	group : string;
-};
-
-
-/**
- * @author fenris
- */
 class class_task_concat extends class_task {
 	
 	/**
@@ -58,8 +40,8 @@ class class_task_concat extends class_task {
 			? null
 			: {
 				"path": lib_path.filepointer_read(schwamminput_raw.path),
-				"group:": schwamminput_raw.group,
-			};
+				"group": schwamminput_raw.group,
+			}
 		);
 		if (output_raw == undefined) {
 			throw (new Error(class_task.errormessage_mandatoryparamater("concat", name, "output")));

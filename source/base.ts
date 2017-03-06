@@ -95,3 +95,21 @@ function path_dump(path : Array<string>) : string {
 	return path.join(globalvars.configuration.name_splitter);
 }
 
+
+/**
+ * @author fenris
+ */
+type type_schwamminput_raw = {
+	path : string;
+	group : string;
+};
+
+
+/**
+ * @author fenris
+ */
+type type_schwamminput = {
+	path : lib_path.class_filepointer;
+	group : string;
+};
+

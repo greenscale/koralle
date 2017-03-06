@@ -76,6 +76,13 @@ class class_task_schwamm extends class_task {
 				.concat(
 					lib_object.values(dump).reduce((x, y) => x.concat(y), [])
 				)
+				.concat(
+					lib_object.values(locmerge)
+					.map(
+						z => lib_object.values(z).reduce((x, y) => x.concat(y), [])
+					)
+					.reduce((x, y) => x.concat(y), [])
+				)
 			),
 			(
 				[]
