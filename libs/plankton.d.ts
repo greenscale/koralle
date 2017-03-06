@@ -133,98 +133,118 @@ declare class class_observer {
      */
     rollout(): void;
 }
-declare var ExceptionAbstract: any;
 /**
- * @author frac
+ * @author fenris
  */
-declare class class_maybe<type_value> {
+declare class class_maybe<type_value> implements interface_showable {
     /**
      * @desc whether the wrapper is nothing
-     * @author frac
+     * @author fenris
      */
     is_nothing(): boolean;
     /**
      * @desc whether the wrapper is just
-     * @author frac
+     * @author fenris
      */
     is_just(): boolean;
     /**
      * @desc return the value, stored in the maybe-wrapper
-     * @author frac
+     * @author fenris
      */
     cull(): type_value;
     /**
-     * @author frac
+     * @author fenris
+     */
+    toString(): string;
+    /**
+     * @author fenris
      */
     distinguish(action_just: (value?: type_value) => void, action_nothing?: (reason?: string) => void): void;
     /**
-     * @author frac
+     * @author fenris
      */
     propagate<type_value_>(action: (value: type_value) => class_maybe<type_value_>): class_maybe<type_value_>;
+    /**
+     * @desc [implementation]
+     * @author fenris
+     */
+    _show(): string;
 }
 /**
- * @author frac
+ * @author fenris
  */
 declare class class_nothing<type_value> extends class_maybe<type_value> {
     /**
-     * @author frac
+     * @author fenris
      */
     private reason;
     /**
-     * @author frac
+     * @author fenris
      */
     constructor(reason?: string);
     /**
-     * @author frac
+     * @author fenris
      */
     is_nothing(): boolean;
     /**
-     * @author frac
+     * @author fenris
      */
     is_just(): boolean;
     /**
-     * @author frac
+     * @author fenris
      */
     cull(): type_value;
     /**
-     * @author frac
+     * @author fenris
+     */
+    toString(): string;
+    /**
+     * @author fenris
+     */
+    reason_get(): string;
+    /**
+     * @author fenris
      */
     distinguish(action_just: (value?: type_value) => void, action_nothing?: (reason?: string) => void): void;
     /**
-     * @author frac
+     * @author fenris
      */
     propagate<type_value_>(action: (value: type_value) => class_maybe<type_value_>): class_maybe<type_value_>;
 }
 /**
- * @author frac
+ * @author fenris
  */
 declare class class_just<type_value> extends class_maybe<type_value> {
     /**
-     * @author frac
+     * @author fenris
      */
     private value;
     /**
-     * @author frac
+     * @author fenris
      */
     constructor(value: type_value);
     /**
-     * @author frac
+     * @author fenris
      */
     is_nothing(): boolean;
     /**
-     * @author frac
+     * @author fenris
      */
     is_just(): boolean;
     /**
-     * @author frac
+     * @author fenris
      */
     cull(): type_value;
     /**
-     * @author frac
+     * @author fenris
+     */
+    toString(): string;
+    /**
+     * @author fenris
      */
     distinguish(action_just: (value?: type_value) => void, action_nothing?: (reason?: string) => void): void;
     /**
-     * @author frac
+     * @author fenris
      */
     propagate<type_value_>(action: (value: type_value) => class_maybe<type_value_>): class_maybe<type_value_>;
 }
@@ -424,53 +444,53 @@ declare module lib_call {
 }
 declare module lib_call {
     /**
-     * @author frac
+     * @author fenris
      */
     type type_executor<type_result, type_reason> = ((resolve: (result?: type_result) => void, reject?: (reason?: type_reason) => void) => void);
     /**
-     * @author frac
+     * @author fenris
      */
     function executor_resolve<type_result, type_reason>(result: type_result): type_executor<type_result, type_reason>;
     /**
-     * @author frac
+     * @author fenris
      */
     function executor_reject<type_result, type_reason>(reason: type_reason): type_executor<type_result, type_reason>;
     /**
-     * @author frac
+     * @author fenris
      */
     function executor_transform<type_result_from, type_error_from, type_result_to, type_error_to>(executor: type_executor<type_result_from, type_error_from>, transform_result: (result_from: type_result_from) => type_result_to, transform_reason: (error_from: type_error_from) => type_error_to): type_executor<type_result_to, type_error_to>;
     /**
-     * @author frac
+     * @author fenris
      */
     function executor_transform_default<type_result_from, type_result_to>(executor: type_executor<type_result_from, Error>, transform_result: (result_from: type_result_from) => type_result_to, wrap_string?: string): type_executor<type_result_to, Error>;
     /**
-     * @author frac
+     * @author fenris
      */
     function executor_compose_sequential<type_result_first, type_result_second, type_reason>(first: type_executor<type_result_first, type_reason>, second: (result: type_result_first) => type_executor<type_result_second, type_reason>, deferred?: boolean): type_executor<type_result_second, type_reason>;
     /**
-     * @author frac
+     * @author fenris
      */
     function executor_chain<type_state, type_error>(state: type_state, executors: Array<(state: type_state) => type_executor<type_state, type_error>>, deferred?: boolean): type_executor<type_state, type_error>;
     /**
-     * @author frac
+     * @author fenris
      */
     function executor_first<type_result, type_reason>(executors: Array<type_executor<type_result, type_reason>>): type_executor<type_result, Array<type_reason>>;
     /**
-     * @author frac
+     * @author fenris
      */
     function executor_condense<type_element>(executors: Array<type_executor<type_element, Error>>): type_executor<Array<type_element>, Error>;
     /**
-     * @author frac
+     * @author fenris
      * @deprecated use condense
      */
     function executor_filter<type_element>(executors: Array<type_executor<type_element, Error>>, predicate: (element: type_element) => boolean): type_executor<Array<type_element>, Error>;
     /**
-     * @author frac
+     * @author fenris
      * @deprecated use condense
      */
     function executor_map<type_element1, type_element2>(executors: Array<type_executor<type_element1, Error>>, transformator: (element1: type_element1) => type_element2): type_executor<Array<type_element2>, Error>;
     /**
-     * @author frac
+     * @author fenris
      * @deprecated use condense
      */
     function executor_reduce<type_element, type_result>(executors: Array<type_executor<type_element, Error>>, initial: type_result, accumulator: (result: type_result, element: type_element) => type_result): type_executor<type_result, Error>;
@@ -523,7 +543,7 @@ declare module lib_call {
     /**
      * @author fenris
      */
-    function knot_chain<type_error>(knots: Array<type_knot<any, any, type_error>>, log?: boolean): type_knot<any, any, type_error>;
+    function knot_chain<type_error>(knots: Array<type_knot<any, any, type_error>>, logging?: boolean): type_knot<any, any, type_error>;
     /**
      * @author fenris
      */
@@ -746,6 +766,12 @@ declare module lib_string {
      * @author neuc
      */
     function count_occourrences(haystack_string: string, needle_string: string, check_escape: boolean): int;
+    /**
+     * @author fenris
+     */
+    function stance(str: string, args: {
+        [id: string]: string;
+    }): string;
 }
 /**
  * @desc adapters for old syntax
@@ -933,9 +959,36 @@ declare module lib_object {
      */
     function flatten(value: any): Object;
     /**
-     * @author frac
+     * @author fenris
      */
-    function clash(x: Object, y: Object): Object;
+    function clash(x: {
+        [key: string]: any;
+    }, y: {
+        [key: string]: any;
+    }, {"overwrite": overwrite, "hooks": {"existing": hook_existing}}?: {
+        overwrite?: boolean;
+        hooks?: {
+            existing?: (key?: string, value_old?: any, value_new?: any) => void;
+        };
+    }): {
+        [key: string]: any;
+    };
+    /**
+     * @author fenris
+     */
+    function patch(core: Object, mantle: Object, deep?: boolean, path?: string): void;
+    /**
+     * @author fenris
+     */
+    function patched(core: Object, mantle: Object, deep?: boolean): Object;
+    /**
+     * @author fenris
+     */
+    function attached(object: Object, key: string, value: any): Object;
+    /**
+     * @author fenris
+     */
+    function copy(object: Object): Object;
 }
 /**
  * @desc adapters for old syntax
@@ -1049,9 +1102,7 @@ declare var object_make_flat_async: (data: any, callback: any, on_progress: any)
 declare type key_value_list = {
     [key: string]: any;
 };
-declare var object_flatten: (object: any, paths: string[], prefix?: string) => {
-    [key: string]: any;
-};
+declare var object_flatten: (object: any, paths: string[], prefix?: string) => key_value_list;
 /**
  * parse
  * @param {String} value
@@ -1064,10 +1115,9 @@ declare var object_parse: (value: string) => Object;
  * @description stringify object as JSON
  */
 declare var object_stringify: (object: Object, readable?: boolean) => string;
-declare var pivot_demo_data0: any;
 declare module lib_object {
     /**
-     * @author frac
+     * @author fenris
      */
     type type_relationparameters<type_value> = {
         symbol?: string;
@@ -1075,78 +1125,87 @@ declare module lib_object {
         predicate?: (value: type_value, reference: type_value) => boolean;
     };
     /**
-     * @author frac
+     * @author fenris
      */
-    class class_relation<type_value> {
+    class class_relation<type_value> implements interface_showable {
         /**
-         * @author frac
+         * @author fenris
          */
         protected id: string;
         /**
-         * @author frac
+         * @author fenris
          */
         protected symbol: string;
         /**
-         * @author frac
+         * @author fenris
          */
         protected name: string;
         /**
-         * @author frac
+         * @author fenris
          */
         protected predicate: (value: type_value, reference: type_value) => boolean;
         /**
-         * @author frac
+         * @author fenris
          */
         check(value: type_value, reference: type_value): boolean;
         /**
-         * @author frac
+         * @author fenris
          */
         constructor(id: string, parameters: type_relationparameters<type_value>);
         /**
-         * @author frac
+         * @author fenris
          */
         id_get(): string;
         /**
-         * @author frac
+         * @author fenris
          */
         symbol_get(): string;
         /**
-         * @author frac
+         * @author fenris
          */
         name_get(): string;
         /**
-         * @author frac
+         * @desc [implementation]
+         * @author fenris
+         */
+        _show(): string;
+        /**
+         * @author fenris
+         */
+        toString(): string;
+        /**
+         * @author fenris
          */
         protected static pool<type_value>(): {
             [id: string]: type_relationparameters<type_value>;
         };
         /**
-         * @author frac
+         * @author fenris
          */
         static get<type_value>(id: string): class_relation<type_value>;
         /**
-         * @author frac
+         * @author fenris
          */
         static available(): Array<string>;
     }
     /**
-     * @author frac
+     * @author fenris
      */
-    class class_filtrationitem<type_value> {
+    class class_filtrationitem<type_value> implements interface_showable {
         /**
-         * @author frac
+         * @author fenris
          */
         protected extract: (dataset: Object) => type_value;
         /**
-         * @author frac
+         * @author fenris
          */
         protected relation: class_relation<type_value>;
         /**
-         * @author frac
+         * @author fenris
          */
         protected reference: type_value;
         /**
-         * @author frac
+         * @author fenris
          */
         constructor(parameters: {
             extract?: (dataset: Object) => type_value;
@@ -1154,34 +1213,49 @@ declare module lib_object {
             reference?: type_value;
         });
         /**
-         * @author frac
+         * @author fenris
          */
         check(dataset: Object): boolean;
+        /**
+         * @desc [implementation]
+         * @author fenris
+         */
+        _show(): string;
+        /**
+         * @author fenris
+         */
+        toString(): string;
     }
     /**
-     * @author frac
+     * @desc disjunctive normal form
+     * @author fenris
      */
-    class class_filtration {
+    class class_filtration implements interface_showable {
         /**
-         * @author frac
+         * @author fenris
          */
         protected clauses: Array<Array<class_filtrationitem<any>>>;
         /**
-         * @author frac
+         * @author fenris
          */
         constructor(clauses: Array<Array<class_filtrationitem<any>>>);
         /**
-         * @author frac
+         * @author fenris
          */
         check(dataset: Object): boolean;
         /**
-         * @author frac
+         * @author fenris
          */
         use(datasets: Array<Object>): Array<Object>;
         /**
-         * @author frac
+         * @desc [implementation]
+         * @author fenris
          */
-        static test(): void;
+        _show(): string;
+        /**
+         * @author fenris
+         */
+        toString(): string;
     }
 }
 /// <reference path="../../object/build/logic-decl.d.ts" />
@@ -1413,38 +1487,119 @@ declare module lib_path {
      */
     function filepointer_read(str: string, system?: string): class_filepointer;
 }
-/// <reference path="../../base/build/logic-decl.d.ts" />
 /// <reference path="../../call/build/logic-decl.d.ts" />
+/// <reference path="../../base/build/logic-decl.d.ts" />
 declare module lib_file {
     /**
      * @author fenris
-     * @todo move to a dedicated lib (e.g. "http", "transport", etc.)
      */
-    function ajax({"target": target, "data": data, "method": method}: {
-        target: any;
-        data?: null;
-        method?: string;
-    }): lib_call.type_executor<string, Error>;
+    abstract class class_file_abstract {
+        /**
+         * @desc reads a file
+         * @author fenris
+         */
+        abstract read(path: string, skip_error?: boolean): lib_call.type_executor<string, Error>;
+        /**
+         * @desc writes a file
+         * @author fenris
+         */
+        abstract write(path: string, content: string): lib_call.type_executor<void, Error>;
+        /**
+         * @desc reads a json file
+         * @author fenris
+         */
+        read_json(path: string): lib_call.type_executor<any, Error>;
+        /**
+         * @desc writes a json file
+         * @author fenris
+         */
+        write_json(path: string, data: any): lib_call.type_executor<void, Error>;
+    }
+}
+declare module lib_file {
     /**
-     * @desc reads a file
+     * @author fenris
+     */
+    class class_file_node extends class_file_abstract {
+        /**
+         * @author maspr
+         */
+        private determine_handler(path);
+        /**
+         * @override
+         * @author fenris,maspr
+         * @todo clear up if http(s)-handling belongs here or not
+         */
+        read(path: string, skip_error?: boolean): lib_call.type_executor<string, Error>;
+        /**
+         * @override
+         * @author fenris
+         */
+        write(path: string, content: string): lib_call.type_executor<void, Error>;
+    }
+}
+declare module lib_file {
+    /**
+     * @author fenris
+     */
+    class class_file_web extends class_file_abstract {
+        /**
+         * @override
+         * @author fenris
+         */
+        read(path: string, skip_error?: boolean): lib_call.type_executor<string, Error>;
+        /**
+         * @override
+         * @author fenris
+         */
+        write(path: string, content: string): lib_call.type_executor<void, Error>;
+    }
+}
+declare module lib_file {
+    /**
+     * @desc selects the implementation which fits for the detected environment
+     * @author fenris
+     */
+    function auto(): class_file_abstract;
+    /**
+     * @author fenris
+     */
+    class class_file extends class_file_abstract {
+        /**
+         * @author fenris
+         */
+        protected core: class_file_abstract;
+        /**
+         * @author fenris
+         */
+        constructor();
+        /**
+         * @override
+         * @author fenris
+         */
+        read(path: string, skip_error?: boolean): lib_call.type_executor<string, Error>;
+        /**
+         * @override
+         * @author fenris
+         */
+        write(path: string, content: string): lib_call.type_executor<void, Error>;
+    }
+    /**
      * @author fenris
      */
     function read(path: string, skip_error?: boolean): lib_call.type_executor<string, Error>;
     /**
-     * @desc reads a json file
-     * @author fenris
-     */
-    function read_json(path: string): lib_call.type_executor<Object, Error>;
-    /**
-     * @desc writes a file
      * @author fenris
      */
     function write(path: string, content: string): lib_call.type_executor<void, Error>;
     /**
-     * @desc writes a json file
      * @author fenris
      */
-    function write_json(path: string, data: Object): lib_call.type_executor<void, Error>;
+    function read_json(path: string): lib_call.type_executor<any, Error>;
+    /**
+     * @author fenris
+     */
+    function write_json(path: string, data: any): lib_call.type_executor<void, Error>;
 }
 /// <reference path="../../base/build/logic-decl.d.ts" />
 declare module lib_args {

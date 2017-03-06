@@ -223,54 +223,67 @@ export interface interface_writeable<type_value> {
 }
  */
 /**
- * @author frac
+ * @author fenris
  */
 /*export*/ var class_maybe = (function () {
     function class_maybe() {
     }
     /**
      * @desc whether the wrapper is nothing
-     * @author frac
+     * @author fenris
      */
     class_maybe.prototype.is_nothing = function () {
         throw (new Error("not implemented: class_maybe.is_nothing"));
     };
     /**
      * @desc whether the wrapper is just
-     * @author frac
+     * @author fenris
      */
     class_maybe.prototype.is_just = function () {
         throw (new Error("not implemented: class_maybe.is_just"));
     };
     /**
      * @desc return the value, stored in the maybe-wrapper
-     * @author frac
+     * @author fenris
      */
     class_maybe.prototype.cull = function () {
         throw (new Error("not implemented: class_maybe.cull"));
     };
     /**
-     * @author frac
+     * @author fenris
+     */
+    class_maybe.prototype.toString = function () {
+        throw (new Error("not implemented: class_maybe.cull"));
+    };
+    /**
+     * @author fenris
      */
     class_maybe.prototype.distinguish = function (action_just, action_nothing) {
         if (action_nothing === void 0) { action_nothing = function () { }; }
         throw (new Error("not implemented: class_maybe.distinguish"));
     };
     /**
-     * @author frac
+     * @author fenris
      */
     class_maybe.prototype.propagate = function (action) {
         throw (new Error("not implemented: class_maybe.propagate"));
     };
+    /**
+     * @desc [implementation]
+     * @author fenris
+     */
+    class_maybe.prototype._show = function () {
+        return this.toString();
+    };
     return class_maybe;
 }());
 /**
- * @author frac
+ * @author fenris
  */
 /*export*/ var class_nothing = (function (_super) {
     __extends(class_nothing, _super);
     /**
-     * @author frac
+     * @author fenris
      */
     function class_nothing(reason) {
         if (reason === void 0) { reason = null; }
@@ -279,32 +292,47 @@ export interface interface_writeable<type_value> {
         return _this;
     }
     /**
-     * @author frac
+     * @author fenris
      */
     class_nothing.prototype.is_nothing = function () {
         return true;
     };
     /**
-     * @author frac
+     * @author fenris
      */
     class_nothing.prototype.is_just = function () {
         return false;
     };
     /**
-     * @author frac
+     * @author fenris
      */
     class_nothing.prototype.cull = function () {
+        var message = "you shouldn't cull a nothing-value …";
+        console.warn(message);
         return null;
     };
     /**
-     * @author frac
+     * @author fenris
+     */
+    class_nothing.prototype.toString = function () {
+        return "<\u00B7>";
+    };
+    /**
+     * @author fenris
+     */
+    class_nothing.prototype.reason_get = function () {
+        var content = ((this.reason == null) ? "·" : this.reason);
+        return "<- " + content + " ->";
+    };
+    /**
+     * @author fenris
      */
     class_nothing.prototype.distinguish = function (action_just, action_nothing) {
         if (action_nothing === void 0) { action_nothing = function () { }; }
         action_nothing(this.reason);
     };
     /**
-     * @author frac
+     * @author fenris
      */
     class_nothing.prototype.propagate = function (action) {
         return (new class_nothing(this.reason));
@@ -312,12 +340,12 @@ export interface interface_writeable<type_value> {
     return class_nothing;
 }(class_maybe));
 /**
- * @author frac
+ * @author fenris
  */
 /*export*/ var class_just = (function (_super) {
     __extends(class_just, _super);
     /**
-     * @author frac
+     * @author fenris
      */
     function class_just(value) {
         var _this = _super.call(this) || this;
@@ -325,32 +353,39 @@ export interface interface_writeable<type_value> {
         return _this;
     }
     /**
-     * @author frac
+     * @author fenris
      */
     class_just.prototype.is_nothing = function () {
         return false;
     };
     /**
-     * @author frac
+     * @author fenris
      */
     class_just.prototype.is_just = function () {
         return true;
     };
     /**
-     * @author frac
+     * @author fenris
      */
     class_just.prototype.cull = function () {
         return this.value;
     };
     /**
-     * @author frac
+     * @author fenris
+     */
+    class_just.prototype.toString = function () {
+        var content = instance_show(this.value);
+        return "<+ " + content + " +>";
+    };
+    /**
+     * @author fenris
      */
     class_just.prototype.distinguish = function (action_just, action_nothing) {
         if (action_nothing === void 0) { action_nothing = function () { }; }
         action_just(this.value);
     };
     /**
-     * @author frac
+     * @author fenris
      */
     class_just.prototype.propagate = function (action) {
         return action(this.value);
@@ -710,21 +745,21 @@ var lib_call;
 var lib_call;
 (function (lib_call) {
     /**
-     * @author frac
+     * @author fenris
      */
     function executor_resolve(result) {
         return (function (resolve, reject) { return resolve(result); });
     }
     lib_call.executor_resolve = executor_resolve;
     /**
-     * @author frac
+     * @author fenris
      */
     function executor_reject(reason) {
         return (function (resolve, reject) { return reject(reason); });
     }
     lib_call.executor_reject = executor_reject;
     /**
-     * @author frac
+     * @author fenris
      */
     function executor_transform(executor, transform_result, transform_reason) {
         return (function (resolve, reject) {
@@ -733,7 +768,7 @@ var lib_call;
     }
     lib_call.executor_transform = executor_transform;
     /**
-     * @author frac
+     * @author fenris
      */
     function executor_transform_default(executor, transform_result, wrap_string) {
         if (wrap_string === void 0) { wrap_string = null; }
@@ -742,7 +777,7 @@ var lib_call;
     }
     lib_call.executor_transform_default = executor_transform_default;
     /**
-     * @author frac
+     * @author fenris
      */
     function executor_compose_sequential(first, second, deferred) {
         if (deferred === void 0) { deferred = undefined; }
@@ -756,7 +791,7 @@ var lib_call;
     }
     lib_call.executor_compose_sequential = executor_compose_sequential;
     /**
-     * @author frac
+     * @author fenris
      */
     function executor_chain(state, executors, deferred) {
         if (deferred === void 0) { deferred = lib_call.default_deferred; }
@@ -812,7 +847,7 @@ var lib_call;
     }
     lib_call.executor_chain = executor_chain;
     /**
-     * @author frac
+     * @author fenris
      */
     function executor_first(executors) {
         /*
@@ -842,7 +877,7 @@ var lib_call;
     }
     lib_call.executor_first = executor_first;
     /**
-     * @author frac
+     * @author fenris
      */
     function executor_condense(executors) {
         return (executor_chain([], executors.map(function (executor) { return function (result) { return function (resolve, reject) {
@@ -851,7 +886,7 @@ var lib_call;
     }
     lib_call.executor_condense = executor_condense;
     /**
-     * @author frac
+     * @author fenris
      * @deprecated use condense
      */
     function executor_filter(executors, predicate) {
@@ -861,7 +896,7 @@ var lib_call;
     }
     lib_call.executor_filter = executor_filter;
     /**
-     * @author frac
+     * @author fenris
      * @deprecated use condense
      */
     function executor_map(executors, transformator) {
@@ -871,7 +906,7 @@ var lib_call;
     }
     lib_call.executor_map = executor_map;
     /**
-     * @author frac
+     * @author fenris
      * @deprecated use condense
      */
     function executor_reduce(executors, initial, accumulator) {
@@ -991,8 +1026,8 @@ var lib_call;
     /**
      * @author fenris
      */
-    function knot_chain(knots, log) {
-        if (log === void 0) { log = false; }
+    function knot_chain(knots, logging) {
+        if (logging === void 0) { logging = false; }
         /*
         return (
             knots.reduce<type_knot<type_input, type_output, type_error>>(
@@ -1001,9 +1036,9 @@ var lib_call;
             )
         );
          */
-        var knots_ = (log
-            ? knots
-            : knots.map(knot_wrap_log));
+        var knots_ = (logging
+            ? knots.map(knot_wrap_log)
+            : knots);
         if (knots_.length == 0) {
             return (function (input) { return function (resolve, reject) {
                 resolve(input);
@@ -1012,7 +1047,7 @@ var lib_call;
         else {
             return (function (input) { return function (resolve, reject) {
                 return knots_[0](input)(function (result) {
-                    return knot_chain(knots_.slice(1))(result)(resolve, reject);
+                    return knot_chain(knots_.slice(1), false)(result)(resolve, reject);
                 }, function (error) {
                     return reject(error);
                 });
@@ -1646,6 +1681,18 @@ var lib_string;
     }
     lib_string.count_occourrences = count_occourrences;
     ;
+    /**
+     * @author fenris
+     */
+    function stance(str, args) {
+        Object.keys(args).forEach(function (key) {
+            var value = args[key];
+            var regexp_argument = new RegExp("\\${" + key + "}");
+            str = str.replace(regexp_argument, value);
+        });
+        return str;
+    }
+    lib_string.stance = stance;
 })(lib_string || (lib_string = {}));
 /**
  * @desc adapters for old syntax
@@ -2403,7 +2450,7 @@ var lib_object;
                     var result_1 = flatten(value_);
                     Object.keys(result_1).forEach(function (key__) {
                         var value__ = result_1[key__];
-                        result[(key_ + "." + key__)] = value__;
+                        result[key_ + "." + key__] = value__;
                     });
                 }
             }
@@ -2431,15 +2478,100 @@ var lib_object;
     }
     lib_object.flatten = flatten;
     /**
-     * @author frac
+     * @author fenris
      */
-    function clash(x, y) {
+    function clash(x, y, _a) {
+        var _b = _a === void 0 ? {} : _a, _c = _b["overwrite"], overwrite = _c === void 0 ? true : _c, _d = _b["hooks"]["existing"], hook_existing = _d === void 0 ? null : _d;
+        if (hook_existing == null) {
+            (function (key, value_old, value_new) { return console.warn("field " + key + " already defined"); });
+        }
         var z = {};
-        Object.keys(x).forEach(function (key) { return (z[key] = x[key]); });
-        Object.keys(y).forEach(function (key) { return (z[key] = y[key]); });
+        Object.keys(x).forEach(function (key) {
+            z[key] = x[key];
+        });
+        Object.keys(y).forEach(function (key) {
+            if (key in z) {
+                hook_existing(key, z[key], y[key]);
+                if (overwrite) {
+                    z[key] = y[key];
+                }
+            }
+            else {
+                z[key] = y[key];
+            }
+        });
         return z;
     }
     lib_object.clash = clash;
+    /**
+     * @author fenris
+     */
+    function patch(core, mantle, deep, path) {
+        if (deep === void 0) { deep = true; }
+        if (path === void 0) { path = null; }
+        if (mantle == null) {
+            console.warn("mantle is null; core was", core);
+        }
+        else {
+            Object.keys(mantle).forEach(function (key) {
+                var path_ = ((path == null) ? key : path + "." + key);
+                var value_mantle = mantle[key];
+                if (!(key in core)) {
+                    if ((typeof (value_mantle) == "object") && (value_mantle != null) && deep) {
+                        core[key] = {};
+                        patch(core[key], value_mantle, deep, path_);
+                    }
+                    else {
+                        core[key] = value_mantle;
+                    }
+                }
+                else {
+                    var value_core = core[key];
+                    if (typeof (value_mantle) == typeof (value_core)) {
+                        if ((typeof (value_mantle) == "object") && (value_mantle != null) && deep) {
+                            patch(core[key], value_mantle, deep, path_);
+                        }
+                        else {
+                            core[key] = value_mantle;
+                        }
+                    }
+                    else {
+                        var message = "objects have different shapes at path '" + path_ + "'; core has type '" + typeof (value_core) + "' and mantle has type '" + typeof (value_mantle) + "'";
+                        console.warn(message);
+                        core[key] = value_mantle;
+                    }
+                }
+            });
+        }
+    }
+    lib_object.patch = patch;
+    /**
+     * @author fenris
+     */
+    function patched(core, mantle, deep) {
+        if (deep === void 0) { deep = undefined; }
+        var result = {};
+        patch(result, core, deep);
+        patch(result, mantle, deep);
+        return result;
+    }
+    lib_object.patched = patched;
+    /**
+     * @author fenris
+     */
+    function attached(object, key, value) {
+        var mantle = {};
+        mantle[key] = value;
+        return patched(object, mantle, false);
+    }
+    lib_object.attached = attached;
+    /**
+     * @author fenris
+     */
+    function copy(object) {
+        return patched({}, object);
+    }
+    lib_object.copy = copy;
 })(lib_object || (lib_object = {}));
 /**
  * @desc adapters for old syntax
@@ -3030,14 +3162,15 @@ var object_stringify = function (object, readable) {
         return value;
     }, readable ? 1 : 0));
 };
+///<reference path="../../base/build/logic-decl.d.ts"/>
 var lib_object;
 (function (lib_object) {
     /**
-     * @author frac
+     * @author fenris
      */
     var class_relation = (function () {
         /**
-         * @author frac
+         * @author fenris
          */
         /*protected*/ function class_relation(id, parameters) {
             this.id = id;
@@ -3046,31 +3179,44 @@ var lib_object;
             this.predicate = lib_object.fetch(parameters, "predicate", null, 2);
         }
         /**
-         * @author frac
+         * @author fenris
          */
         class_relation.prototype.check = function (value, reference) {
             return this.predicate(value, reference);
         };
         /**
-         * @author frac
+         * @author fenris
          */
         class_relation.prototype.id_get = function () {
             return this.id;
         };
         /**
-         * @author frac
+         * @author fenris
          */
         class_relation.prototype.symbol_get = function () {
             return this.symbol;
         };
         /**
-         * @author frac
+         * @author fenris
          */
         class_relation.prototype.name_get = function () {
             return this.name;
         };
         /**
-         * @author frac
+         * @desc [implementation]
+         * @author fenris
+         */
+        class_relation.prototype._show = function () {
+            return "[" + this.symbol + "]";
+        };
+        /**
+         * @author fenris
+         */
+        class_relation.prototype.toString = function () {
+            return this._show();
+        };
+        /**
+         * @author fenris
          */
         class_relation.pool = function () {
             return {
@@ -3107,14 +3253,14 @@ var lib_object;
             };
         };
         /**
-         * @author frac
+         * @author fenris
          */
         class_relation.get = function (id) {
             var parameters = lib_object.fetch(this.pool(), id, null, 2);
             return (new class_relation(id, parameters));
         };
         /**
-         * @author frac
+         * @author fenris
          */
         class_relation.available = function () {
             return Object.keys(this.pool());
@@ -3123,11 +3269,11 @@ var lib_object;
     }());
     lib_object.class_relation = class_relation;
     /**
-     * @author frac
+     * @author fenris
      */
     var class_filtrationitem = (function () {
         /**
-         * @author frac
+         * @author fenris
          */
         function class_filtrationitem(parameters) {
             this.extract = lib_object.fetch(parameters, "extract", null, 2);
@@ -3135,62 +3281,65 @@ var lib_object;
             this.reference = lib_object.fetch(parameters, "reference", null, 2);
         }
         /**
-         * @author frac
+         * @author fenris
          */
         class_filtrationitem.prototype.check = function (dataset) {
             var value = this.extract(dataset);
-            return this.relation.check(value, this.reference);
+            var result = this.relation.check(value, this.reference);
+            return result;
+        };
+        /**
+         * @desc [implementation]
+         * @author fenris
+         */
+        class_filtrationitem.prototype._show = function () {
+            return "(" + this.relation.symbol_get() + " " + instance_show(this.reference) + ")";
+        };
+        /**
+         * @author fenris
+         */
+        class_filtrationitem.prototype.toString = function () {
+            return this._show();
         };
         return class_filtrationitem;
     }());
     lib_object.class_filtrationitem = class_filtrationitem;
     /**
-     * @author frac
+     * @desc disjunctive normal form
+     * @author fenris
      */
     var class_filtration = (function () {
         /**
-         * @author frac
+         * @author fenris
          */
         function class_filtration(clauses) {
             this.clauses = clauses;
         }
         /**
-         * @author frac
+         * @author fenris
          */
         class_filtration.prototype.check = function (dataset) {
             return (this.clauses.some(function (clause) { return clause.every(function (literal) { return literal.check(dataset); }); }));
         };
         /**
-         * @author frac
+         * @author fenris
          */
         class_filtration.prototype.use = function (datasets) {
             var _this = this;
             return datasets.filter(function (dataset) { return _this.check(dataset); });
         };
         /**
-         * @author frac
+         * @desc [implementation]
+         * @author fenris
          */
-        class_filtration.test = function () {
-            var filtration = new class_filtration([
-                [
-                    new class_filtrationitem({
-                        "extract": function (dataset) { return dataset["qux"]; },
-                        "relation": class_relation.get("eq"),
-                        "reference": "a"
-                    }),
-                ],
-                [
-                    new class_filtrationitem({
-                        "extract": function (dataset) { return dataset["qux"]; },
-                        "relation": class_relation.get("eq"),
-                        "reference": "c"
-                    }),
-                ],
-            ]);
-            var datasets = pivot_demo_data0;
-            var datasets_ = filtration.use(datasets);
-            console.info(datasets);
-            console.info(datasets_);
+        class_filtration.prototype._show = function () {
+            return ("{" + this.clauses.map(function (clause) { return ("[" + clause.map(instance_show).join(",") + "]"); }).join(",") + "}");
+        };
+        /**
+         * @author fenris
+         */
+        class_filtration.prototype.toString = function () {
+            return this._show();
         };
         return class_filtration;
     }());
@@ -3613,7 +3762,172 @@ var lib_path;
     }
     lib_path.filepointer_read = filepointer_read;
 })(lib_path || (lib_path = {}));
-///<reference path="../../base/build/logic-decl.d.ts"/>
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+///<reference path="../../call/build/logic-decl.d.ts"/>
+var lib_file;
+(function (lib_file) {
+    /**
+     * @author fenris
+     */
+    var class_file_abstract = (function () {
+        function class_file_abstract() {
+        }
+        /**
+         * @desc reads a json file
+         * @author fenris
+         */
+        class_file_abstract.prototype.read_json = function (path) {
+            var _this = this;
+            return (function (resolve, reject) {
+                lib_call.executor_chain({}, [
+                    function (state) { return function (resolve_, reject_) {
+                        _this.read(path)(function (content) {
+                            state.content = content;
+                            resolve_(state);
+                        }, reject_);
+                    }; },
+                    function (state) { return function (resolve_, reject_) {
+                        var error;
+                        try {
+                            state.data = JSON.parse(state.content);
+                            error = null;
+                        }
+                        catch (exception) {
+                            error = new class_error("invalid json", [exception]);
+                        }
+                        if (error == null) {
+                            resolve_(state);
+                        }
+                        else {
+                            reject_(error);
+                        }
+                    }; },
+                ])(function (state) { return resolve(state.data); }, reject);
+            });
+        };
+        /**
+         * @desc writes a json file
+         * @author fenris
+         */
+        class_file_abstract.prototype.write_json = function (path, data) {
+            return this.write(path, JSON.stringify(data, undefined, "\t"));
+        };
+        return class_file_abstract;
+    }());
+    lib_file.class_file_abstract = class_file_abstract;
+})(lib_file || (lib_file = {}));
+///<reference path="../../call/build/logic-decl.d.ts"/>
+var lib_file;
+(function (lib_file) {
+    /**
+     * @author fenris
+     */
+    var class_file_node = (function (_super) {
+        __extends(class_file_node, _super);
+        function class_file_node() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        /**
+         * @author maspr
+         */
+        class_file_node.prototype.determine_handler = function (path) {
+            if (/^https?:\/\//.test(path)) {
+                return "http";
+            }
+            else {
+                return "file";
+            }
+        };
+        /**
+         * @override
+         * @author fenris,maspr
+         * @todo clear up if http(s)-handling belongs here or not
+         */
+        class_file_node.prototype.read = function (path, skip_error) {
+            if (skip_error === void 0) { skip_error = false; }
+            switch (this.determine_handler(path)) {
+                case "file":
+                    {
+                        var nm_fs_1 = require("fs");
+                        return (function (resolve, reject) {
+                            nm_fs_1.readFile(path, {
+                                "encoding": "utf8",
+                                "flag": "r",
+                            }, function (error, content) {
+                                if (error == null) {
+                                    resolve(content);
+                                }
+                                else {
+                                    reject(error);
+                                }
+                            });
+                        });
+                    }
+                    break;
+                case "http":
+                    {
+                        return function (resolve, reject) {
+                            var nm_http = require("http");
+                            var nm_https = require("https");
+                            var nm_url = require("url");
+                            var parsed_url = nm_url.parse(path, false, true);
+                            var client = (parsed_url.protocol == "https:") ? nm_https : nm_http;
+                            var default_port = ((parsed_url.protocol == "https:") ? 443 : 80);
+                            var options = {
+                                hostname: parsed_url.hostname,
+                                port: parsed_url.port || default_port,
+                                path: parsed_url.path,
+                                method: "GET"
+                            };
+                            var req = client.request(options, function (res) {
+                                var data = ""; // @todo
+                                res.on("data", function (chunk) {
+                                    data += chunk;
+                                });
+                                res.on("end", function () {
+                                    resolve(data);
+                                });
+                            });
+                            req.end();
+                            req.on("error", function (error) {
+                                reject(error);
+                            });
+                        };
+                    }
+                    break;
+                default: {
+                    return (function (resolve, reject) { return reject(new Error("unhandled protocol")); });
+                }
+            }
+        };
+        /**
+         * @override
+         * @author fenris
+         */
+        class_file_node.prototype.write = function (path, content) {
+            var nm_fs = require("fs");
+            return (function (resolve, reject) {
+                nm_fs.writeFile(path, content, {
+                    "encoding": "utf8",
+                    "flag": "w",
+                }, function (error) {
+                    if (error == null) {
+                        resolve(undefined);
+                    }
+                    else {
+                        reject(error);
+                    }
+                });
+            });
+        };
+        return class_file_node;
+    }(lib_file.class_file_abstract));
+    lib_file.class_file_node = class_file_node;
+})(lib_file || (lib_file = {}));
 ///<reference path="../../call/build/logic-decl.d.ts"/>
 var lib_file;
 (function (lib_file) {
@@ -3622,10 +3936,10 @@ var lib_file;
      * @todo move to a dedicated lib (e.g. "http", "transport", etc.)
      */
     function ajax(_a) {
-        var target = _a["target"], _b = _a["data"], data /*: {[key : string] : string}*/ = _b === void 0 ? null : _b, _c = _a["method"], method /* : string*/ = _c === void 0 ? "GET" : _c;
+        var target = _a["target"] /*: string*/, _b = _a["data"], data /*: {[key : string] : string}*/ = _b === void 0 ? null : _b, _c = _a["method"], method /* : string*/ = _c === void 0 ? "GET" : _c;
         method = method.toLowerCase();
         return (function (resolve, reject) {
-            var datastring = ((data == null) ? null : Object.keys(data).map(function (key) { return (key + "=" + data[key]); }).join("&"));
+            var datastring = ((data == null) ? null : Object.keys(data).map(function (key) { return key + "=" + data[key]; }).join("&"));
             var suffix = ((method == "get") ? ("?" + datastring) : "");
             var sending = ((method == "get") ? null : datastring);
             var request = new XMLHttpRequest();
@@ -3643,175 +3957,128 @@ var lib_file;
             request.send(sending);
         });
     }
-    lib_file.ajax = ajax;
     /**
-     * @author maspr
+     * @author fenris
      */
-    function determine_handler(path) {
-        if (/^https?:\/\//.test(path)) {
-            return "http";
+    var class_file_web = (function (_super) {
+        __extends(class_file_web, _super);
+        function class_file_web() {
+            return _super !== null && _super.apply(this, arguments) || this;
         }
-        else {
-            return "file";
+        /**
+         * @override
+         * @author fenris
+         */
+        class_file_web.prototype.read = function (path, skip_error) {
+            if (skip_error === void 0) { skip_error = false; }
+            return (function (resolve, reject) {
+                ajax({
+                    "target": path,
+                    "method": "GET",
+                })(resolve, function (reason) { return (skip_error ? resolve(null) : reject(reason)); });
+            });
+        };
+        /**
+         * @override
+         * @author fenris
+         */
+        class_file_web.prototype.write = function (path, content) {
+            return (function (resolve, reject) {
+                reject(new Error("not implemented / not possible"));
+            });
+        };
+        return class_file_web;
+    }(lib_file.class_file_abstract));
+    lib_file.class_file_web = class_file_web;
+})(lib_file || (lib_file = {}));
+///<reference path="../../base/build/logic-decl.d.ts"/>
+///<reference path="../../call/build/logic-decl.d.ts"/>
+var lib_file;
+(function (lib_file) {
+    /**
+     * @desc selects the implementation which fits for the detected environment
+     * @author fenris
+     */
+    function auto() {
+        var environment = lib_base.environment();
+        switch (environment) {
+            case "node": {
+                return (new lib_file.class_file_node());
+                break;
+            }
+            case "web": {
+                return (new lib_file.class_file_web());
+                break;
+            }
+            default: {
+                throw (new Error("no implementation for environment '" + environment + "'"));
+                break;
+            }
         }
     }
+    lib_file.auto = auto;
     /**
-     * @desc reads a file
+     * @author fenris
+     */
+    var class_file = (function (_super) {
+        __extends(class_file, _super);
+        /**
+         * @author fenris
+         */
+        function class_file() {
+            var _this = _super.call(this) || this;
+            _this.core = auto();
+            return _this;
+        }
+        /**
+         * @override
+         * @author fenris
+         */
+        class_file.prototype.read = function (path, skip_error) {
+            if (skip_error === void 0) { skip_error = false; }
+            return this.core.read(path, skip_error);
+        };
+        /**
+         * @override
+         * @author fenris
+         */
+        class_file.prototype.write = function (path, content) {
+            return this.core.write(path, content);
+        };
+        return class_file;
+    }(lib_file.class_file_abstract));
+    lib_file.class_file = class_file;
+    /**
+     * @author fenris
+     */
+    var instance = auto();
+    /**
      * @author fenris
      */
     function read(path, skip_error) {
         if (skip_error === void 0) { skip_error = false; }
-        var environment = lib_base.environment();
-        switch (environment) {
-            case "web": {
-                return (function (resolve, reject) {
-                    ajax({
-                        "target": path,
-                        "method": "GET",
-                    })(resolve, function (reason) { return (skip_error ? resolve(null) : reject(reason)); });
-                });
-                break;
-            }
-            case "node": {
-                switch (determine_handler(path)) {
-                    case "file":
-                        {
-                            var _fs_1 = require("fs");
-                            return (function (resolve, reject) {
-                                _fs_1.readFile(path, {
-                                    "encoding": "utf8",
-                                    "flag": "r",
-                                }, function (error, content) {
-                                    if (error == null) {
-                                        resolve(content);
-                                    }
-                                    else {
-                                        reject(error);
-                                    }
-                                });
-                            });
-                        }
-                        break;
-                    case "http":
-                        {
-                            return function (resolve, reject) {
-                                var _http = require("http");
-                                var _https = require("https");
-                                var _url = require("url");
-                                var parsed_url = _url.parse(path, false, true);
-                                var client = (parsed_url.protocol == "https:") ? _https : _http;
-                                var default_port = (parsed_url.protocol == "https:") ? 443 : 80;
-                                var options = {
-                                    hostname: parsed_url.hostname,
-                                    port: parsed_url.port || default_port,
-                                    path: parsed_url.path,
-                                    method: "GET"
-                                };
-                                var req = client.request(options, function (res) {
-                                    var data = ""; // @todo
-                                    res.on("data", function (chunk) {
-                                        data += chunk;
-                                    });
-                                    res.on("end", function () {
-                                        resolve(data);
-                                    });
-                                });
-                                req.end();
-                                req.on("error", function (error) {
-                                    reject(error);
-                                });
-                            };
-                        }
-                        break;
-                    default: {
-                        return (function (resolve, reject) { return reject(new Error("unhandled protocol")); });
-                    }
-                }
-                break;
-            }
-            default: {
-                return (function (resolve, reject) { return reject(new Error("unhandled environment")); });
-                break;
-            }
-        }
+        return instance.read(path, skip_error);
     }
     lib_file.read = read;
     /**
-     * @desc reads a json file
-     * @author fenris
-     */
-    function read_json(path) {
-        return (function (resolve, reject) {
-            lib_call.executor_chain({}, [
-                function (state) { return function (resolve_, reject_) {
-                    read(path)(function (content) {
-                        state.content = content;
-                        resolve_(state);
-                    }, reject_);
-                }; },
-                function (state) { return function (resolve_, reject_) {
-                    var error;
-                    try {
-                        state.data = JSON.parse(state.content);
-                        error = null;
-                    }
-                    catch (exception) {
-                        error = new class_error("invalid json", [exception]);
-                    }
-                    if (error == null) {
-                        resolve_(state);
-                    }
-                    else {
-                        reject_(error);
-                    }
-                }; },
-            ])(function (state) { return resolve(state.data); }, reject);
-        });
-    }
-    lib_file.read_json = read_json;
-    /**
-     * @desc writes a file
      * @author fenris
      */
     function write(path, content) {
-        var environment = lib_base.environment();
-        switch (environment) {
-            case "web": {
-                return (function (resolve, reject) {
-                    reject(new Error("not implemented / not possible"));
-                });
-                break;
-            }
-            case "node": {
-                var _fs_2 = require("fs");
-                return (function (resolve, reject) {
-                    _fs_2.writeFile(path, content, {
-                        "encoding": "utf8",
-                        "flag": "w",
-                    }, function (error) {
-                        if (error == null) {
-                            resolve(undefined);
-                        }
-                        else {
-                            reject(error);
-                        }
-                    });
-                });
-                break;
-            }
-            default: {
-                return (function (resolve, reject) { return reject(new Error("unhandled environment")); });
-                break;
-            }
-        }
+        return instance.write(path, content);
     }
     lib_file.write = write;
     /**
-     * @desc writes a json file
+     * @author fenris
+     */
+    function read_json(path) {
+        return instance.read_json(path);
+    }
+    lib_file.read_json = read_json;
+    /**
      * @author fenris
      */
     function write_json(path, data) {
-        return write(path, JSON.stringify(data, undefined, "\t"));
+        return instance.write_json(path, data);
     }
     lib_file.write_json = write_json;
 })(lib_file || (lib_file = {}));
