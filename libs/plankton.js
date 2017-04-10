@@ -1,10 +1,27 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 // module lib_base {
 // }
+// Web
+/*
+declare class Window {
+    console : any;
+    navigator : any;
+    setTimeout : (function_ : (...params : Array<any>)=>void, delay : number, ...params : Array<any>)=>number;
+};
+declare var window : Window;
+declare class Document {
+};
+declare var document : Document;
+ */
 ;
 var lib_base;
 (function (lib_base) {
@@ -16,17 +33,17 @@ var lib_base;
             {
                 "id": "web",
                 "name": "Web",
-                "predicate": function () { return (typeof (document) !== "undefined"); }
+                "predicate": function () { return (typeof (document) !== "undefined"); },
             },
             {
                 "id": "node",
                 "name": "Node.js",
-                "predicate": function () { return (typeof (process) !== "undefined"); }
+                "predicate": function () { return (typeof (process) !== "undefined"); },
             },
             {
                 "id": "rhino",
                 "name": "Rhino",
-                "predicate": function () { return (typeof (java) !== "undefined"); }
+                "predicate": function () { return (typeof (java) !== "undefined"); },
             },
         ];
         var id;
@@ -57,18 +74,42 @@ var instance_verbosity = 0;
  */
 function instance_collate(value1, value2) {
     if (typeof (value1) === "object") {
-        if ("_collate" in value1) {
-            return value1["_collate"](value2);
+        if (value1 == null) {
+            return (value2 == null);
         }
         else {
-            throw (new Error("[collate]" + " " + "object has no such method"));
+            if ("_collate" in value1) {
+                return value1["_collate"](value2);
+            }
+            else {
+                throw (new Error("[collate]" + " " + "object has no such method"));
+            }
         }
     }
     else {
         if (instance_verbosity >= 1) {
-            console.warn("[collate]" + " " + "primitive value; using default implementation");
+            lib_log.warn("[collate]" + " " + "primitive value; using default implementation");
         }
         return (value1 === value2);
+    }
+}
+/**
+ * @author fenris
+ */
+function instance_compare(value1, value2) {
+    if (typeof (value1) === "object") {
+        if ("_compare" in value1) {
+            return value1["_compare"](value2);
+        }
+        else {
+            throw (new Error("[compare]" + " " + "object has no such method"));
+        }
+    }
+    else {
+        if (instance_verbosity >= 1) {
+            lib_log.warn("[compare]" + " " + "primitive value; using default implementation");
+        }
+        return (value1 <= value2);
     }
 }
 /**
@@ -85,7 +126,7 @@ function instance_clone(value) {
     }
     else {
         if (instance_verbosity >= 1) {
-            console.warn("[clone]" + " " + "primitive value; using default implementation");
+            lib_log.warn("[clone]" + " " + "primitive value; using default implementation");
         }
         return value;
     }
@@ -105,7 +146,7 @@ function instance_hash(value) {
     }
     else {
         if (instance_verbosity >= 1) {
-            console.warn("[hash]" + " " + "primitive value; using default implementation");
+            lib_log.warn("[hash]" + " " + "primitive value; using default implementation");
         }
         return String(value);
     }
@@ -116,20 +157,76 @@ function instance_hash(value) {
  */
 function instance_show(value) {
     if (typeof (value) === "object") {
-        if ("_show" in value) {
-            return value["_show"]();
+        if (value == null) {
+            return "NULL";
         }
         else {
-            throw (new Error("[show]" + " " + "object has no such method"));
+            if ("_show" in value) {
+                return value["_show"]();
+            }
+            else {
+                // throw (new Error("[show]" + " " + "object has no such method"));
+                return JSON.stringify(value);
+            }
         }
     }
     else {
         if (instance_verbosity >= 1) {
-            console.warn("[show]" + " " + "primitive value; using default implementation");
+            lib_log.warn("[show]" + " " + "primitive value; using default implementation");
         }
         return String(value);
     }
 }
+/**
+ * @todo outsource to dedicated plankton-lib
+ */
+var lib_log;
+(function (lib_log) {
+    /**
+     * @author fenris
+     */
+    function log() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        /*window.*/ console.log(args);
+    }
+    lib_log.log = log;
+    /**
+     * @author fenris
+     */
+    function info() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        /*window.*/ console.info(args);
+    }
+    lib_log.info = info;
+    /**
+     * @author fenris
+     */
+    function warn() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        /*window.*/ console.warn(args);
+    }
+    lib_log.warn = warn;
+    /**
+     * @author fenris
+     */
+    function error() {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        /*window.*/ console.error(args);
+    }
+    lib_log.error = error;
+})(lib_log || (lib_log = {}));
 /**
  * @author frac
  */
@@ -308,7 +405,7 @@ export interface interface_writeable<type_value> {
      */
     class_nothing.prototype.cull = function () {
         var message = "you shouldn't cull a nothing-value …";
-        console.warn(message);
+        lib_log.warn(message);
         return null;
     };
     /**
@@ -416,11 +513,7 @@ var class_error = (function (_super) {
     };
     return class_error;
 }(Error));
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+///<reference path="../../base/build/logic-decl.d.ts"/>
 var lib_call;
 (function (lib_call) {
     /**
@@ -432,12 +525,11 @@ var lib_call;
      *    to do this by default.
      * @author frac
      */
-    lib_call.default_deferred = ((typeof (navigator) === "undefined") ? false : (navigator.userAgent.indexOf("Firefox") >= 0));
+    lib_call.default_deferred = ((lib_base.environment() == "web") && (window.navigator.userAgent.indexOf("Firefox") >= 0));
     /**
      * @author fenris
      */
-    function schedule(function_, deferred) {
-        if (deferred === void 0) { deferred = lib_call.default_deferred; }
+    function schedule(function_, deferred = lib_call.default_deferred) {
         if (!deferred) {
             function_();
         }
@@ -454,78 +546,67 @@ var lib_call;
      * @author frac
      * @todo could possibly be replaced by Promise-system
      */
-    var class_wait = (function () {
-        function class_wait() {
-        }
-        return class_wait;
-    }());
+    class class_wait {
+    }
     lib_call.class_wait = class_wait;
     /**
      * @author frac
      * @todo could possibly be replaced by Promise-system
      */
-    var class_wait_sequential = (function (_super) {
-        __extends(class_wait_sequential, _super);
+    class class_wait_sequential extends class_wait {
         /**
          * @author frac
          */
-        function class_wait_sequential(dependencies, action) {
-            if (action === void 0) { action = function () { console.log("all done"); }; }
-            var _this = _super.call(this) || this;
-            _this.dependencies = dependencies;
-            _this.action = action;
-            return _this;
+        constructor(dependencies, action = function () { lib_log.log("all done"); }) {
+            super();
+            this.dependencies = dependencies;
+            this.action = action;
         }
         /**
          * @author frac
          */
-        class_wait_sequential.prototype.run_ = function (dependencies) {
-            var _this = this;
+        run_(dependencies) {
             if (dependencies.length > 0) {
-                dependencies[0](function () { return _this.run_(dependencies.slice(1)); });
+                dependencies[0](() => this.run_(dependencies.slice(1)));
             }
             else {
                 this.action();
             }
-        };
+        }
         /**
          * @author frac
          */
-        class_wait_sequential.prototype.run = function () {
+        run() {
             this.run_(this.dependencies);
-        };
-        return class_wait_sequential;
-    }(class_wait));
+        }
+    }
     lib_call.class_wait_sequential = class_wait_sequential;
     /**
      * @author frac
      * @todo could possibly be replaced by Promise-system
      */
-    var class_wait_parallel = (function (_super) {
-        __extends(class_wait_parallel, _super);
+    class class_wait_parallel extends class_wait {
         /**
          * @author frac
          */
-        function class_wait_parallel(dependencies, action) {
-            if (action === void 0) { action = function () { console.log("all done"); }; }
-            var _this = _super.call(this) || this;
-            _this.index = 0;
-            _this.dependencies = {};
-            _this.action = action;
-            dependencies.forEach(function (dependency) { return _this.add_dependency(dependency); });
-            return _this;
+        constructor(dependencies, action = function () { lib_log.log("all done"); }) {
+            super();
+            this.index = 0;
+            this.dependencies = {};
+            this.action = action;
+            dependencies.forEach(dependency => this.add_dependency(dependency));
         }
         /**
          * @author frac
          */
-        class_wait_parallel.prototype.add_dependency = function (dependency) {
+        add_dependency(dependency) {
             this.dependencies["dependency_" + this.index.toString()] = dependency;
             this.index += 1;
-        };
+        }
         /**
          * @author frac
          */
-        class_wait_parallel.prototype.remove_dependency = function (id) {
+        remove_dependency(id) {
             if (!(id in this.dependencies)) {
                 throw (new Error("dependency does not exist"));
             }
@@ -535,37 +616,43 @@ var lib_call;
                     this.action();
                 }
             }
-        };
+        }
         /**
          * @author frac
          */
-        class_wait_parallel.prototype.run = function () {
-            var that = this;
+        run() {
+            let that = this;
             if (Object.keys(this.dependencies).length == 0) {
                 this.action();
             }
             else {
                 Object.keys(this.dependencies).forEach(function (id) {
-                    var dependency = that.dependencies[id];
+                    let dependency = that.dependencies[id];
                     dependency(function () {
                         that.remove_dependency(id);
                     });
                 });
             }
-        };
-        return class_wait_parallel;
-    }(class_wait));
+        }
+    }
     lib_call.class_wait_parallel = class_wait_parallel;
 })(lib_call || (lib_call = {}));
-///<reference path="../../base/build/logic-decl.d.ts"/>
 var lib_call;
 (function (lib_call) {
+    /**
+     * @author fenris
+     */
+    function timeout(function_, delay, ...params) {
+        return (
+        /*window.*/ setTimeout.apply(
+        /*window.*/ setTimeout, [function_, delay].concat(params)));
+    }
+    lib_call.timeout = timeout;
     /**
      * @desc a definition for a value being "defined"
      * @author neuc
      */
-    function is_def(obj, null_is_valid) {
-        if (null_is_valid === void 0) { null_is_valid = false; }
+    function is_def(obj, null_is_valid = false) {
         return (!((typeof (obj) === "undefined") || (!null_is_valid && (obj === null))));
     }
     lib_call.is_def = is_def;
@@ -573,9 +660,7 @@ var lib_call;
      * @desc returns the value if set and, when a type is specified, if the type is corret, if not return default_value
      * @author neuc
      */
-    function def_val(value, default_value, type, null_is_valid) {
-        if (type === void 0) { type = null; }
-        if (null_is_valid === void 0) { null_is_valid = false; }
+    function def_val(value, default_value, type = null, null_is_valid = false) {
         if (is_def(value, null_is_valid) && (is_def(type) ? ((typeof value === type) || ((value === null) && null_is_valid)) : true)) {
             return value;
         }
@@ -587,21 +672,21 @@ var lib_call;
     ;
     /**
      * @desc just the empty function; useful for some callbacks etc.
-     * @author frac
+     * @author fenris
      */
     function nothing() {
     }
     lib_call.nothing = nothing;
     /**
      * @desc just the identity; useful for some callbacks etc.
-     * @author frac
+     * @author fenris
      */
     function id(x) {
         return x;
     }
     lib_call.id = id;
     /**
-     * @author frac
+     * @author fenris
      */
     function use(input, function_) {
         return function_(input);
@@ -609,36 +694,36 @@ var lib_call;
     lib_call.use = use;
     /**
      * @desc outputs
-     * @author frac
+     * @author fenris
      */
-    function output(x) {
-        console["_info"].apply(console, arguments);
+    function output(...args) {
+        lib_log.info.apply(lib_log, args);
     }
     lib_call.output = output;
     /**
      * @desc converts the "arguments"-map into an array
      * @param {Object} args
-     * @author frac
+     * @author fenris
      */
     function args2list(args) {
-        return Object.keys(args).map(function (key) { return args[key]; });
+        return Object.keys(args).map(key => args[key]);
     }
     lib_call.args2list = args2list;
     /**
      * @desc provides the call for an attribute of a class as a regular function
      * @param {string} name the name of the attribute
      * @return {*}
-     * @author frac
+     * @author fenris
      */
     function attribute(name) {
-        return (function (object) { return object[name]; });
+        return ((object) => object[name]);
     }
     lib_call.attribute = attribute;
     /**
      * @desc provides a method of a class as a regular function
      * @param {string} name the name of the method
      * @return {function}
-     * @author frac
+     * @author fenris
      */
     function method(name) {
         return (function (object) { return object[name].apply(object, args2list(arguments).slice(1)); });
@@ -648,7 +733,7 @@ var lib_call;
      * @desc composes two functions (i.e. returns a function that return the result of the successive execution of both input-functions)
      * @param {function} function_f
      * @param {function} function_g
-     * @author frac
+     * @author fenris
      */
     function compose(function_f, function_g) {
         return (function (x) {
@@ -662,33 +747,33 @@ var lib_call;
      * @param {function} f
      * @param {int} n (don't set manually)
      * @return {function} the currified version of the in put function
-     * @author frac
+     * @author fenris
      */
-    function curryfy(f, n) {
-        if (n === void 0) { n = f.length; }
+    function curryfy(f, n = f.length) {
         switch (n) {
             case 0: {
                 throw (new Error("[curryfy] impossible"));
+                // break;
             }
             case 1: {
                 return f;
+                // break;
             }
             default: {
                 return (function (x) {
                     return (curryfy(function () { return f.apply(f, [x].concat(args2list(arguments))); }, n - 1));
                 });
+                // break;
             }
         }
     }
     lib_call.curryfy = curryfy;
     /**
      * @desc adapter for old syntax
-     * @author frac
+     * @author fenris
      */
-    function wait(dependencies, action, parallel) {
-        if (action === void 0) { action = function () { console.log("all done"); }; }
-        if (parallel === void 0) { parallel = true; }
-        var wait = (parallel ? (new lib_call.class_wait_parallel(dependencies, action)) : (new lib_call.class_wait_sequential(dependencies, action)));
+    function wait(dependencies, action = function () { lib_log.log("all done"); }, parallel = true) {
+        let wait = (parallel ? (new lib_call.class_wait_parallel(dependencies, action)) : (new lib_call.class_wait_sequential(dependencies, action)));
         wait.run();
     }
     lib_call.wait = wait;
@@ -701,16 +786,13 @@ var lib_call;
      * @param {function} on_stateChange called before the next function is called
      * @returns {function}
      */
-    function simple_process(_process, on_stateChange, on_progress) {
-        if (on_stateChange === void 0) { on_stateChange = function (msg) { console.info("State changed " + msg); }; }
-        if (on_progress === void 0) { on_progress = function (msg, pos, max) { console.info("Progress '" + msg + "' " + pos + "/" + max); }; }
+    function simple_process(_process, on_stateChange = function (msg) { lib_log.info("State changed " + msg); }, on_progress = function (msg, pos, max) { lib_log.info("Progress '" + msg + "' " + pos + "/" + max); }) {
         var data_hashmap = {};
-        var _orchestrate = function (data, pos) {
-            if (pos === void 0) { pos = 0; }
+        var _orchestrate = function (data, pos = 0) {
             if (is_def(data)) {
                 // data_hashmap[pos] = object_merge_objects({}, data, ["parents", "parent", "children"]);
                 data_hashmap[pos] = {};
-                Object.keys(data).filter(function (key) { return (["parents", "parent", "children"].indexOf(key) < 0); }).forEach(function (key) { return (data_hashmap[pos][key] = data[key]); });
+                Object.keys(data).filter(key => (["parents", "parent", "children"].indexOf(key) < 0)).forEach(key => (data_hashmap[pos][key] = data[key]));
             }
             else {
                 if (is_def(data_hashmap[pos]) && is_def(data_hashmap[pos].processed)) {
@@ -729,11 +811,11 @@ var lib_call;
                     on_stateChange(_process[pos].state);
                 }
                 return (_func(data, function (processed_data) {
-                    setTimeout(_orchestrate({ "processed": processed_data }, pos + 1), 0);
+                    timeout(_orchestrate({ "processed": processed_data }, pos + 1), 0);
                 }, on_progress));
             }
             else {
-                console.error("o.O.");
+                lib_log.error("o.O.");
             }
         };
         return _orchestrate;
@@ -748,43 +830,41 @@ var lib_call;
      * @author fenris
      */
     function executor_resolve(result) {
-        return (function (resolve, reject) { return resolve(result); });
+        return ((resolve, reject) => resolve(result));
     }
     lib_call.executor_resolve = executor_resolve;
     /**
      * @author fenris
      */
     function executor_reject(reason) {
-        return (function (resolve, reject) { return reject(reason); });
+        return ((resolve, reject) => reject(reason));
     }
     lib_call.executor_reject = executor_reject;
     /**
      * @author fenris
      */
     function executor_transform(executor, transform_result, transform_reason) {
-        return (function (resolve, reject) {
-            executor(function (result) { return resolve(transform_result(result)); }, function (reason) { return reject(transform_reason(reason)); });
+        return ((resolve, reject) => {
+            executor(result => resolve(transform_result(result)), reason => reject(transform_reason(reason)));
         });
     }
     lib_call.executor_transform = executor_transform;
     /**
      * @author fenris
      */
-    function executor_transform_default(executor, transform_result, wrap_string) {
-        if (wrap_string === void 0) { wrap_string = null; }
-        var transform_reason = (function (error) { return ((wrap_string == null) ? error : new class_error(wrap_string, [error])); });
+    function executor_transform_default(executor, transform_result, wrap_string = null) {
+        let transform_reason = (error => ((wrap_string == null) ? error : new class_error(wrap_string, [error])));
         return (executor_transform(executor, transform_result, transform_reason));
     }
     lib_call.executor_transform_default = executor_transform_default;
     /**
      * @author fenris
      */
-    function executor_compose_sequential(first, second, deferred) {
-        if (deferred === void 0) { deferred = undefined; }
-        return (function (resolve, reject) {
-            first(function (result) {
-                lib_call.schedule(function () { return second(result)(resolve, reject); }, deferred);
-            }, function (reason) {
+    function executor_compose_sequential(first, second, deferred = undefined) {
+        return ((resolve, reject) => {
+            first(result => {
+                lib_call.schedule(() => second(result)(resolve, reject), deferred);
+            }, reason => {
                 reject(reason);
             });
         });
@@ -793,14 +873,13 @@ var lib_call;
     /**
      * @author fenris
      */
-    function executor_chain(state, executors, deferred) {
-        if (deferred === void 0) { deferred = lib_call.default_deferred; }
-        return (function (resolve, reject) {
+    function executor_chain(state, executors, deferred = lib_call.default_deferred) {
+        return ((resolve, reject) => {
             if (executors.length == 0) {
                 return resolve(state);
             }
             else {
-                return executors[0](state)(function (result) {
+                return executors[0](state)(result => {
                     /*
                     schedule(
                         () => executor_chain(result, executors.slice(1))(resolve, reject)
@@ -869,10 +948,10 @@ var lib_call;
             }
         );
          */
-        return (function (resolve, reject) {
-            executor_chain([], executors.map(function (executor) { return function (reasons) { return function (resolve_, reject_) {
-                executor(function (result) { return reject_(result); }, function (reason) { return resolve_(reasons.concat([reason])); });
-            }; }; }))(function (errors) { return reject(errors); }, function (result) { return resolve(result); });
+        return ((resolve, reject) => {
+            executor_chain([], executors.map(executor => reasons => (resolve_, reject_) => {
+                executor(result => reject_(result), reason => resolve_(reasons.concat([reason])));
+            }))(errors => reject(errors), result => resolve(result));
         });
     }
     lib_call.executor_first = executor_first;
@@ -880,9 +959,9 @@ var lib_call;
      * @author fenris
      */
     function executor_condense(executors) {
-        return (executor_chain([], executors.map(function (executor) { return function (result) { return function (resolve, reject) {
-            executor(function (element) { return resolve(result.concat([element])); }, reject);
-        }; }; })));
+        return (executor_chain([], executors.map(executor => result => (resolve, reject) => {
+            executor(element => resolve(result.concat([element])), reject);
+        })));
     }
     lib_call.executor_condense = executor_condense;
     /**
@@ -890,9 +969,9 @@ var lib_call;
      * @deprecated use condense
      */
     function executor_filter(executors, predicate) {
-        return (executor_chain([], executors.map(function (executor) { return function (result) { return function (resolve, reject) {
-            executor(function (element) { return resolve(predicate(element) ? result.concat([element]) : result); }, reject);
-        }; }; })));
+        return (executor_chain([], executors.map(executor => result => (resolve, reject) => {
+            executor(element => resolve(predicate(element) ? result.concat([element]) : result), reject);
+        })));
     }
     lib_call.executor_filter = executor_filter;
     /**
@@ -900,9 +979,9 @@ var lib_call;
      * @deprecated use condense
      */
     function executor_map(executors, transformator) {
-        return (executor_chain([], executors.map(function (executor) { return function (result) { return function (resolve, reject) {
-            executor(function (element1) { return resolve(result.concat([transformator(element1)])); }, reject);
-        }; }; })));
+        return (executor_chain([], executors.map(executor => result => (resolve, reject) => {
+            executor(element1 => resolve(result.concat([transformator(element1)])), reject);
+        })));
     }
     lib_call.executor_map = executor_map;
     /**
@@ -910,9 +989,9 @@ var lib_call;
      * @deprecated use condense
      */
     function executor_reduce(executors, initial, accumulator) {
-        return (executor_chain(initial, executors.map(function (executor) { return function (result) { return function (resolve, reject) {
-            executor(function (element) { return resolve(accumulator(result, element)); }, reject);
-        }; }; })));
+        return (executor_chain(initial, executors.map(executor => result => (resolve, reject) => {
+            executor(element => resolve(accumulator(result, element)), reject);
+        })));
     }
     lib_call.executor_reduce = executor_reduce;
 })(lib_call || (lib_call = {}));
@@ -947,66 +1026,66 @@ var lib_call;
      * @author fenris
      */
     function knot_resolver(output) {
-        return (function (input) { return function (resolve, reject) { return resolve(output); }; });
+        return (input => (resolve, reject) => resolve(output));
     }
     lib_call.knot_resolver = knot_resolver;
     /**
      * @author fenris
      */
     function knot_id() {
-        return (function (input) { return function (resolve, reject) { return resolve(input); }; });
+        return (input => (resolve, reject) => resolve(input));
     }
     lib_call.knot_id = knot_id;
     /**
      * @author fenris
      */
     function knot_rejector(error) {
-        return (function (input) { return function (resolve, reject) { return reject(error); }; });
+        return (input => (resolve, reject) => reject(error));
     }
     lib_call.knot_rejector = knot_rejector;
     /**
      * @author fenris
      */
     function knot_from_function(function_) {
-        return (function (input) { return function (resolve, reject) {
+        return (input => (resolve, reject) => {
             try {
-                var output_1 = function_(input);
-                resolve(output_1);
+                let output = function_(input);
+                resolve(output);
             }
             catch (exception) {
                 reject((exception));
             }
-        }; });
+        });
     }
     lib_call.knot_from_function = knot_from_function;
     /**
      * @author fenris
      */
     function knot_wrap(inner, convert_input, convert_output, convert_error) {
-        return (function (input_outer) { return function (resolve, reject) {
-            var input_inner = convert_input(input_outer);
-            inner(input_inner)(function (output_inner) {
-                var output_outer = convert_output(output_inner);
+        return (input_outer => (resolve, reject) => {
+            let input_inner = convert_input(input_outer);
+            inner(input_inner)(output_inner => {
+                let output_outer = convert_output(output_inner);
                 return resolve(output_outer);
-            }, function (error_inner) {
-                var error_outer = convert_error(error_inner);
+            }, error_inner => {
+                let error_outer = convert_error(error_inner);
                 return reject(error_outer);
             });
-        }; });
+        });
     }
     lib_call.knot_wrap = knot_wrap;
     /**
      * @author fenris
      */
     function knot_wrap_log(inner) {
-        return (knot_wrap(inner, function (input) {
-            console.error("--", "input:", JSON.stringify(input));
+        return (knot_wrap(inner, input => {
+            lib_log.error("--", "input:", JSON.stringify(input));
             return input;
-        }, function (output) {
-            console.error("--", "output:", JSON.stringify(output));
+        }, output => {
+            lib_log.error("--", "output:", JSON.stringify(output));
             return output;
-        }, function (error) {
-            console.error("--", "error:", JSON.stringify(error));
+        }, error => {
+            lib_log.error("--", "error:", JSON.stringify(error));
             return error;
         }));
     }
@@ -1015,19 +1094,18 @@ var lib_call;
      * @author fenris
      */
     function knot_compose_sequential(first, second) {
-        var second_ = ((knot_loglevel_get() >= 1)
+        let second_ = ((knot_loglevel_get() >= 1)
             ? knot_wrap_log(second)
             : second);
-        return (function (input) { return function (resolve, reject) {
-            first(input)(function (between) { return lib_call.schedule(function () { return second_(between)(resolve, reject); }); }, reject);
-        }; });
+        return (input => (resolve, reject) => {
+            first(input)(between => lib_call.schedule(() => second_(between)(resolve, reject)), reject);
+        });
     }
     lib_call.knot_compose_sequential = knot_compose_sequential;
     /**
      * @author fenris
      */
-    function knot_chain(knots, logging) {
-        if (logging === void 0) { logging = false; }
+    function knot_chain(knots, logging = false) {
         /*
         return (
             knots.reduce<type_knot<type_input, type_output, type_error>>(
@@ -1036,22 +1114,22 @@ var lib_call;
             )
         );
          */
-        var knots_ = (logging
+        let knots_ = (logging
             ? knots.map(knot_wrap_log)
             : knots);
         if (knots_.length == 0) {
-            return (function (input) { return function (resolve, reject) {
+            return (input => (resolve, reject) => {
                 resolve(input);
-            }; });
+            });
         }
         else {
-            return (function (input) { return function (resolve, reject) {
-                return knots_[0](input)(function (result) {
+            return (input => (resolve, reject) => {
+                return knots_[0](input)(result => {
                     return knot_chain(knots_.slice(1), false)(result)(resolve, reject);
-                }, function (error) {
+                }, error => {
                     return reject(error);
                 });
-            }; });
+            });
         }
     }
     lib_call.knot_chain = knot_chain;
@@ -1077,36 +1155,39 @@ var lib_call;
      * @author fenris
      */
     function knot_bunch(knots) {
-        return (function (input) { return function (resolve, reject) {
-            var done = false;
-            var master_output = {};
-            var ready = {};
-            var master_resolve = function (id, output) {
+        return (input => (resolve, reject) => {
+            let done = false;
+            let master_output = {};
+            let ready = {};
+            let master_resolve = (id, output) => {
                 if (!done) {
                     master_output[id] = output;
                     ready[id] = true;
-                    if (Object.keys(knots).every(function (id) { return (id in ready); })) {
+                    if (Object.keys(knots).every(id => (id in ready))) {
                         done = true;
                         resolve(master_output);
                     }
                     else {
+                        // nothing to do
                     }
                 }
                 else {
+                    // nothing to do
                 }
             };
-            var master_reject = function (id, error) {
+            let master_reject = (id, error) => {
                 if (!done) {
                     done = true;
                     reject(error);
                 }
                 else {
+                    // nothing to do
                 }
             };
-            Object.keys(knots).forEach(function (id) {
-                knots[id](input)(function (output) { return master_resolve(id, output); }, function (error) { return master_reject(id, error); });
+            Object.keys(knots).forEach(id => {
+                knots[id](input)(output => master_resolve(id, output), error => master_reject(id, error));
             });
-        }; });
+        });
     }
     lib_call.knot_bunch = knot_bunch;
     /**
@@ -1128,20 +1209,20 @@ var lib_call;
         );
          */
         if (knots.length == 0) {
-            return (function (input) { return function (resolve, reject) {
+            return (input => (resolve, reject) => {
                 resolve([]);
-            }; });
+            });
         }
         else {
-            return (function (input) { return function (resolve, reject) {
-                knots[0](input)(function (element) {
-                    knot_condense(knots.slice(1))(input)(function (restlist) {
+            return (input => (resolve, reject) => {
+                knots[0](input)(element => {
+                    knot_condense(knots.slice(1))(input)(restlist => {
                         resolve([element].concat(restlist));
                     }, reject);
-                }, function (error) {
+                }, error => {
                     reject(error);
                 });
-            }; });
+            });
         }
     }
     lib_call.knot_condense = knot_condense;
@@ -1149,31 +1230,30 @@ var lib_call;
      * @author fenris
      */
     function knot_first(knots) {
-        return (function (input) { return function (resolve, reject) {
-            knot_condense(knots.map(function (knot) { return function (input_) { return function (resolve_, reject_) { return knot(input)(reject_, resolve_); }; }; }))(input)(reject, resolve);
-        }; });
+        return (input => (resolve, reject) => {
+            knot_condense(knots.map(knot => input_ => (resolve_, reject_) => knot(input)(reject_, resolve_)))(input)(reject, resolve);
+        });
     }
     lib_call.knot_first = knot_first;
     /**
      * @author fenris
      */
-    function knot_repeat(knot, attempts, delay) {
-        if (attempts === void 0) { attempts = 5; }
-        if (delay === void 0) { delay = (function (attempt) { return 250; }); }
-        var seq = (function (n) { return ((n == 0) ? [] : seq(n - 1).concat([n - 1])); });
-        return (knot_first(seq(attempts).map(function (_, attempt) { return function (input) { return function (resolve, reject) { return knot(input)(resolve, function (error) {
-            setTimeout(function () { return reject(error); }, delay(attempt));
-        }); }; }; })));
+    function knot_repeat(knot, attempts = 5, delay = (attempt => 250)) {
+        let seq = (n => ((n == 0) ? [] : seq(n - 1).concat([n - 1])));
+        return (knot_first(seq(attempts).map((_, attempt) => input => (resolve, reject) => knot(input)(resolve, error => {
+            setTimeout(() => reject(error), delay(attempt));
+        }))));
     }
     lib_call.knot_repeat = knot_repeat;
     /**
+     * @desc useful for e.g. asynchronous singletons
      * @author fenris
      */
-    var class_knot_initializer = (function () {
+    class class_knot_initializer {
         /**
          * @author fenris
          */
-        function class_knot_initializer(fetcher) {
+        constructor(fetcher) {
             /**
              * @author fenris
              * 0 : initial
@@ -1199,48 +1279,52 @@ var lib_call;
         /**
          * @author fenris
          */
-        class_knot_initializer.prototype.actuate = function () {
-            var _this = this;
+        actuate() {
             switch (this.state) {
                 case 2: {
-                    this.queue.forEach(function (entry) { return entry.resolve(_this.output); });
+                    this.queue.forEach(entry => entry.resolve(this.output));
                     break;
                 }
                 case 3: {
-                    this.queue.forEach(function (entry) { return entry.reject(_this.error); });
+                    this.queue.forEach(entry => entry.reject(this.error));
                     break;
                 }
                 default: {
-                    throw (new Error("unhandled state " + this.state));
+                    throw (new Error(`unhandled state ${this.state}`));
                     break;
                 }
             }
-        };
+        }
         /**
          * @author fenris
          */
-        class_knot_initializer.prototype.get = function (input) {
-            var _this = this;
+        reset() {
+            this.state = 0;
+            this.queue = [];
+        }
+        /**
+         * @author fenris
+         */
+        get(input) {
             switch (this.state) {
                 case 0: {
                     this.state = 1;
-                    return (function (_) { return function (resolve, reject) {
-                        _this.fetcher(input)(function (output) {
-                            _this.state = 2;
-                            _this.output = output;
-                            resolve(output);
-                            _this.actuate();
-                        }, function (error) {
-                            _this.state = 3;
-                            _this.error = error;
-                            reject(error);
-                            _this.actuate();
+                    return (_ => (resolve, reject) => {
+                        this.queue.push({ "resolve": resolve, "reject": reject });
+                        this.fetcher(input)(output => {
+                            this.state = 2;
+                            this.output = output;
+                            this.actuate();
+                        }, error => {
+                            this.state = 3;
+                            this.error = error;
+                            this.actuate();
                         });
-                    }; });
+                    });
                     break;
                 }
                 case 1: {
-                    return (function (_) { return function (resolve, reject) { return _this.queue.push({ "resolve": resolve, "reject": reject }); }; });
+                    return (_ => (resolve, reject) => this.queue.push({ "resolve": resolve, "reject": reject }));
                     break;
                 }
                 case 2: {
@@ -1252,15 +1336,1044 @@ var lib_call;
                     break;
                 }
                 default: {
-                    throw (new Error("unhandled state " + this.state));
+                    throw (new Error(`unhandled state ${this.state}`));
                     break;
                 }
             }
-        };
-        return class_knot_initializer;
-    }());
+        }
+    }
     lib_call.class_knot_initializer = class_knot_initializer;
 })(lib_call || (lib_call = {}));
+var lib_call;
+(function (lib_call) {
+    /**
+     * @author fenris
+     */
+    function promise_reject(reason) {
+        return Promise.reject(reason);
+    }
+    lib_call.promise_reject = promise_reject;
+    /**
+     * @author fenris
+     */
+    function promise_resolve(result) {
+        return Promise.resolve(result);
+    }
+    lib_call.promise_resolve = promise_resolve;
+    /**
+     * @author fenris
+     */
+    function promise_make(executor) {
+        return (new Promise(executor));
+    }
+    lib_call.promise_make = promise_make;
+    /**
+     * @author fenris
+     */
+    function promise_all(promises) {
+        return Promise.all(promises);
+    }
+    lib_call.promise_all = promise_all;
+})(lib_call || (lib_call = {}));
+
+(function (exports) {
+	
+	/**
+	 * @author fenris
+	 */
+	function promise_chain(
+		microprograms
+	) {
+		return (
+			input => microprograms.reduce(
+				(x, y) => x.then(y),
+				Promise.resolve(input)
+			)
+		);
+	}
+	exports.promise_chain = promise_chain;
+	
+
+	/**
+	 * @author fenris
+	 */
+	function promise_wrap(
+		promise,
+		transformator_result,
+		transformator_reason = lib_call.id
+	) {
+		return (
+			new Promise(
+				(resolve, reject) => {
+					promise.then(
+						result => resolve(transformator_result(result)),
+						reason => reject(transformator_reason(reason))
+					)
+				}
+			)
+		);
+	}
+	exports.promise_wrap = promise_wrap;
+
+
+	/**
+	 * @author fenris
+	 */
+	function promise_log(state) {
+		return (
+			new Promise(
+				(resolve, reject) => {
+					lib_log.info(state);
+					resolve(state);
+				}
+			)
+		);
+	}
+	exports.promise_log = promise_log;
+
+
+	/**
+	 * @author fenris
+	 */
+	function promise_attach(
+		state,
+		promise,
+		name
+	) {
+		return (
+			promise_wrap(
+				promise,
+				result => {
+					state[name] = result;
+					return state;
+				}
+			)
+		);
+	}
+	exports.promise_attach = promise_attach;
+	
+}) (lib_call || (lib_call == {}));
+
+///<reference path="../../base/build/logic-decl.d.ts"/>
+var lib_object;
+(function (lib_object) {
+    /**
+     * @author fenris
+     */
+    function fetch(object, fieldname, fallback, escalation) {
+        if (fallback === void 0) { fallback = null; }
+        if (escalation === void 0) { escalation = 1; }
+        if ((fieldname in object) && (object[fieldname] !== undefined)) {
+            return object[fieldname];
+        }
+        else {
+            switch (escalation) {
+                case 0: {
+                    return fallback;
+                    break;
+                }
+                case 1: {
+                    var message = ("field '" + fieldname + "' not in structure");
+                    message += ("; using fallback value '" + String(fallback) + "'");
+                    // console.warn(message);
+                    return fallback;
+                    break;
+                }
+                case 2: {
+                    var message = ("field '" + fieldname + "' not in structure");
+                    throw (new Error(message));
+                    break;
+                }
+                default: {
+                    throw (new Error("invalid escalation level " + escalation));
+                    break;
+                }
+            }
+        }
+    }
+    lib_object.fetch = fetch;
+    /**
+     * @author fenris
+     */
+    function map(object_from, transformator) {
+        var object_to = {};
+        Object.keys(object_from).forEach(function (key) { return (object_to[key] = transformator(object_from[key], key)); });
+        return object_to;
+    }
+    lib_object.map = map;
+    /**
+     * @author fenris
+     */
+    function filter(object_from, predicate) {
+        var object_to = {};
+        Object.keys(object_from).forEach(function (key) {
+            var value = object_from[key];
+            if (predicate(value, key)) {
+                object_to[key] = value;
+            }
+        });
+        return object_to;
+    }
+    lib_object.filter = filter;
+    /**
+     * @author fenris
+     */
+    function from_array(array) {
+        var object = {};
+        array.forEach(function (entry) { return (object[entry.key] = entry.value); });
+        return object;
+    }
+    lib_object.from_array = from_array;
+    /**
+     * @author fenris
+     */
+    function to_array(object) {
+        var array = [];
+        Object.keys(object).forEach(function (key) { return array.push({ "key": key, "value": object[key] }); });
+        return array;
+    }
+    lib_object.to_array = to_array;
+    /**
+     * @author fenris
+     */
+    function keys(object) {
+        return Object.keys(object);
+    }
+    lib_object.keys = keys;
+    /**
+     * @author fenris
+     */
+    function values(object) {
+        return to_array(object).map(function (entry) { return entry.value; });
+    }
+    lib_object.values = values;
+    /**
+     * @author fenris
+     */
+    function path_read(object, path, fallback, escalation) {
+        if (fallback === void 0) { fallback = null; }
+        if (escalation === void 0) { escalation = 1; }
+        var steps = ((path.length == 0) ? [] : path.split("."));
+        if (steps.length == 0) {
+            throw (new Error("empty path"));
+        }
+        else {
+            var position_1 = object;
+            var reachable = steps.slice(0, steps.length - 1).every(function (step) {
+                position_1 = object_fetch(position_1, step, null, 0);
+                return (position_1 != null);
+            });
+            if (reachable) {
+                return object_fetch(position_1, steps[steps.length - 1], fallback, escalation);
+            }
+            else {
+                return object_fetch({}, "_dummy_", fallback, escalation);
+            }
+        }
+    }
+    lib_object.path_read = path_read;
+    /**
+     * @author fenris
+     */
+    function path_write(object, path, value, construct) {
+        if (construct === void 0) { construct = true; }
+        var steps = ((path.length == 0) ? [] : path.split("."));
+        if (steps.length == 0) {
+            throw (new Error("empty path"));
+        }
+        else {
+            var position_2 = object;
+            var reachable = steps.slice(0, steps.length - 1).every(function (step) {
+                var position_ = object_fetch(position_2, step, null, 0);
+                if (position_ == null) {
+                    if (construct) {
+                        position_2[step] = {};
+                        position_2 = position_2[step];
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                }
+                else {
+                    position_2 = position_;
+                    return true;
+                }
+            });
+            if (reachable) {
+                position_2[steps[steps.length - 1]] = value;
+            }
+            else {
+                throw (new Error("path " + path + " does not exist and may not be constructed"));
+            }
+        }
+    }
+    lib_object.path_write = path_write;
+    /**
+     * @author fenris
+     */
+    function matches(object, pattern, collate) {
+        if (collate === void 0) { collate = instance_collate; }
+        return Object.keys(pattern).every(function (key) { return collate(pattern[key], object[key]); });
+    }
+    lib_object.matches = matches;
+    /**
+     * @author fenris
+     */
+    function flatten(value) {
+        var integrate = function (result, key_, value_) {
+            if (value_ == null) {
+                result[key_] = value_;
+            }
+            else {
+                if (typeof (value_) != "object") {
+                    result[key_] = value_;
+                }
+                else {
+                    var result_1 = flatten(value_);
+                    Object.keys(result_1).forEach(function (key__) {
+                        var value__ = result_1[key__];
+                        result[key_ + "." + key__] = value__;
+                    });
+                }
+            }
+        };
+        if (value == null) {
+            return null;
+        }
+        else {
+            var result_2 = {};
+            if (typeof (value) != "object") {
+                result_2["value"] = value;
+            }
+            else {
+                if (value instanceof Array) {
+                    var array = (value);
+                    array.forEach(function (element, index) { return integrate(result_2, "element_" + index, element); });
+                }
+                else {
+                    var object_1 = (value);
+                    Object.keys(object_1).forEach(function (key) { return integrate(result_2, key, object_1[key]); });
+                }
+            }
+            return result_2;
+        }
+    }
+    lib_object.flatten = flatten;
+    /**
+     * @author fenris
+     */
+    function clash(x, y, _a) {
+        var _b = _a === void 0 ? {} : _a, _c = _b["overwrite"], overwrite = _c === void 0 ? true : _c, _d = _b["hooks"]["existing"], hook_existing = _d === void 0 ? null : _d;
+        if (hook_existing == null) {
+            (function (key, value_old, value_new) { return console.warn("field " + key + " already defined"); });
+        }
+        var z = {};
+        Object.keys(x).forEach(function (key) {
+            z[key] = x[key];
+        });
+        Object.keys(y).forEach(function (key) {
+            if (key in z) {
+                hook_existing(key, z[key], y[key]);
+                if (overwrite) {
+                    z[key] = y[key];
+                }
+            }
+            else {
+                z[key] = y[key];
+            }
+        });
+        return z;
+    }
+    lib_object.clash = clash;
+    /**
+     * @author fenris
+     */
+    function patch(core, mantle, deep, path) {
+        if (deep === void 0) { deep = true; }
+        if (path === void 0) { path = null; }
+        if (mantle == null) {
+            console.warn("mantle is null; core was", core);
+        }
+        else {
+            Object.keys(mantle).forEach(function (key) {
+                var path_ = ((path == null) ? key : path + "." + key);
+                var value_mantle = mantle[key];
+                if (!(key in core)) {
+                    if ((typeof (value_mantle) == "object") && (value_mantle != null) && deep) {
+                        if (value_mantle instanceof Array) {
+                            core[key] = [];
+                            value_mantle.forEach(function (element) {
+                                if ((typeof (element) == "object") && (element != null)) {
+                                    var element_ = {};
+                                    patch(element_, element);
+                                    core[key].push(element_);
+                                }
+                                else {
+                                    core[key].push(element);
+                                }
+                            });
+                        }
+                        else {
+                            core[key] = {};
+                            patch(core[key], value_mantle, deep, path_);
+                        }
+                    }
+                    else {
+                        core[key] = value_mantle;
+                    }
+                }
+                else {
+                    var value_core = core[key];
+                    if (typeof (value_mantle) == typeof (value_core)) {
+                        if ((typeof (value_mantle) == "object") && (value_mantle != null) && deep) {
+                            patch(core[key], value_mantle, deep, path_);
+                        }
+                        else {
+                            core[key] = value_mantle;
+                        }
+                    }
+                    else {
+                        var message = "objects have different shapes at path '" + path_ + "'; core has type '" + typeof (value_core) + "' and mantle has type '" + typeof (value_mantle) + "'";
+                        console.warn(message);
+                        core[key] = value_mantle;
+                        // throw (new Error(message));
+                    }
+                }
+            });
+        }
+    }
+    lib_object.patch = patch;
+    /**
+     * @author fenris
+     */
+    function patched(core, mantle, deep) {
+        if (deep === void 0) { deep = undefined; }
+        var result = {};
+        patch(result, core, deep);
+        patch(result, mantle, deep);
+        return result;
+    }
+    lib_object.patched = patched;
+    /**
+     * @author fenris
+     */
+    function attached(object, key, value) {
+        var mantle = {};
+        mantle[key] = value;
+        return patched(object, mantle, false);
+    }
+    lib_object.attached = attached;
+    /**
+     * @author fenris
+     */
+    function copy(object) {
+        return patched({}, object);
+    }
+    lib_object.copy = copy;
+})(lib_object || (lib_object = {}));
+/**
+ * @desc adapters for old syntax
+ * @author fenris
+ */
+var object_fetch = lib_object.fetch;
+var object_map = lib_object.map;
+var object_a2o = lib_object.from_array;
+var object_o2a = lib_object.to_array;
+var object_matches = lib_object.matches;
+var object_clash = lib_object.clash;
+///<reference path="../../base/build/logic-decl.d.ts"/>
+/**
+ * @param {Object} map
+ * @return {string}
+ * @author frac
+ */
+/*export*/ var object_map2string = function (map) {
+    return (" " + Object.keys(map)
+        .filter(function (key) { return (key != "isMapped"); })
+        .map(function (key) { return ("" + ((map[key] == null) ? "-" : map[key].toString()) + ""); })
+        .join(" ")
+        + "");
+};
+/**
+ * @param {Array} array
+ * @return {string}
+ * @author frac
+ */
+/*export*/ var object_array2string = function (array) {
+    return ("" + array.map(function (element, index) {
+        switch (typeof (element)) {
+            case "object": return object_map2string(element);
+            default: return String(element);
+        }
+    }).join(",") + "");
+};
+/**
+ * @desc follows a path in an object-tree
+ * @param {Object} object the object in which the path lies
+ * @param {string} path the steps
+ * @param {boolean} [create] whether to create not yet existing branches
+ * @return {Object} {'successful': successful, 'position': position} where the branch or leaf at the end of the path
+ * @author frac
+ */
+var object_path_walk = function (object, path, create, null_on_missing) {
+    if (create === void 0) { create = true; }
+    if (null_on_missing === void 0) { null_on_missing = false; }
+    var steps = ((path == "") ? [] : path.split("."));
+    if (steps.length == 0) {
+        return object;
+    }
+    else {
+        var head = steps[0];
+        // create
+        {
+            if (!(head in object)) {
+                if (create) {
+                    var value = null;
+                    if (steps.length >= 2) {
+                        var next = steps[1];
+                        var index = parseInt(next);
+                        if (!isNaN(index)) {
+                            value = [];
+                        }
+                        else {
+                            value = {};
+                        }
+                    }
+                    else {
+                        value = {};
+                    }
+                    object[head] = value;
+                }
+                else {
+                    // console.info("[object_path_walk] object is ", object);
+                    var message = "[object_path_walk] can not walk step \u00BB" + head + "\u00AB in path \u00BB" + path + "\u00AB on object";
+                    if (null_on_missing) {
+                        console.warn(message);
+                        return null;
+                    }
+                    else {
+                        throw (new Error(message));
+                    }
+                }
+            }
+        }
+        // execute rest
+        {
+            var object_ = object[head];
+            var path_ = steps.slice(1).join(".");
+            return object_path_walk(object_, path_, create, null_on_missing);
+        }
+    }
+    /*
+    return (
+        string_split(path, ".").reduce(
+            function (position : any, step : string) : any {
+                if (! lib_call.is_def(position[step], true)) {
+                    if (create) {
+                        position[step] = {};
+                    }
+                    else {
+                        // console.info("[object_path_walk] object is ", object);
+                        let message : string = sprintf("[object_path_walk] can not walk step »%s« in path »%s« on object", [step, path]);
+                        if (null_on_missing) {
+                            console.warn(message);
+                            return null;
+                        }
+                        else {
+                            throw (new Error(message));
+                        }
+                    }
+                }
+                return position[step];
+            },
+            object
+        )
+    );
+     */
+};
+/**
+ * @desc reads a branch/leaf from an object-tree
+ * @author frac
+ */
+/*export*/ var object_path_read = function (object, path, null_on_missing) {
+    if (null_on_missing === void 0) { null_on_missing = false; }
+    return object_path_walk(object, path, false, null_on_missing);
+};
+/**
+ * @desc writes a branch/leaf to an object-tree
+ * @author frac
+ */
+/*export*/ var object_path_write = function (object, path, value) {
+    // for "initializing" the object (important if the value to write is an entry in a yet not existing array)
+    /*let old : any = */ object_path_walk(object, path, true, true);
+    var steps = ((path == "") ? [] : path.split("."));
+    var position = object_path_walk(object, steps.slice(0, steps.length - 1).join("."), true);
+    if (position == undefined) {
+        console.warn("can't set \u00BB" + steps[steps.length - 1] + "\u00AB in undefined");
+    }
+    else {
+        position[steps[steps.length - 1]] = value;
+    }
+};
+/*export*/ var object_object_path_write_ex = function (obj, path, val) {
+    var ref = obj;
+    var paths = path.split(".");
+    var i;
+    for (i = 0; i < paths.length - 1; i++) {
+        if (ref[paths[i]] === void 0) {
+            if (/^(0|[1-9][0-9]*)$/.test(paths[i + 1])) {
+                ref[paths[i]] = [];
+            }
+            else {
+                ref[paths[i]] = {};
+            }
+        }
+        ref = ref[paths[i]];
+    }
+    ref[paths[i]] = val;
+};
+/**
+ * @desc filters branches from an object
+ * @param {Object} object the object to read from
+ * @param {Array} paths a list of string-lists, that are the paths to be propagated
+ * @return {Object} the object with only the selected branches
+ * @author frac
+ */
+/*export*/ var object_path_filter = function (object, paths) {
+    var result = {};
+    paths.forEach(function (path) {
+        var value = null;
+        try {
+            value = object_path_read(object, path);
+        }
+        catch (exception) {
+            console.warn(exception);
+        }
+        if (value != null) {
+            object_path_write(result, path, value);
+        }
+        else {
+            console.warn("skipped path \"" + path + "\" while filtering");
+        }
+    });
+    return result;
+};
+/**
+ * @desc dunno… returns a list of object-paths?
+ * @param {Object} object
+ * @param {string} p
+ * @todo can probably be merged with getLeafg
+ */
+/*export*/ var object_path_list = function (object, path, visited) {
+    if (path === void 0) { path = null; }
+    if (visited === void 0) { visited = []; }
+    var result = [];
+    visited.push(object);
+    for (var key in object) {
+        var value = object[key];
+        if (visited.indexOf(value) === -1) {
+            var key_ = (path == null) ? key : (path + "." + key);
+            if (typeof (value) === "object") {
+                result = result.concat(object_path_list(value, key_, visited));
+            }
+            else {
+                result.push({ "key": key_, "value": value });
+            }
+        }
+    }
+    return result;
+};
+/**
+ * theroreticaly loop prof walk through all elements and subelements of an object
+ * and call a callback for each entry
+ * @param {object} obj object to iterate through
+ * @param {function} callback
+ */
+/*export*/ var object_iterate = function (obj, callback, leafs_only, path, visited) {
+    if (leafs_only === void 0) { leafs_only = false; }
+    if (visited === void 0) { visited = []; }
+    var have_seen = function (ob) {
+        return visited.some(function (e) { return ((typeof (ob) === "object") && (ob !== null) && (e === ob)); });
+    };
+    var next = [];
+    Object.keys(obj).forEach(function (key) {
+        var elem = obj[key];
+        if (!have_seen(elem)) {
+            visited.push(elem);
+            var _path = "";
+            if (typeof path === "undefined") {
+                _path = key;
+            }
+            else {
+                _path += [path, key].join(".");
+            }
+            if (!leafs_only)
+                callback(_path, elem, key);
+            if (typeof (elem) === "object") {
+                (function (elem_, callback_, _path_, visited_) {
+                    next.push(function () { object_iterate(elem_, callback_, leafs_only, _path_, visited_); });
+                })(elem, callback, _path, visited);
+            }
+            else {
+                if (leafs_only)
+                    callback(_path, elem, key);
+            }
+        }
+    });
+    var func;
+    while (func = next.shift()) {
+        func();
+    }
+};
+/**
+ * @desc get the leaf-nodes of an object
+ * @param {object} object
+ * @return {Array<string>} a list containing all leaf-nodes
+ * @author frac
+ */
+/*export*/ var getLeafs = function (object) {
+    var skip = {
+        "className": true,
+        "timeStamp": true,
+        "parentId": true,
+        "transactionID": true,
+        "guid": true,
+        "_id": true,
+        "parents": true,
+        "children": true
+    };
+    return (Object.keys(object).reduce(function (leafs, key) {
+        try {
+            var value = object[key];
+            if (key in skip) {
+                console.warn("skipping field \"" + key + "\"");
+                return leafs;
+            }
+            else {
+                if ((typeof (value) === "object") && (value != null)) {
+                    return leafs.concat(getLeafs(value).map(function (leaf) { return (key + "." + leaf); }));
+                }
+                else {
+                    return leafs.concat([key]);
+                }
+            }
+        }
+        catch (exception) {
+            console.warn(exception);
+            console.info("key: ", key);
+            return null;
+        }
+    }, new Array()));
+};
+/**
+ *
+ * @desc merges two arrays by probing
+ * @param {Array} core
+ * @param {Array} mantle
+ * @param {function} match
+ */
+/*export*/ var merge_array = function (core, mantle, match) {
+    if (match === void 0) { match = (function (x, y) { return (x === y); }); }
+    if ((core == undefined) || (mantle == undefined)) {
+        throw (new Error("Error: "
+            + ((core == undefined) ? " core must be an array and not '" + typeof (core) + "'" : "")
+            + ((mantle == undefined) ? " mantle must be an array and not '" + typeof (mantle) + "'" : "")));
+    }
+    var ret = core;
+    for (var i = 0; i < mantle.length; i++) {
+        var entry = mantle[i];
+        try {
+            var matching_index = core.find(function (element) { return match(element, entry); });
+            ret[matching_index] = object_merge_objects(core[matching_index], entry);
+        }
+        catch (e) {
+            ret.push(entry);
+        }
+    }
+    return ret;
+};
+/**
+ * @desc merges two objects recursivly
+ * @param {Object} object1 core
+ * @param {Object} object2 mantle
+ * @param {Array} [ignore_keys]
+ * @param [do_not_overwrite_existing_values]
+ * @returns {Object} a clone of object1 will be returned
+ */
+/*export*/ var object_merge_objects = function (object1, object2, ignore_keys, do_not_overwrite_existing_values, ignore_null, path) {
+    if (object1 === void 0) { object1 = null; }
+    if (object2 === void 0) { object2 = null; }
+    if (ignore_keys === void 0) { ignore_keys = ["parents"]; }
+    if (do_not_overwrite_existing_values === void 0) { do_not_overwrite_existing_values = false; }
+    if (ignore_null === void 0) { ignore_null = false; }
+    if (path === void 0) { path = []; }
+    if (object1 == null) {
+        if (object2 instanceof Array) {
+            object1 = [];
+        }
+        else {
+            object1 = {};
+        }
+    }
+    var iteration_keys = Object.keys(object2);
+    if (ignore_keys === []) {
+        if (path.indexOf(object2) >= 0)
+            return undefined;
+        path.push(object2);
+    }
+    //
+    for (var i = 0; i < iteration_keys.length; i += 1) {
+        var key = iteration_keys[i];
+        if (ignore_keys.some(function (k) {
+            return key == k;
+        })) {
+            //
+        }
+        else if (object2[key] === null) {
+            if (!ignore_null)
+                object1[key] = null;
+        }
+        else if ((typeof (object2[key]) === "object") && ((typeof (object1[key]) === "object") || (typeof (object1[key]) === "undefined"))) {
+            object1[key] = object_merge_objects(object1[key], object2[key], ignore_keys, do_not_overwrite_existing_values, ignore_null, path);
+        }
+        else {
+            if ((do_not_overwrite_existing_values === false) || (typeof (object1[key]) === "undefined")) {
+                object1[key] = object2[key];
+            }
+        }
+    }
+    return object1;
+};
+/*
+ * @param {object} recipie  ex: { "name" : { extract : function(o) { return o["name"]; }}}
+ * */
+var flatten_object = function (obj, recipie, drop_key) {
+    if (drop_key === void 0) { drop_key = (function (k) { return ["parents", "parent", "children"].indexOf(k) > -1; }); }
+    var ret = {};
+    for (var key in recipie) {
+        if (!drop_key(key)) {
+            var prefix = (recipie[key].prefix || "");
+            var recursive = (recipie[key].recursive || -1);
+            var extract = (recipie[key].extract || (function (x) { return x; }));
+            var _obj = extract(obj[key]);
+            if ((_obj !== null) && ((typeof _obj == "object") || (obj[key] instanceof Array)) && (!(recursive == 0))) {
+                var tmp = {};
+                var _recipie = {};
+                for (var _i = 0, _a = Object.keys(_obj); _i < _a.length; _i++) {
+                    var k = _a[_i];
+                    _recipie[k] = {
+                        "prefix": (prefix + key + "."),
+                        "recursive": (recursive - 1),
+                        "extract": (function (x) { return x; })
+                    };
+                }
+                tmp = flatten_object(_obj, _recipie, drop_key);
+                ret = object_merge_objects(ret, tmp);
+            }
+            else {
+                ret[prefix + key] = _obj;
+            }
+        }
+    }
+    return ret;
+};
+/**
+ * use the complete path of an objects entry as key to make an one dimensional object
+ * @param {object} object the object which should be moade flat
+ * @param {string} [path] for the recursive call the current path
+ */
+/*export*/ var object_make_flat = function (object, path, filter, split_char, objects) {
+    if (path === void 0) { path = null; }
+    if (filter === void 0) { filter = ["parent", "children"]; }
+    if (split_char === void 0) { split_char = "."; }
+    if (objects === void 0) { objects = []; }
+    if (object.toFlat != undefined) {
+        return object.toFlat();
+    }
+    else {
+        var ret = {};
+        var default_visited_key = "___visited_path___";
+        var visited_key;
+        if (object != void 0) {
+            var iterate = function (key) {
+                var newkey = key;
+                if ((path != undefined) && (path !== "")) {
+                    newkey = path + split_char + newkey;
+                }
+                // do not touch objects we alrdy know
+                if ((obj_ref[key] != undefined) && (!objects.some(function (e) { return (e === obj_ref); }))) {
+                    //if (lib_call.is_def(obj_ref[key]) && (! obj_ref[key].hasOwnProperty(visited_key)) && (key !== visited_key)) {
+                    if (typeof obj_ref[key] === "object") {
+                        ret = object_merge_objects(ret, object_make_flat(obj_ref[key], newkey, filter, split_char, objects.concat(object)));
+                    }
+                    else if (typeof obj_ref[key] === "function") {
+                        // o.O a function ... doing nothing might be the best choice
+                    }
+                    else {
+                        var value = obj_ref[key];
+                        ret[newkey] = value;
+                    }
+                }
+            };
+            visited_key = default_visited_key;
+            //object[visited_key] = true;
+            var obj_ref = object;
+            Object.keys(object).filter(function (key) { return (filter.indexOf(key) < 0); }).forEach(iterate);
+            if (typeof object.getComputedValues == "function") {
+                visited_key = default_visited_key + "_" + Math.random().toString();
+                obj_ref = object.getComputedValues();
+                obj_ref[visited_key] = true;
+                Object.keys(obj_ref).filter(function (key) { return (filter.indexOf(key) < 0); }).forEach(iterate);
+            }
+        }
+        else {
+            //console.warn("something went wrong with that object: ", object, "on this path:", path);
+        }
+        return ret;
+    }
+};
+/**
+ * splits a flat oject into an array of objects if there are paths containing numbers, which indicates
+ * that there might be an array
+ * used for normalisation of imports
+ * @param entry
+ * @param number_replace_string
+ * @param {function} [match_function] how to test key if it causes a split
+ * @returns {Array}
+ */
+var object_split_flat_object = function (entry, number_replace_string, fab_function, match_function) {
+    if (typeof (match_function) === "undefined") {
+        match_function = function (key) {
+            return (!key.match(/^custom/)) && key.match(/\.[0-9]+\./);
+        };
+    }
+    if (typeof (fab_function) === "undefined") {
+        fab_function = function (obj, e) {
+            return obj;
+        };
+    }
+    if (typeof (number_replace_string) === "undefined") {
+        number_replace_string = "%d";
+    }
+    var ret = {};
+    var _ret = [];
+    var keys = Object.keys(entry);
+    var group_keys = keys.filter(match_function);
+    keys.forEach(function (key) {
+        var index = 0;
+        var nkey = key;
+        if (match_function(key)) {
+            index = Number(key.match(/[0-9]+/)[0]).valueOf();
+            nkey = key.replace(/\.[0-9]+\./, "." + number_replace_string + ".");
+        }
+        if (!ret[index]) {
+            ret[index] = {};
+        }
+        ret[index][nkey] = entry[key];
+    });
+    keys = Object.keys(ret).sort();
+    _ret.push(ret[0]);
+    for (var index = 1; index < keys.length; index++) {
+        _ret.push(fab_function(ret[keys[index]], entry));
+    }
+    _ret[0] = object_merge_objects(_ret[0], ret[0]);
+    return _ret;
+};
+// TODO: move to exporter, it's to specific
+// to normalize the objects convert paths of a tree-like structure to a
+// key-value list with complete paths as key
+// the info object is passed to the next function as it is
+// and a flat_object (key : value)
+/*export*/ var object_make_flat_async = function (data, callback, on_progress) {
+    setTimeout((function (_obj, _cb, _info) {
+        return (function () {
+            var ret = _obj.map(function (o) { return object_make_flat(o); });
+            _cb({ "flat_object": ret, "objects": ret, "info": _info });
+        });
+    })((typeof (data.processed.objects) === "undefined") ? data.processed.source_object : data.processed.objects, callback, data.processed.info), 0);
+};
+var object_flatten = function (object, paths, prefix) {
+    if (prefix === void 0) { prefix = ""; }
+    var ret = {};
+    var paths_ = paths.reduce(function (prev, current) {
+        if (current.split(".").some(function (x) { return (x === "%d"); })) {
+            var path = current.split(".%d").shift();
+            var len = object_path_read(object, path).length;
+            for (var i = 0; i < len; i++) {
+                // prev.push(sprintf(current, [i]));
+                prev.push(current.replace(new RegExp("%d"), i.toFixed(0)));
+            }
+        }
+        else {
+            prev.push(current);
+        }
+        return prev;
+    }, []);
+    for (var _i = 0, paths_1 = paths_; _i < paths_1.length; _i++) {
+        var path = paths_1[_i];
+        var tmp = object_path_read(object, path, true);
+        if ((tmp != undefined) && (tmp.toFlat != undefined)) {
+            var tmp_ = tmp.toFlat([path, "."].join(""));
+            for (var key in tmp_) {
+                ret[key] = tmp_[key];
+            }
+        }
+        else {
+            ret[prefix + path] = tmp;
+        }
+    }
+    return ret;
+};
+/**
+ * parse
+ * @param {String} value
+ * @returns {Object}
+ */
+var object_parse = function (value) {
+    var content = JSON.parse(value);
+    var m = { "root": content };
+    (new Mapper()).mapClasses(m);
+    return m["root"];
+};
+/**
+ * stringify
+ *
+ * @description stringify object as JSON
+ */
+var object_stringify = function (object, readable) {
+    if (readable === void 0) { readable = false; }
+    return (JSON.stringify(object, function (key, value) {
+        if ((key == "parents") && (value !== null)) {
+            return null;
+        }
+        if (key == "changeActions") {
+            return undefined;
+        }
+        if (key == "observer") {
+            return undefined;
+        }
+        if (key == "isMapped") {
+            return undefined;
+        }
+        /*
+        if (value === null) {
+            return undefined;
+        }
+        */
+        return value;
+    }, readable ? 1 : 0));
+};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var lib_meta;
 (function (lib_meta) {
     /**
@@ -1360,6 +2473,972 @@ var lib_meta;
     }
     lib_meta.transform_description_groups = transform_description_groups;
 })(lib_meta || (lib_meta = {}));
+/// <reference path="../../base/build/logic-decl.d.ts"/>
+/// <reference path="../../object/build/logic-decl.d.ts"/>
+var lib_meta;
+(function (lib_meta) {
+    /**
+     * @author fenris
+     */
+    lib_meta._logprefix = "[lib_meta] ";
+    /**
+     * @author fenris
+     */
+    lib_meta._verbosity = 1;
+})(lib_meta || (lib_meta = {}));
+var lib_meta;
+(function (lib_meta) {
+    /**
+     * @author fenris
+     */
+    var class_shape = (function () {
+        /**
+         * @desc [constructor]
+         * @author fenris
+         */
+        function class_shape(_a) {
+            var _b = _a["primitive"], primitive = _b === void 0 ? false : _b, _c = _a["soft"], soft = _c === void 0 ? true : _c, _d = _a["defaultvalue"], defaultvalue = _d === void 0 ? null : _d;
+            /*
+            if ((! soft) && (defaultvalue == null)) {
+                throw (new Error("'null' is not a valid defaultvalue for hard shapes"));
+            }
+             */
+            this.primitive = primitive;
+            this.soft = soft;
+            this.defaultvalue = defaultvalue;
+        }
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        class_shape.prototype.primitive_get = function () {
+            return this.primitive;
+        };
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        class_shape.prototype.soft_get = function () {
+            return this.soft;
+        };
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        class_shape.prototype.defaultvalue_get = function () {
+            return this.defaultvalue;
+        };
+        /**
+         * @desc [accessor]
+         * @author fenris
+         */
+        class_shape.prototype.inspect = function (value) {
+            var messages = [];
+            if ((!this.soft) && (value == null)) {
+                messages.push("shape does not allow 'null' as value");
+            }
+            return messages;
+        };
+        /**
+         * @desc [accessor]
+         * @author fenris
+         */
+        class_shape.prototype.check = function (value) {
+            var messages = this.inspect(value);
+            if (lib_meta._verbosity >= 1) {
+                messages.forEach(function (message) { return console.warn("" + lib_meta._logprefix + message); });
+            }
+            return (messages.length == 0);
+        };
+        return class_shape;
+    }());
+    lib_meta.class_shape = class_shape;
+    /**
+     * @author fenris
+     */
+    var class_shape_buildin = (function (_super) {
+        __extends(class_shape_buildin, _super);
+        /**
+         * @author fenris
+         */
+        function class_shape_buildin(_a) {
+            var typename = _a["typename"], _b = _a["primitive"], primitive = _b === void 0 ? undefined : _b, _c = _a["soft"], soft = _c === void 0 ? undefined : _c, _d = _a["defaultvalue"], defaultvalue = _d === void 0 ? undefined : _d;
+            var _this = _super.call(this, {
+                "primitive": primitive,
+                "soft": soft,
+                "defaultvalue": defaultvalue
+            }) || this;
+            _this.typename = typename;
+            return _this;
+        }
+        /**
+         * @override
+         * @author fenris
+         */
+        class_shape_buildin.prototype.inspect = function (value) {
+            var messages = _super.prototype.inspect.call(this, value);
+            if ((!this.soft) && (typeof (value) != this.typename)) {
+                messages.push("typename is not '" + this.typename + "'");
+            }
+            return messages;
+        };
+        /**
+         * @desc [implementation]
+         * @author fenris
+         */
+        class_shape_buildin.prototype._show = function () {
+            var str = "";
+            str = this.typename;
+            if (!this.soft) {
+                str = str + "_or_null";
+            }
+            return str;
+        };
+        return class_shape_buildin;
+    }(class_shape));
+    lib_meta.class_shape_buildin = class_shape_buildin;
+    /**
+     * @author fenris
+     */
+    var _pool = {};
+    /**
+     * @author fenris
+     */
+    function register(id, factory) {
+        if (id in _pool) {
+            var message = "shape '" + id + "' already registered";
+            throw (new Error(message));
+        }
+        else {
+            _pool[id] = factory;
+        }
+    }
+    lib_meta.register = register;
+    /**
+     * @author fenris
+     */
+    function construct(id, parameters) {
+        if (parameters === void 0) { parameters = {}; }
+        if (!(id in _pool)) {
+            var message = "no shape found with id " + id;
+            throw (new Error(message));
+        }
+        else {
+            return _pool[id](parameters);
+        }
+    }
+    lib_meta.construct = construct;
+    /**
+     * @author fenris
+     */
+    function from_raw(shape_raw) {
+        return construct(shape_raw.id, shape_raw.parameters);
+    }
+    lib_meta.from_raw = from_raw;
+    /**
+     * @author fenris
+     */
+    function define(id, shape_raw) {
+        register(id, function (parameters) { return from_raw(shape_raw); });
+    }
+    lib_meta.define = define;
+    /**
+     * @author fenris
+     */
+    function retrieve(id) {
+        return construct(id, {});
+    }
+    lib_meta.retrieve = retrieve;
+})(lib_meta || (lib_meta = {}));
+var lib_meta;
+(function (lib_meta) {
+    /**
+     * @author fenris
+     */
+    var class_shape_boolean = (function (_super) {
+        __extends(class_shape_boolean, _super);
+        /**
+         * @author fenris
+         */
+        function class_shape_boolean(_a) {
+            var _b = _a["soft"], soft = _b === void 0 ? false : _b, _c = _a["defaultvalue"], defaultvalue = _c === void 0 ? false : _c;
+            return _super.call(this, {
+                "typename": "boolean",
+                "primitive": true,
+                "soft": soft,
+                "defaultvalue": defaultvalue
+            }) || this;
+        }
+        /**
+         * @override
+         * @author fenris
+         */
+        class_shape_boolean.prototype.to_raw = function () {
+            return {
+                "id": "boolean",
+                "parameters": {
+                    "soft": this.soft
+                }
+            };
+        };
+        return class_shape_boolean;
+    }(lib_meta.class_shape_buildin));
+    lib_meta.class_shape_boolean = class_shape_boolean;
+    lib_meta.register("boolean", function (parameters) {
+        return (new class_shape_boolean({
+            "soft": parameters["soft"]
+        }));
+    });
+    lib_meta.register("bool", function (parameters) { return lib_meta.construct("boolean", parameters); });
+})(lib_meta || (lib_meta = {}));
+var lib_meta;
+(function (lib_meta) {
+    /**
+     * @author fenris
+     */
+    var class_shape_integer = (function (_super) {
+        __extends(class_shape_integer, _super);
+        /**
+         * @author fenris
+         */
+        function class_shape_integer(_a) {
+            var _b = _a["soft"], soft = _b === void 0 ? false : _b, _c = _a["defaultvalue"], defaultvalue = _c === void 0 ? 0 : _c, _d = _a["min"], min = _d === void 0 ? null : _d, _e = _a["max"], max = _e === void 0 ? null : _e;
+            var _this = _super.call(this, {
+                "typename": "number",
+                "primitive": true,
+                "soft": soft,
+                "defaultvalue": defaultvalue
+            }) || this;
+            _this.min = min;
+            _this.max = max;
+            return _this;
+        }
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        class_shape_integer.prototype.min_get = function () {
+            return this.min;
+        };
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        class_shape_integer.prototype.max_get = function () {
+            return this.max;
+        };
+        /**
+         * @override
+         * @author fenris
+         */
+        class_shape_integer.prototype.inspect = function (value) {
+            var messages = _super.prototype.inspect.call(this, value);
+            if (value != null) {
+                if ((this.min != null) && (value < this.min)) {
+                    messages.push("value is below minimum of " + this.min.toString());
+                }
+                if ((this.max != null) && (value > this.max)) {
+                    messages.push("value is over maximum of " + this.max.toString());
+                }
+            }
+            return messages;
+        };
+        /**
+         * @override
+         * @author fenris
+         */
+        class_shape_integer.prototype.to_raw = function () {
+            return {
+                "id": "integer",
+                "parameters": {
+                    "soft": this.soft,
+                    "min": this.min,
+                    "max": this.max
+                }
+            };
+        };
+        return class_shape_integer;
+    }(lib_meta.class_shape_buildin));
+    lib_meta.class_shape_integer = class_shape_integer;
+    lib_meta.register("integer", function (parameters) {
+        return (new class_shape_integer({
+            "min": parameters["min"],
+            "max": parameters["max"],
+            "soft": parameters["soft"]
+        }));
+    });
+    lib_meta.register("int", function (parameters) { return lib_meta.construct("integer", parameters); });
+})(lib_meta || (lib_meta = {}));
+var lib_meta;
+(function (lib_meta) {
+    /**
+     * @author fenris
+     */
+    var class_shape_float = (function (_super) {
+        __extends(class_shape_float, _super);
+        /**
+         * @author fenris
+         */
+        function class_shape_float(_a) {
+            var _b = _a["soft"], soft = _b === void 0 ? false : _b, _c = _a["defaultvalue"], defaultvalue = _c === void 0 ? 0.0 : _c, _d = _a["min"], min = _d === void 0 ? null : _d, _e = _a["max"], max = _e === void 0 ? null : _e;
+            var _this = _super.call(this, {
+                "typename": "number",
+                "primitive": true,
+                "soft": soft,
+                "defaultvalue": defaultvalue
+            }) || this;
+            _this.min = min;
+            _this.max = max;
+            return _this;
+        }
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        class_shape_float.prototype.min_get = function () {
+            return this.min;
+        };
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        class_shape_float.prototype.max_get = function () {
+            return this.max;
+        };
+        /**
+         * @override
+         * @author fenris
+         */
+        class_shape_float.prototype.inspect = function (value) {
+            var messages = _super.prototype.inspect.call(this, value);
+            if (value != null) {
+                if ((this.min != null) && (value < this.min)) {
+                    messages.push("value is below minimum of " + this.min.toString());
+                }
+                if ((this.max != null) && (value > this.max)) {
+                    messages.push("value is over maximum of " + this.max.toString());
+                }
+            }
+            return messages;
+        };
+        /**
+         * @override
+         * @author fenris
+         */
+        class_shape_float.prototype.to_raw = function () {
+            return {
+                "id": "float",
+                "parameters": {
+                    "soft": this.soft,
+                    "min": this.min,
+                    "max": this.max
+                }
+            };
+        };
+        return class_shape_float;
+    }(lib_meta.class_shape_buildin));
+    lib_meta.class_shape_float = class_shape_float;
+    lib_meta.register("float", function (parameters) {
+        return (new class_shape_float({
+            "min": parameters["min"],
+            "max": parameters["max"],
+            "soft": parameters["soft"]
+        }));
+    });
+})(lib_meta || (lib_meta = {}));
+var lib_meta;
+(function (lib_meta) {
+    /**
+     * @author fenris
+     */
+    var class_shape_string = (function (_super) {
+        __extends(class_shape_string, _super);
+        /**
+         * @author fenris
+         */
+        function class_shape_string(_a) {
+            var _b = _a["soft"], soft = _b === void 0 ? false : _b, _c = _a["defaultvalue"], defaultvalue = _c === void 0 ? "" : _c;
+            return _super.call(this, {
+                "typename": "string",
+                "primitive": true,
+                "soft": soft,
+                "defaultvalue": defaultvalue
+            }) || this;
+        }
+        /**
+         * @override
+         * @author fenris
+         */
+        class_shape_string.prototype.to_raw = function () {
+            return {
+                "id": "string",
+                "parameters": {
+                    "soft": this.soft
+                }
+            };
+        };
+        return class_shape_string;
+    }(lib_meta.class_shape_buildin));
+    lib_meta.class_shape_string = class_shape_string;
+    lib_meta.register("string", function (parameters) {
+        return (new class_shape_string({
+            "soft": parameters["soft"]
+        }));
+    });
+    lib_meta.register("str", function (parameters) { return lib_meta.construct("string", parameters); });
+})(lib_meta || (lib_meta = {}));
+var lib_meta;
+(function (lib_meta) {
+    /**
+     * @author fenris
+     */
+    var class_shape_email = (function (_super) {
+        __extends(class_shape_email, _super);
+        /**
+         * @author fenris
+         */
+        function class_shape_email(_a) {
+            var _b = _a["soft"], soft = _b === void 0 ? false : _b, _c = _a["defaultvalue"], defaultvalue = _c === void 0 ? "" : _c;
+            return _super.call(this, {
+                "primitive": true,
+                "soft": soft,
+                "defaultvalue": defaultvalue
+            }) || this;
+        }
+        /**
+         * @override
+         * @author fenris
+         */
+        class_shape_email.prototype.to_raw = function () {
+            return {
+                "id": "email",
+                "parameters": {
+                    "soft": this.soft
+                }
+            };
+        };
+        /**
+         * @desc [implementation]
+         * @author fenris
+         */
+        class_shape_email.prototype._show = function () {
+            var str = "email";
+            return str;
+        };
+        return class_shape_email;
+    }(lib_meta.class_shape));
+    lib_meta.class_shape_email = class_shape_email;
+    lib_meta.register("email", function (parameters) {
+        return (new class_shape_email({
+            "soft": parameters["soft"]
+        }));
+    });
+})(lib_meta || (lib_meta = {}));
+var lib_meta;
+(function (lib_meta) {
+    /**
+     * @author fenris
+     */
+    var class_shape_array = (function (_super) {
+        __extends(class_shape_array, _super);
+        /**
+         * @author fenris
+         */
+        function class_shape_array(_a) {
+            var shape_element = _a["shape_element"], _b = _a["soft"], soft = _b === void 0 ? false : _b, _c = _a["defaultvalue"], defaultvalue = _c === void 0 ? [] : _c;
+            var _this = _super.call(this, {
+                "primitive": false,
+                "soft": soft,
+                "defaultvalue": defaultvalue
+            }) || this;
+            _this.shape_element = shape_element;
+            return _this;
+        }
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        class_shape_array.prototype.shape_element_get = function () {
+            return this.shape_element;
+        };
+        /**
+         * @override
+         * @author fenris
+         */
+        class_shape_array.prototype.inspect = function (value) {
+            var _this = this;
+            var messages = _super.prototype.inspect.call(this, value);
+            if (value != null) {
+                if (!((typeof (value) == "object") && (value instanceof Array))) {
+                    messages.push("value is not an array");
+                }
+                else {
+                    var array = (value);
+                    array.forEach(function (element, index) {
+                        messages = messages.concat(_this.shape_element.inspect(element).map(function (message) { return "array element #" + index.toString() + ": " + message; }));
+                    });
+                }
+            }
+            return messages;
+        };
+        /**
+         * @override
+         * @author fenris
+         */
+        class_shape_array.prototype.to_raw = function () {
+            return {
+                "id": "array",
+                "parameters": {
+                    "shape_element": this.shape_element.to_raw(),
+                    "soft": this.soft
+                }
+            };
+        };
+        /**
+         * @desc [implementation]
+         * @author fenris
+         */
+        class_shape_array.prototype._show = function () {
+            var str = "array";
+            str += "<" + instance_show(this.shape_element) + ">";
+            return str;
+        };
+        return class_shape_array;
+    }(lib_meta.class_shape));
+    lib_meta.class_shape_array = class_shape_array;
+    lib_meta.register("array", function (parameters) {
+        var shape_element_raw = lib_object.fetch(parameters, "shape_element", null, 2);
+        var shape_element = lib_meta.from_raw(shape_element_raw);
+        return (new class_shape_array({
+            "shape_element": shape_element,
+            "soft": parameters["soft"]
+        }));
+    });
+    lib_meta.register("arr", function (parameters) { return lib_meta.construct("array", parameters); });
+})(lib_meta || (lib_meta = {}));
+var lib_meta;
+(function (lib_meta) {
+    /**
+     * @author fenris
+     */
+    var class_shape_object = (function (_super) {
+        __extends(class_shape_object, _super);
+        /**
+         * @author fenris
+         */
+        function class_shape_object(_a) {
+            var fields = _a["fields"], _b = _a["soft"], soft = _b === void 0 ? true : _b, _c = _a["defaultvalue"], defaultvalue = _c === void 0 ? null : _c;
+            var _this = this;
+            if (defaultvalue == null) {
+                defaultvalue = {};
+                fields.forEach(function (field) {
+                    defaultvalue[field.name] = field.shape.defaultvalue_get();
+                });
+            }
+            _this = _super.call(this, {
+                "typename": "object",
+                "primitive": false,
+                "soft": soft,
+                "defaultvalue": defaultvalue
+            }) || this;
+            _this.fields = fields;
+            return _this;
+        }
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        class_shape_object.prototype.fields_get = function () {
+            return this.fields;
+        };
+        /**
+         * @override
+         * @author fenris
+         * @todo check for superfluous fields?
+         */
+        class_shape_object.prototype.inspect = function (value) {
+            var messages = _super.prototype.inspect.call(this, value);
+            if (value != null) {
+                this.fields.forEach(function (field, index) {
+                    var value_ = value[field.name];
+                    messages = messages.concat(field.shape.inspect(value_).map(function (message) { return "object field '" + field.name + "': " + message; }));
+                });
+            }
+            return messages;
+        };
+        /**
+         * @override
+         * @author fenris
+         */
+        class_shape_object.prototype.to_raw = function () {
+            return {
+                "id": "object",
+                "parameters": {
+                    "soft": this.soft,
+                    "fields": this.fields.map(function (field) {
+                        return {
+                            "name": field.name,
+                            "shape": field.shape.to_raw(),
+                            "label": field.label
+                        };
+                    })
+                }
+            };
+        };
+        /**
+         * @desc [implementation]
+         * @author fenris
+         */
+        class_shape_object.prototype._show = function () {
+            var str = _super.prototype._show.call(this);
+            var str_ = this.fields.map(function (field) { return field.name + ":" + instance_show(field.shape); }).join(",");
+            str = str + "<" + str_ + ">";
+            return str;
+        };
+        return class_shape_object;
+    }(lib_meta.class_shape_buildin));
+    lib_meta.class_shape_object = class_shape_object;
+    lib_meta.register("object", function (parameters) {
+        var fields_ = lib_object.fetch(parameters, "fields", [], 1);
+        return (new class_shape_object({
+            "fields": fields_.map(function (field_) {
+                var name = lib_object.fetch(field_, "name", null, 2);
+                var shape_raw = lib_object.fetch(field_, "shape", null, 2);
+                var shape = lib_meta.construct(shape_raw.id, shape_raw.parameters);
+                var label = lib_object.fetch(field_, "label", null, 1);
+                return {
+                    "name": name,
+                    "shape": shape,
+                    "label": label
+                };
+            }),
+            "soft": parameters["soft"]
+        }));
+    });
+    lib_meta.register("obj", function (parameters) { return lib_meta.construct("object", parameters); });
+})(lib_meta || (lib_meta = {}));
+var lib_meta;
+(function (lib_meta) {
+    /**
+     * @author fenris
+     */
+    var class_shape_date = (function (_super) {
+        __extends(class_shape_date, _super);
+        /**
+         * @author fenris
+         */
+        function class_shape_date(_a) {
+            var _b = _a["soft"], soft = _b === void 0 ? false : _b, _c = _a["defaultvalue"], defaultvalue = _c === void 0 ? new Date(Date.now()) : _c;
+            return _super.call(this, {
+                "primitive": true,
+                "soft": soft,
+                "defaultvalue": defaultvalue
+            }) || this;
+        }
+        /**
+         * @override
+         * @author fenris
+         */
+        class_shape_date.prototype.inspect = function (value) {
+            var messages = _super.prototype.inspect.call(this, value);
+            if (value != null) {
+                if (!((typeof (value) == "object") && (value instanceof Date))) {
+                    messages.push("value is not a date");
+                }
+            }
+            return messages;
+        };
+        /**
+         * @override
+         * @author fenris
+         */
+        class_shape_date.prototype.to_raw = function () {
+            return {
+                "id": "date",
+                "parameters": {
+                    "soft": this.soft
+                }
+            };
+        };
+        /**
+         * @desc [implementation]
+         * @author fenris
+         */
+        class_shape_date.prototype._show = function () {
+            var str = "date";
+            return str;
+        };
+        return class_shape_date;
+    }(lib_meta.class_shape));
+    lib_meta.class_shape_date = class_shape_date;
+    lib_meta.register("date", function (parameters) {
+        return (new class_shape_date({
+            "soft": parameters["soft"]
+        }));
+    });
+})(lib_meta || (lib_meta = {}));
+var lib_meta;
+(function (lib_meta) {
+    /**
+     * @author fenris
+     */
+    var class_shape_enumeration = (function (_super) {
+        __extends(class_shape_enumeration, _super);
+        /**
+         * @author fenris
+         */
+        function class_shape_enumeration(_a) {
+            var shape_option = _a["shape_option"], options = _a["options"], _b = _a["soft"], soft = _b === void 0 ? false : _b, _c = _a["defaultvalue"], defaultvalue = _c === void 0 ? undefined : _c;
+            var _this = this;
+            if (defaultvalue === undefined) {
+                if (soft) {
+                    defaultvalue = null;
+                }
+                else {
+                    if (options.length == 0) {
+                        throw (new Error("a hard enumeration must have at least one option"));
+                    }
+                    else {
+                        defaultvalue = options[0].value;
+                    }
+                }
+            }
+            _this = _super.call(this, {
+                "primitive": true,
+                "soft": soft,
+                "defaultvalue": defaultvalue
+            }) || this;
+            _this.shape_option = shape_option;
+            _this.options = options;
+            return _this;
+        }
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        class_shape_enumeration.prototype.shape_option_get = function () {
+            return this.shape_option;
+        };
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        class_shape_enumeration.prototype.options_get = function () {
+            return this.options;
+        };
+        /**
+         * @override
+         * @author fenris
+         */
+        class_shape_enumeration.prototype.inspect = function (value) {
+            var messages = _super.prototype.inspect.call(this, value);
+            if (value != null) {
+                if (!this.shape_option.check(value)) {
+                    messages.push("value has not the specified option shape");
+                }
+                else {
+                    var found = this.options.some(function (option) { return instance_collate(option.value, value); });
+                    if (!found) {
+                        messages.push("value is not one of the specified options");
+                    }
+                }
+            }
+            return messages;
+        };
+        /**
+         * @override
+         * @author fenris
+         */
+        class_shape_enumeration.prototype.to_raw = function () {
+            return {
+                "id": "enumeration",
+                "parameters": {
+                    "shape_option": this.shape_option.to_raw(),
+                    "options": this.options.map(function (option) {
+                        return {
+                            "value": option.value,
+                            "label": option.label
+                        };
+                    }),
+                    "soft": this.soft
+                }
+            };
+        };
+        /**
+         * @desc [implementation]
+         * @author fenris
+         */
+        class_shape_enumeration.prototype._show = function () {
+            var str = "enumeration";
+            {
+                str = str + "<" + instance_show(this.shape_option) + ">";
+            }
+            {
+                var str_ = this.options.map(function (option) { return instance_show(option.value); }).join(",");
+                str = str + "[" + str_ + "]";
+            }
+            return str;
+        };
+        return class_shape_enumeration;
+    }(lib_meta.class_shape));
+    lib_meta.class_shape_enumeration = class_shape_enumeration;
+    lib_meta.register("enumeration", function (parameters) {
+        var shape_option_raw = lib_object.fetch(parameters, "shape_option", null, 2);
+        var shape_option = lib_meta.from_raw(shape_option_raw);
+        var options = lib_object.fetch(parameters, "options", [], 2);
+        return (new class_shape_enumeration({
+            "shape_option": shape_option,
+            "options": options,
+            "soft": parameters["soft"]
+        }));
+    });
+})(lib_meta || (lib_meta = {}));
+var lib_meta;
+(function (lib_meta) {
+    /**
+     * @author fenris
+     */
+    var class_shape_map = (function (_super) {
+        __extends(class_shape_map, _super);
+        /**
+         * @author fenris
+         */
+        function class_shape_map(_a) {
+            var shape_key = _a["shape_key"], shape_value = _a["shape_value"], _b = _a["soft"], soft = _b === void 0 ? false : _b, _c = _a["defaultvalue"], defaultvalue = _c === void 0 ? {} : _c;
+            var _this = _super.call(this, {
+                "primitive": true,
+                "soft": soft,
+                "defaultvalue": defaultvalue
+            }) || this;
+            _this.shape_key = shape_key;
+            _this.shape_value = shape_value;
+            return _this;
+        }
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        class_shape_map.prototype.shape_key_get = function () {
+            return this.shape_key;
+        };
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        class_shape_map.prototype.shape_value_get = function () {
+            return this.shape_value;
+        };
+        /**
+         * @override
+         * @author fenris
+         */
+        class_shape_map.prototype.inspect = function (value) {
+            var _this = this;
+            var messages = _super.prototype.inspect.call(this, value);
+            if (value != null) {
+                if (typeof (value) != "object") {
+                    messages.push("value is not an object");
+                }
+                else {
+                    Object.keys(value).forEach(function (key, index) {
+                        var value_ = value[key];
+                        messages = messages.concat(_this.shape_key.inspect(key).map(function (message) { return "map entry #" + index.toString() + " key: " + message; }));
+                        messages = messages.concat(_this.shape_value.inspect(value).map(function (message) { return "map entry #" + index.toString() + " value: " + message; }));
+                    });
+                }
+            }
+            return messages;
+        };
+        /**
+         * @override
+         * @author fenris
+         */
+        class_shape_map.prototype.to_raw = function () {
+            return {
+                "id": "map",
+                "parameters": {
+                    "shape_key": this.shape_key.to_raw(),
+                    "shape_value": this.shape_value.to_raw(),
+                    "soft": this.soft
+                }
+            };
+        };
+        /**
+         * @desc [implementation]
+         * @author fenris
+         */
+        class_shape_map.prototype._show = function () {
+            var str = "map";
+            str += "<" + instance_show(this.shape_key) + "," + instance_show(this.shape_value) + ">";
+            return str;
+        };
+        return class_shape_map;
+    }(lib_meta.class_shape));
+    lib_meta.class_shape_map = class_shape_map;
+    lib_meta.register("map", function (parameters) {
+        var shape_key_raw = lib_object.fetch(parameters, "shape_key", null, 2);
+        var shape_key = lib_meta.construct(shape_key_raw.id, shape_key_raw.parameters);
+        var shape_value_raw = lib_object.fetch(parameters, "shape_value", null, 2);
+        var shape_value = lib_meta.from_raw(shape_value_raw);
+        return (new class_shape_map({
+            "shape_key": shape_key,
+            "shape_value": shape_value,
+            "soft": parameters["soft"]
+        }));
+    });
+})(lib_meta || (lib_meta = {}));
+var lib_meta;
+(function (lib_meta) {
+    /**
+     * @author fenris
+     * @todo use a treemap-function (but first make one :P)
+     */
+    function adjust_labels(shape, transformator) {
+        if (false) {
+        }
+        else if (shape instanceof lib_meta.class_shape_enumeration) {
+            var shape_ = (shape);
+            return (new lib_meta.class_shape_enumeration({
+                "shape_option": adjust_labels(shape_.shape_option_get(), transformator),
+                "options": shape_.options_get().map(function (option) {
+                    return {
+                        "value": option.value,
+                        "label": transformator(option.label)
+                    };
+                }),
+                "soft": shape_.soft_get(),
+                "defaultvalue": shape_.defaultvalue_get()
+            }));
+        }
+        else if (shape instanceof lib_meta.class_shape_array) {
+            var shape_ = (shape);
+            return (new lib_meta.class_shape_array({
+                "shape_element": adjust_labels(shape_.shape_element_get(), transformator),
+                "soft": shape_.soft_get(),
+                "defaultvalue": shape_.defaultvalue_get()
+            }));
+        }
+        else if (shape instanceof lib_meta.class_shape_object) {
+            var shape_ = (shape);
+            return (new lib_meta.class_shape_object({
+                "fields": shape_.fields_get().map(function (field) {
+                    return {
+                        "name": field.name,
+                        "shape": adjust_labels(field.shape, transformator),
+                        "label": transformator(field.label)
+                    };
+                }),
+                "soft": shape_.soft_get(),
+                "defaultvalue": shape_.defaultvalue_get()
+            }));
+        }
+        else {
+            // shape["label"] = ((shape["label"] == null) ? null : transformator(shape["label"]));
+            return shape;
+        }
+    }
+    lib_meta.adjust_labels = adjust_labels;
+})(lib_meta || (lib_meta = {}));
 var plain_text_to_html = function (text) {
     var ret = text;
     ret = ret.replace(/  /g, "&nbsp;&nbsp;"); // convert multiple whitespace to forced ones
@@ -1398,7 +3477,7 @@ var format_sentence = function (str, rtl, caseSense) {
         return ret.join("");
     }
 };
-var fill_string_template = function (template_string, object, fabric, delimiter, default_string) {
+var fill_string_template = function (template_string, object, fabric, delimiter, default_string, sloppy) {
     if (fabric === void 0) { fabric = function (object, key) { return object[key]; }; }
     if (delimiter === void 0) { delimiter = "%"; }
     if (default_string === void 0) { default_string = null; }
@@ -1417,7 +3496,7 @@ var fill_string_template = function (template_string, object, fabric, delimiter,
             var value = "";
             try {
                 value = fabric(obj, key);
-                if (value === void 0) {
+                if ((!sloppy && (value === void 0)) || (sloppy && (value == void 0))) {
                     value = default_string;
                 }
             }
@@ -2096,7 +4175,6 @@ function locale_date(date, ignore_error) {
     }
 }
 ;
-///<reference path="../../call/build/logic-decl.d.ts"/>
 var make_logger = (function () {
     var _loggers = {};
     var make_logger = function (prefix, current_loglevel) {
@@ -2106,7 +4184,7 @@ var make_logger = (function () {
         ];
         var logger = function (obj, lvl) {
             var txt = obj.txt || obj;
-            if (!lib_call.is_def(lvl))
+            if (lvl == void 0)
                 lvl = 0;
             var date = new Date();
             log.push({
@@ -2177,15 +4255,50 @@ var make_logger = (function () {
             console["_error"] = console.error;
             console["_warn"] = console.warn;
             console["_info"] = console.info;
+            /*
+            console["log"] = _log_all(__log, 0);
+            console["error"] = _log_all(__error, 2);
+            console["warn"] = _log_all(__warn, 2);
+            console["info"] = _log_all(__info, 0);
+             */
         }
+        /*
+        {
+            make_logger["send_log"] = function(){
+                eml_log(
+                    function () {
+                        alert("fehlerbericht wurde gesendet!");
+                    }
+                );
+            };
+            var error_log = make_logger("global.error", 99);
+            window.onerror = _log_all(
+                error_log,
+                1,
+                function(){
+                    if (global_config == undefined) {
+                        return false;
+                    }
+                    if (global_config.report_error) {
+                        make_logger["send_log"]();
+                    }
+                }
+            );
+        }
+         */
     }
     return make_logger;
 })();
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 ///<reference path="../../base/build/logic-decl.d.ts"/>
 ///<reference path="../../string/build/logic-decl.d.ts"/>
 /**
@@ -2211,8 +4324,9 @@ var lib_xml;
          * @author fenris
          */
         function class_node_text(content) {
-            _super.call(this);
-            this.content = content;
+            var _this = _super.call(this) || this;
+            _this.content = content;
+            return _this;
         }
         /**
          * @author fenris
@@ -2233,8 +4347,9 @@ var lib_xml;
          * @author fenris
          */
         function class_node_comment(content) {
-            _super.call(this);
-            this.content = content;
+            var _this = _super.call(this) || this;
+            _this.content = content;
+            return _this;
         }
         /**
          * @author fenris
@@ -2257,10 +4372,11 @@ var lib_xml;
         function class_node_complex(name, attributes, children) {
             if (attributes === void 0) { attributes = {}; }
             if (children === void 0) { children = []; }
-            _super.call(this);
-            this.name = name;
-            this.attributes = attributes;
-            this.children = children;
+            var _this = _super.call(this) || this;
+            _this.name = name;
+            _this.attributes = attributes;
+            _this.children = children;
+            return _this;
         }
         /**
          * @author fenris
@@ -2279,1072 +4395,6 @@ var lib_xml;
     }(class_node));
     lib_xml.class_node_complex = class_node_complex;
 })(lib_xml || (lib_xml = {}));
-///<reference path="../../base/build/logic-decl.d.ts"/>
-var lib_object;
-(function (lib_object) {
-    /**
-     * @author fenris
-     */
-    function fetch(object, fieldname, fallback, escalation) {
-        if (fallback === void 0) { fallback = null; }
-        if (escalation === void 0) { escalation = 1; }
-        if ((fieldname in object) && (object[fieldname] !== undefined)) {
-            return object[fieldname];
-        }
-        else {
-            switch (escalation) {
-                case 0: {
-                    return fallback;
-                    break;
-                }
-                case 1: {
-                    var message = ("field '" + fieldname + "' not in structure");
-                    message += ("; using fallback value '" + String(fallback) + "'");
-                    // console.warn(message);
-                    return fallback;
-                    break;
-                }
-                case 2: {
-                    var message = ("field '" + fieldname + "' not in structure");
-                    throw (new Error(message));
-                    break;
-                }
-                default: {
-                    throw (new Error("invalid escalation level " + escalation));
-                    break;
-                }
-            }
-        }
-    }
-    lib_object.fetch = fetch;
-    /**
-     * @author fenris
-     */
-    function map(object_from, transformator) {
-        var object_to = {};
-        Object.keys(object_from).forEach(function (key) { return (object_to[key] = transformator(object_from[key], key)); });
-        return object_to;
-    }
-    lib_object.map = map;
-    /**
-     * @author fenris
-     */
-    function filter(object_from, predicate) {
-        var object_to = {};
-        Object.keys(object_from).forEach(function (key) {
-            var value = object_from[key];
-            if (predicate(value, key)) {
-                object_to[key] = value;
-            }
-        });
-        return object_to;
-    }
-    lib_object.filter = filter;
-    /**
-     * @author fenris
-     */
-    function from_array(array) {
-        var object = {};
-        array.forEach(function (entry) { return (object[entry.key] = entry.value); });
-        return object;
-    }
-    lib_object.from_array = from_array;
-    /**
-     * @author fenris
-     */
-    function to_array(object) {
-        var array = [];
-        Object.keys(object).forEach(function (key) { return array.push({ "key": key, "value": object[key] }); });
-        return array;
-    }
-    lib_object.to_array = to_array;
-    /**
-     * @author fenris
-     */
-    function values(object) {
-        return to_array(object).map(function (entry) { return entry.value; });
-    }
-    lib_object.values = values;
-    /**
-     * @author fenris
-     */
-    function path_read(object, path, fallback, escalation) {
-        if (fallback === void 0) { fallback = null; }
-        if (escalation === void 0) { escalation = 1; }
-        var steps = ((path.length == 0) ? [] : path.split("."));
-        if (steps.length == 0) {
-            throw (new Error("empty path"));
-        }
-        else {
-            var position_1 = object;
-            var reachable = steps.slice(0, steps.length - 1).every(function (step) {
-                position_1 = object_fetch(position_1, step, null, 0);
-                return (position_1 != null);
-            });
-            if (reachable) {
-                return object_fetch(position_1, steps[steps.length - 1], fallback, escalation);
-            }
-            else {
-                return object_fetch({}, "_dummy_", fallback, escalation);
-            }
-        }
-    }
-    lib_object.path_read = path_read;
-    /**
-     * @author fenris
-     */
-    function path_write(object, path, value, construct) {
-        if (construct === void 0) { construct = true; }
-        var steps = ((path.length == 0) ? [] : path.split("."));
-        if (steps.length == 0) {
-            throw (new Error("empty path"));
-        }
-        else {
-            var position_2 = object;
-            var reachable = steps.slice(0, steps.length - 1).every(function (step) {
-                var position_ = object_fetch(position_2, step, null, 0);
-                if (position_ == null) {
-                    if (construct) {
-                        position_2[step] = {};
-                        position_2 = position_2[step];
-                        return true;
-                    }
-                    else {
-                        return false;
-                    }
-                }
-                else {
-                    position_2 = position_;
-                    return true;
-                }
-            });
-            if (reachable) {
-                position_2[steps[steps.length - 1]] = value;
-            }
-            else {
-                throw (new Error("path " + path + " does not exist and may not be constructed"));
-            }
-        }
-    }
-    lib_object.path_write = path_write;
-    /**
-     * @author fenris
-     */
-    function matches(object, pattern) {
-        return Object.keys(pattern).every(function (key) { return (pattern[key] == object[key]); });
-    }
-    lib_object.matches = matches;
-    /**
-     * @author fenris
-     */
-    function flatten(value) {
-        var integrate = function (result, key_, value_) {
-            if (value_ == null) {
-                result[key_] = value_;
-            }
-            else {
-                if (typeof (value_) != "object") {
-                    result[key_] = value_;
-                }
-                else {
-                    var result_1 = flatten(value_);
-                    Object.keys(result_1).forEach(function (key__) {
-                        var value__ = result_1[key__];
-                        result[key_ + "." + key__] = value__;
-                    });
-                }
-            }
-        };
-        if (value == null) {
-            return null;
-        }
-        else {
-            var result_2 = {};
-            if (typeof (value) != "object") {
-                result_2["value"] = value;
-            }
-            else {
-                if (value instanceof Array) {
-                    var array = (value);
-                    array.forEach(function (element, index) { return integrate(result_2, "element_" + index, element); });
-                }
-                else {
-                    var object_1 = (value);
-                    Object.keys(object_1).forEach(function (key) { return integrate(result_2, key, object_1[key]); });
-                }
-            }
-            return result_2;
-        }
-    }
-    lib_object.flatten = flatten;
-    /**
-     * @author fenris
-     */
-    function clash(x, y, _a) {
-        var _b = _a === void 0 ? {} : _a, _c = _b["overwrite"], overwrite = _c === void 0 ? true : _c, _d = _b["hooks"]["existing"], hook_existing = _d === void 0 ? null : _d;
-        if (hook_existing == null) {
-            (function (key, value_old, value_new) { return console.warn("field " + key + " already defined"); });
-        }
-        var z = {};
-        Object.keys(x).forEach(function (key) {
-            z[key] = x[key];
-        });
-        Object.keys(y).forEach(function (key) {
-            if (key in z) {
-                hook_existing(key, z[key], y[key]);
-                if (overwrite) {
-                    z[key] = y[key];
-                }
-            }
-            else {
-                z[key] = y[key];
-            }
-        });
-        return z;
-    }
-    lib_object.clash = clash;
-    /**
-     * @author fenris
-     */
-    function patch(core, mantle, deep, path) {
-        if (deep === void 0) { deep = true; }
-        if (path === void 0) { path = null; }
-        if (mantle == null) {
-            console.warn("mantle is null; core was", core);
-        }
-        else {
-            Object.keys(mantle).forEach(function (key) {
-                var path_ = ((path == null) ? key : path + "." + key);
-                var value_mantle = mantle[key];
-                if (!(key in core)) {
-                    if ((typeof (value_mantle) == "object") && (value_mantle != null) && deep) {
-                        core[key] = {};
-                        patch(core[key], value_mantle, deep, path_);
-                    }
-                    else {
-                        core[key] = value_mantle;
-                    }
-                }
-                else {
-                    var value_core = core[key];
-                    if (typeof (value_mantle) == typeof (value_core)) {
-                        if ((typeof (value_mantle) == "object") && (value_mantle != null) && deep) {
-                            patch(core[key], value_mantle, deep, path_);
-                        }
-                        else {
-                            core[key] = value_mantle;
-                        }
-                    }
-                    else {
-                        var message = "objects have different shapes at path '" + path_ + "'; core has type '" + typeof (value_core) + "' and mantle has type '" + typeof (value_mantle) + "'";
-                        console.warn(message);
-                        core[key] = value_mantle;
-                    }
-                }
-            });
-        }
-    }
-    lib_object.patch = patch;
-    /**
-     * @author fenris
-     */
-    function patched(core, mantle, deep) {
-        if (deep === void 0) { deep = undefined; }
-        var result = {};
-        patch(result, core, deep);
-        patch(result, mantle, deep);
-        return result;
-    }
-    lib_object.patched = patched;
-    /**
-     * @author fenris
-     */
-    function attached(object, key, value) {
-        var mantle = {};
-        mantle[key] = value;
-        return patched(object, mantle, false);
-    }
-    lib_object.attached = attached;
-    /**
-     * @author fenris
-     */
-    function copy(object) {
-        return patched({}, object);
-    }
-    lib_object.copy = copy;
-})(lib_object || (lib_object = {}));
-/**
- * @desc adapters for old syntax
- * @author fenris
- */
-var object_fetch = lib_object.fetch;
-var object_map = lib_object.map;
-var object_a2o = lib_object.from_array;
-var object_o2a = lib_object.to_array;
-var object_matches = lib_object.matches;
-var object_clash = lib_object.clash;
-///<reference path="../../base/build/logic-decl.d.ts"/>
-///<reference path="../../string/build/logic-decl.d.ts"/>
-/**
- * @param {Object} map
- * @return {string}
- * @author frac
- */
-/*export*/ var object_map2string = function (map) {
-    return (" " + Object.keys(map)
-        .filter(function (key) { return (key != "isMapped"); })
-        .map(function (key) { return ("" + ((map[key] == null) ? "-" : map[key].toString()) + ""); })
-        .join(" ")
-        + "");
-};
-/**
- * @param {Array} array
- * @return {string}
- * @author frac
- */
-/*export*/ var object_array2string = function (array) {
-    return ("" + array.map(function (element, index) {
-        switch (typeof (element)) {
-            case "object": return object_map2string(element);
-            default: return String(element);
-        }
-    }).join(",") + "");
-};
-/**
- * @desc follows a path in an object-tree
- * @param {Object} object the object in which the path lies
- * @param {string} path the steps
- * @param {boolean} [create] whether to create not yet existing branches
- * @return {Object} {'successful': successful, 'position': position} where the branch or leaf at the end of the path
- * @author frac
- */
-var object_path_walk = function (object, path, create, null_on_missing) {
-    if (create === void 0) { create = true; }
-    if (null_on_missing === void 0) { null_on_missing = false; }
-    var steps = ((path == "") ? [] : path.split("."));
-    if (steps.length == 0) {
-        return object;
-    }
-    else {
-        var head = steps[0];
-        // create
-        {
-            if (!(head in object)) {
-                if (create) {
-                    var value = null;
-                    if (steps.length >= 2) {
-                        var next = steps[1];
-                        var index = parseInt(next);
-                        if (!isNaN(index)) {
-                            value = [];
-                        }
-                        else {
-                            value = {};
-                        }
-                    }
-                    else {
-                        value = {};
-                    }
-                    object[head] = value;
-                }
-                else {
-                    // console.info("[object_path_walk] object is ", object);
-                    var message = "[object_path_walk] can not walk step \u00BB" + head + "\u00AB in path \u00BB" + path + "\u00AB on object";
-                    if (null_on_missing) {
-                        console.warn(message);
-                        return null;
-                    }
-                    else {
-                        throw (new Error(message));
-                    }
-                }
-            }
-        }
-        // execute rest
-        {
-            var object_ = object[head];
-            var path_ = steps.slice(1).join(".");
-            return object_path_walk(object_, path_, create, null_on_missing);
-        }
-    }
-    /*
-    return (
-        string_split(path, ".").reduce(
-            function (position : any, step : string) : any {
-                if (! lib_call.is_def(position[step], true)) {
-                    if (create) {
-                        position[step] = {};
-                    }
-                    else {
-                        // console.info("[object_path_walk] object is ", object);
-                        let message : string = sprintf("[object_path_walk] can not walk step »%s« in path »%s« on object", [step, path]);
-                        if (null_on_missing) {
-                            console.warn(message);
-                            return null;
-                        }
-                        else {
-                            throw (new Error(message));
-                        }
-                    }
-                }
-                return position[step];
-            },
-            object
-        )
-    );
-     */
-};
-/**
- * @desc reads a branch/leaf from an object-tree
- * @author frac
- */
-/*export*/ var object_path_read = function (object, path, null_on_missing) {
-    if (null_on_missing === void 0) { null_on_missing = false; }
-    return object_path_walk(object, path, false, null_on_missing);
-};
-/**
- * @desc writes a branch/leaf to an object-tree
- * @author frac
- */
-/*export*/ var object_path_write = function (object, path, value) {
-    // for "initializing" the object (important if the value to write is an entry in a yet not existing array)
-    /*let old : any = */ object_path_walk(object, path, true, true);
-    var steps = ((path == "") ? [] : path.split("."));
-    var position = object_path_walk(object, steps.slice(0, steps.length - 1).join("."), true);
-    if (position == undefined) {
-        console.warn("can't set \u00BB" + steps[steps.length - 1] + "\u00AB in undefined");
-    }
-    else {
-        position[steps[steps.length - 1]] = value;
-    }
-};
-/*export*/ var object_object_path_write_ex = function (obj, path, val) {
-    var ref = obj;
-    var paths = path.split(".");
-    var i;
-    for (i = 0; i < paths.length - 1; i++) {
-        if (ref[paths[i]] === void 0) {
-            if (/^(0|[1-9][0-9]*)$/.test(paths[i + 1])) {
-                ref[paths[i]] = [];
-            }
-            else {
-                ref[paths[i]] = {};
-            }
-        }
-        ref = ref[paths[i]];
-    }
-    ref[paths[i]] = val;
-};
-/**
- * @desc filters branches from an object
- * @param {Object} object the object to read from
- * @param {Array} paths a list of string-lists, that are the paths to be propagated
- * @return {Object} the object with only the selected branches
- * @author frac
- */
-/*export*/ var object_path_filter = function (object, paths) {
-    var result = {};
-    paths.forEach(function (path) {
-        var value = null;
-        try {
-            value = object_path_read(object, path);
-        }
-        catch (exception) {
-            console.warn(exception);
-        }
-        if (value != null) {
-            object_path_write(result, path, value);
-        }
-        else {
-            console.warn("skipped path \"" + path + "\" while filtering");
-        }
-    });
-    return result;
-};
-/**
- * @desc dunno… returns a list of object-paths?
- * @param {Object} object
- * @param {string} p
- * @todo can probably be merged with getLeafg
- */
-/*export*/ var object_path_list = function (object, path, visited) {
-    if (path === void 0) { path = null; }
-    if (visited === void 0) { visited = []; }
-    var result = [];
-    visited.push(object);
-    for (var key in object) {
-        var value = object[key];
-        if (visited.indexOf(value) === -1) {
-            var key_ = (path == null) ? key : (path + "." + key);
-            if (typeof (value) === "object") {
-                result = result.concat(object_path_list(value, key_, visited));
-            }
-            else {
-                result.push({ "key": key_, "value": value });
-            }
-        }
-    }
-    return result;
-};
-/**
- * theroreticaly loop prof walk through all elements and subelements of an object
- * and call a callback for each entry
- * @param {object} obj object to iterate through
- * @param {function} callback
- */
-/*export*/ var object_iterate = function (obj, callback, leafs_only, path, visited) {
-    if (leafs_only === void 0) { leafs_only = false; }
-    if (visited === void 0) { visited = []; }
-    var have_seen = function (ob) {
-        return visited.some(function (e) { return ((typeof ob === "Object") && (ob !== null) && (e === ob)); });
-    };
-    var next = [];
-    Object.keys(obj).forEach(function (key) {
-        var elem = obj[key];
-        if (!have_seen(elem)) {
-            visited.push(elem);
-            var _path = "";
-            if (typeof path === "undefined") {
-                _path = key;
-            }
-            else {
-                _path += [path, key].join(".");
-            }
-            if (!leafs_only)
-                callback(_path, elem, key);
-            if (typeof (elem) === "object") {
-                (function (elem_, callback_, _path_, visited_) {
-                    next.push(function () { object_iterate(elem_, callback_, leafs_only, _path_, visited_); });
-                })(elem, callback, _path, visited);
-            }
-            else {
-                if (leafs_only)
-                    callback(_path, elem, key);
-            }
-        }
-    });
-    var func;
-    while (func = next.shift()) {
-        func();
-    }
-};
-/**
- * @desc get the leaf-nodes of an object
- * @param {object} object
- * @return {Array<string>} a list containing all leaf-nodes
- * @author frac
- */
-/*export*/ var getLeafs = function (object) {
-    var skip = {
-        "className": true,
-        "timeStamp": true,
-        "parentId": true,
-        "transactionID": true,
-        "guid": true,
-        "_id": true,
-        "parents": true,
-        "children": true
-    };
-    return (Object.keys(object).reduce(function (leafs, key) {
-        try {
-            var value = object[key];
-            if (key in skip) {
-                console.warn("skipping field \"" + key + "\"");
-                return leafs;
-            }
-            else {
-                if ((typeof (value) === "object") && (value != null)) {
-                    return leafs.concat(getLeafs(value).map(function (leaf) { return (key + "." + leaf); }));
-                }
-                else {
-                    return leafs.concat([key]);
-                }
-            }
-        }
-        catch (exception) {
-            console.warn(exception);
-            console.info("key: ", key);
-            return null;
-        }
-    }, new Array()));
-};
-/**
- *
- * @desc merges two arrays by probing
- * @param {Array} core
- * @param {Array} mantle
- * @param {function} match
- */
-/*export*/ var merge_array = function (core, mantle, match) {
-    if (match === void 0) { match = (function (x, y) { return (x === y); }); }
-    if ((core == undefined) || (mantle == undefined)) {
-        throw (new Error("Error: "
-            + ((core == undefined) ? " core must be an array and not '" + typeof (core) + "'" : "")
-            + ((mantle == undefined) ? " mantle must be an array and not '" + typeof (mantle) + "'" : "")));
-    }
-    var ret = core;
-    for (var i = 0; i < mantle.length; i++) {
-        var entry = mantle[i];
-        try {
-            var matching_index = core.find(function (element) { return match(element, entry); });
-            ret[matching_index] = object_merge_objects(core[matching_index], entry);
-        }
-        catch (e) {
-            ret.push(entry);
-        }
-    }
-    return ret;
-};
-/**
- * @desc merges two objects recursivly
- * @param {Object} object1 core
- * @param {Object} object2 mantle
- * @param {Array} [ignore_keys]
- * @param [do_not_overwrite_existing_values]
- * @returns {Object} a clone of object1 will be returned
- */
-/*export*/ var object_merge_objects = function (object1, object2, ignore_keys, do_not_overwrite_existing_values, ignore_null, path) {
-    if (object1 === void 0) { object1 = null; }
-    if (object2 === void 0) { object2 = null; }
-    if (ignore_keys === void 0) { ignore_keys = ["parents"]; }
-    if (do_not_overwrite_existing_values === void 0) { do_not_overwrite_existing_values = false; }
-    if (ignore_null === void 0) { ignore_null = false; }
-    if (path === void 0) { path = []; }
-    if (object1 == null) {
-        if (object2 instanceof Array) {
-            object1 = [];
-        }
-        else {
-            object1 = {};
-        }
-    }
-    var iteration_keys = Object.keys(object2);
-    if (ignore_keys === []) {
-        if (path.indexOf(object2) >= 0)
-            return undefined;
-        path.push(object2);
-    }
-    //
-    for (var i = 0; i < iteration_keys.length; i += 1) {
-        var key = iteration_keys[i];
-        if (ignore_keys.some(function (k) {
-            return key == k;
-        })) {
-        }
-        else if (object2[key] === null) {
-            if (!ignore_null)
-                object1[key] = null;
-        }
-        else if ((typeof (object2[key]) === "object") && ((typeof (object1[key]) === "object") || (typeof (object1[key]) === "undefined"))) {
-            object1[key] = object_merge_objects(object1[key], object2[key], ignore_keys, do_not_overwrite_existing_values, ignore_null, path);
-        }
-        else {
-            if ((do_not_overwrite_existing_values === false) || (typeof (object1[key]) === "undefined")) {
-                object1[key] = object2[key];
-            }
-        }
-    }
-    return object1;
-};
-/*
- * @param {object} recipie  ex: { "name" : { extract : function(o) { return o["name"]; }}}
- * */
-var flatten_object = function (obj, recipie, drop_key) {
-    if (drop_key === void 0) { drop_key = (function (k) { return ["parents", "parent", "children"].indexOf(k) > -1; }); }
-    var ret = {};
-    for (var key in recipie) {
-        if (!drop_key(key)) {
-            var prefix = (recipie[key].prefix || "");
-            var recursive = (recipie[key].recursive || -1);
-            var extract = (recipie[key].extract || (function (x) { return x; }));
-            var _obj = extract(obj[key]);
-            if ((_obj !== null) && ((typeof _obj == "object") || (obj[key] instanceof Array)) && (!(recursive == 0))) {
-                var tmp = {};
-                var _recipie = {};
-                for (var _i = 0, _a = Object.keys(_obj); _i < _a.length; _i++) {
-                    var k = _a[_i];
-                    _recipie[k] = {
-                        "prefix": (prefix + key + "."),
-                        "recursive": (recursive - 1),
-                        "extract": (function (x) { return x; })
-                    };
-                }
-                tmp = flatten_object(_obj, _recipie, drop_key);
-                ret = object_merge_objects(ret, tmp);
-            }
-            else {
-                ret[prefix + key] = _obj;
-            }
-        }
-    }
-    return ret;
-};
-/**
- * use the complete path of an objects entry as key to make an one dimensional object
- * @param {object} object the object which should be moade flat
- * @param {string} [path] for the recursive call the current path
- */
-/*export*/ var object_make_flat = function (object, path, filter, split_char, objects) {
-    if (path === void 0) { path = null; }
-    if (filter === void 0) { filter = ["parent", "children"]; }
-    if (split_char === void 0) { split_char = "."; }
-    if (objects === void 0) { objects = []; }
-    if (object.toFlat != undefined) {
-        return object.toFlat();
-    }
-    else {
-        var ret = {};
-        var default_visited_key = "___visited_path___";
-        var visited_key;
-        if (object != void 0) {
-            var iterate = function (key) {
-                var newkey = key;
-                if ((path != undefined) && (path !== "")) {
-                    newkey = path + split_char + newkey;
-                }
-                // do not touch objects we alrdy know
-                if ((obj_ref[key] != undefined) && (!objects.some(function (e) { return (e === obj_ref); }))) {
-                    //if (lib_call.is_def(obj_ref[key]) && (! obj_ref[key].hasOwnProperty(visited_key)) && (key !== visited_key)) {
-                    if (typeof obj_ref[key] === "object") {
-                        ret = object_merge_objects(ret, object_make_flat(obj_ref[key], newkey, filter, split_char, objects.concat(object)));
-                    }
-                    else if (typeof obj_ref[key] === "function") {
-                    }
-                    else {
-                        var value = obj_ref[key];
-                        ret[newkey] = value;
-                    }
-                }
-            };
-            visited_key = default_visited_key;
-            //object[visited_key] = true;
-            var obj_ref = object;
-            Object.keys(object).filter(function (key) { return (filter.indexOf(key) < 0); }).forEach(iterate);
-            if (typeof object.getComputedValues == "function") {
-                visited_key = default_visited_key + "_" + Math.random().toString();
-                obj_ref = object.getComputedValues();
-                obj_ref[visited_key] = true;
-                Object.keys(obj_ref).filter(function (key) { return (filter.indexOf(key) < 0); }).forEach(iterate);
-            }
-        }
-        else {
-        }
-        return ret;
-    }
-};
-/**
- * splits a flat oject into an array of objects if there are paths containing numbers, which indicates
- * that there might be an array
- * used for normalisation of imports
- * @param entry
- * @param number_replace_string
- * @param {function} [match_function] how to test key if it causes a split
- * @returns {Array}
- */
-var object_split_flat_object = function (entry, number_replace_string, fab_function, match_function) {
-    if (typeof (match_function) === "undefined") {
-        match_function = function (key) {
-            return (!key.match(/^custom/)) && key.match(/\.[0-9]+\./);
-        };
-    }
-    if (typeof (fab_function) === "undefined") {
-        fab_function = function (obj, e) {
-            return obj;
-        };
-    }
-    if (typeof (number_replace_string) === "undefined") {
-        number_replace_string = "%d";
-    }
-    var ret = {};
-    var _ret = [];
-    var keys = Object.keys(entry);
-    var group_keys = keys.filter(match_function);
-    keys.forEach(function (key) {
-        var index = 0;
-        var nkey = key;
-        if (match_function(key)) {
-            index = Number(key.match(/[0-9]+/)[0]).valueOf();
-            nkey = key.replace(/\.[0-9]+\./, "." + number_replace_string + ".");
-        }
-        if (!ret[index]) {
-            ret[index] = {};
-        }
-        ret[index][nkey] = entry[key];
-    });
-    keys = Object.keys(ret).sort();
-    _ret.push(ret[0]);
-    for (var index = 1; index < keys.length; index++) {
-        _ret.push(fab_function(ret[keys[index]], entry));
-    }
-    _ret[0] = object_merge_objects(_ret[0], ret[0]);
-    return _ret;
-};
-// TODO: move to exporter, it's to specific
-// to normalize the objects convert paths of a tree-like structure to a
-// key-value list with complete paths as key
-// the info object is passed to the next function as it is
-// and a flat_object (key : value)
-/*export*/ var object_make_flat_async = function (data, callback, on_progress) {
-    setTimeout((function (_obj, _cb, _info) {
-        return (function () {
-            var ret = _obj.map(function (o) { return object_make_flat(o); });
-            _cb({ "flat_object": ret, "objects": ret, "info": _info });
-        });
-    })((typeof (data.processed.objects) === "undefined") ? data.processed.source_object : data.processed.objects, callback, data.processed.info), 0);
-};
-var object_flatten = function (object, paths, prefix) {
-    if (prefix === void 0) { prefix = ""; }
-    var ret = {};
-    var paths_ = paths.reduce(function (prev, current) {
-        if (current.split(".").some(function (x) { return (x === "%d"); })) {
-            var path = current.split(".%d").shift();
-            var len = object_path_read(object, path).length;
-            for (var i = 0; i < len; i++) {
-                prev.push(sprintf(current, [i]));
-            }
-        }
-        else {
-            prev.push(current);
-        }
-        return prev;
-    }, []);
-    for (var _i = 0, paths_1 = paths_; _i < paths_1.length; _i++) {
-        var path = paths_1[_i];
-        var tmp = object_path_read(object, path, true);
-        if ((tmp != undefined) && (tmp.toFlat != undefined)) {
-            var tmp_ = tmp.toFlat([path, "."].join(""));
-            for (var key in tmp_) {
-                ret[key] = tmp_[key];
-            }
-        }
-        else {
-            ret[prefix + path] = tmp;
-        }
-    }
-    return ret;
-};
-/**
- * parse
- * @param {String} value
- * @returns {Object}
- */
-var object_parse = function (value) {
-    var content = JSON.parse(value);
-    var m = { "root": content };
-    (new Mapper()).mapClasses(m);
-    return m["root"];
-};
-/**
- * stringify
- *
- * @description stringify object as JSON
- */
-var object_stringify = function (object, readable) {
-    if (readable === void 0) { readable = false; }
-    return (JSON.stringify(object, function (key, value) {
-        if ((key == "parents") && (value !== null)) {
-            return null;
-        }
-        if (key == "changeActions") {
-            return undefined;
-        }
-        if (key == "observer") {
-            return undefined;
-        }
-        if (key == "isMapped") {
-            return undefined;
-        }
-        /*
-        if (value === null) {
-            return undefined;
-        }
-        */
-        return value;
-    }, readable ? 1 : 0));
-};
-///<reference path="../../base/build/logic-decl.d.ts"/>
-var lib_object;
-(function (lib_object) {
-    /**
-     * @author fenris
-     */
-    var class_relation = (function () {
-        /**
-         * @author fenris
-         */
-        /*protected*/ function class_relation(id, parameters) {
-            this.id = id;
-            this.symbol = lib_object.fetch(parameters, "symbol", null, 1);
-            this.name = lib_object.fetch(parameters, "name", null, 1);
-            this.predicate = lib_object.fetch(parameters, "predicate", null, 2);
-        }
-        /**
-         * @author fenris
-         */
-        class_relation.prototype.check = function (value, reference) {
-            return this.predicate(value, reference);
-        };
-        /**
-         * @author fenris
-         */
-        class_relation.prototype.id_get = function () {
-            return this.id;
-        };
-        /**
-         * @author fenris
-         */
-        class_relation.prototype.symbol_get = function () {
-            return this.symbol;
-        };
-        /**
-         * @author fenris
-         */
-        class_relation.prototype.name_get = function () {
-            return this.name;
-        };
-        /**
-         * @desc [implementation]
-         * @author fenris
-         */
-        class_relation.prototype._show = function () {
-            return "[" + this.symbol + "]";
-        };
-        /**
-         * @author fenris
-         */
-        class_relation.prototype.toString = function () {
-            return this._show();
-        };
-        /**
-         * @author fenris
-         */
-        class_relation.pool = function () {
-            return {
-                "eq": {
-                    "symbol": "=",
-                    "name": "gleich",
-                    "predicate": function (value, reference) { return (value == reference); }
-                },
-                "ne": {
-                    "symbol": "≠",
-                    "name": "ungleich",
-                    "predicate": function (value, reference) { return (value != reference); }
-                },
-                "gt": {
-                    "symbol": ">",
-                    "name": "größer",
-                    "predicate": function (value, reference) { return (value > reference); }
-                },
-                "ge": {
-                    "symbol": "≥",
-                    "name": "größer oder gleich",
-                    "predicate": function (value, reference) { return (value >= reference); }
-                },
-                "lt": {
-                    "symbol": "<",
-                    "name": "kleiner",
-                    "predicate": function (value, reference) { return (value < reference); }
-                },
-                "le": {
-                    "symbol": "≤",
-                    "name": "kleiner oder gleich",
-                    "predicate": function (value, reference) { return (value <= reference); }
-                }
-            };
-        };
-        /**
-         * @author fenris
-         */
-        class_relation.get = function (id) {
-            var parameters = lib_object.fetch(this.pool(), id, null, 2);
-            return (new class_relation(id, parameters));
-        };
-        /**
-         * @author fenris
-         */
-        class_relation.available = function () {
-            return Object.keys(this.pool());
-        };
-        return class_relation;
-    }());
-    lib_object.class_relation = class_relation;
-    /**
-     * @author fenris
-     */
-    var class_filtrationitem = (function () {
-        /**
-         * @author fenris
-         */
-        function class_filtrationitem(parameters) {
-            this.extract = lib_object.fetch(parameters, "extract", null, 2);
-            this.relation = lib_object.fetch(parameters, "relation", null, 2);
-            this.reference = lib_object.fetch(parameters, "reference", null, 2);
-        }
-        /**
-         * @author fenris
-         */
-        class_filtrationitem.prototype.check = function (dataset) {
-            var value = this.extract(dataset);
-            var result = this.relation.check(value, this.reference);
-            return result;
-        };
-        /**
-         * @desc [implementation]
-         * @author fenris
-         */
-        class_filtrationitem.prototype._show = function () {
-            return "(" + this.relation.symbol_get() + " " + instance_show(this.reference) + ")";
-        };
-        /**
-         * @author fenris
-         */
-        class_filtrationitem.prototype.toString = function () {
-            return this._show();
-        };
-        return class_filtrationitem;
-    }());
-    lib_object.class_filtrationitem = class_filtrationitem;
-    /**
-     * @desc disjunctive normal form
-     * @author fenris
-     */
-    var class_filtration = (function () {
-        /**
-         * @author fenris
-         */
-        function class_filtration(clauses) {
-            this.clauses = clauses;
-        }
-        /**
-         * @author fenris
-         */
-        class_filtration.prototype.check = function (dataset) {
-            return (this.clauses.some(function (clause) { return clause.every(function (literal) { return literal.check(dataset); }); }));
-        };
-        /**
-         * @author fenris
-         */
-        class_filtration.prototype.use = function (datasets) {
-            var _this = this;
-            return datasets.filter(function (dataset) { return _this.check(dataset); });
-        };
-        /**
-         * @desc [implementation]
-         * @author fenris
-         */
-        class_filtration.prototype._show = function () {
-            return ("{" + this.clauses.map(function (clause) { return ("[" + clause.map(instance_show).join(",") + "]"); }).join(",") + "}");
-        };
-        /**
-         * @author fenris
-         */
-        class_filtration.prototype.toString = function () {
-            return this._show();
-        };
-        return class_filtration;
-    }());
-    lib_object.class_filtration = class_filtration;
-})(lib_object || (lib_object = {}));
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -3762,42 +4812,34 @@ var lib_path;
     }
     lib_path.filepointer_read = filepointer_read;
 })(lib_path || (lib_path = {}));
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 ///<reference path="../../call/build/logic-decl.d.ts"/>
 var lib_file;
 (function (lib_file) {
     /**
      * @author fenris
      */
-    var class_file_abstract = (function () {
-        function class_file_abstract() {
-        }
+    class class_file_abstract {
         /**
          * @desc reads a json file
          * @author fenris
          */
-        class_file_abstract.prototype.read_json = function (path) {
-            var _this = this;
-            return (function (resolve, reject) {
+        read_json(path) {
+            return ((resolve, reject) => {
                 lib_call.executor_chain({}, [
-                    function (state) { return function (resolve_, reject_) {
-                        _this.read(path)(function (content) {
+                    state => (resolve_, reject_) => {
+                        this.read(path)(content => {
                             state.content = content;
                             resolve_(state);
                         }, reject_);
-                    }; },
-                    function (state) { return function (resolve_, reject_) {
-                        var error;
+                    },
+                    state => (resolve_, reject_) => {
+                        let error;
                         try {
                             state.data = JSON.parse(state.content);
                             error = null;
                         }
                         catch (exception) {
-                            error = new class_error("invalid json", [exception]);
+                            error = new class_error("invalid json '" + path + "'", [exception]);
                         }
                         if (error == null) {
                             resolve_(state);
@@ -3805,19 +4847,18 @@ var lib_file;
                         else {
                             reject_(error);
                         }
-                    }; },
-                ])(function (state) { return resolve(state.data); }, reject);
+                    },
+                ])(state => resolve(state.data), reject);
             });
-        };
+        }
         /**
          * @desc writes a json file
          * @author fenris
          */
-        class_file_abstract.prototype.write_json = function (path, data) {
+        write_json(path, data) {
             return this.write(path, JSON.stringify(data, undefined, "\t"));
-        };
-        return class_file_abstract;
-    }());
+        }
+    }
     lib_file.class_file_abstract = class_file_abstract;
 })(lib_file || (lib_file = {}));
 ///<reference path="../../call/build/logic-decl.d.ts"/>
@@ -3826,38 +4867,33 @@ var lib_file;
     /**
      * @author fenris
      */
-    var class_file_node = (function (_super) {
-        __extends(class_file_node, _super);
-        function class_file_node() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
+    class class_file_node extends lib_file.class_file_abstract {
         /**
          * @author maspr
          */
-        class_file_node.prototype.determine_handler = function (path) {
+        determine_handler(path) {
             if (/^https?:\/\//.test(path)) {
                 return "http";
             }
             else {
                 return "file";
             }
-        };
+        }
         /**
          * @override
          * @author fenris,maspr
          * @todo clear up if http(s)-handling belongs here or not
          */
-        class_file_node.prototype.read = function (path, skip_error) {
-            if (skip_error === void 0) { skip_error = false; }
+        read(path, skip_error = false) {
             switch (this.determine_handler(path)) {
                 case "file":
                     {
-                        var nm_fs_1 = require("fs");
-                        return (function (resolve, reject) {
-                            nm_fs_1.readFile(path, {
+                        let nm_fs = require("fs");
+                        return ((resolve, reject) => {
+                            nm_fs.readFile(path, {
                                 "encoding": "utf8",
                                 "flag": "r",
-                            }, function (error, content) {
+                            }, (error, content) => {
                                 if (error == null) {
                                     resolve(content);
                                 }
@@ -3870,51 +4906,51 @@ var lib_file;
                     break;
                 case "http":
                     {
-                        return function (resolve, reject) {
-                            var nm_http = require("http");
-                            var nm_https = require("https");
-                            var nm_url = require("url");
-                            var parsed_url = nm_url.parse(path, false, true);
-                            var client = (parsed_url.protocol == "https:") ? nm_https : nm_http;
-                            var default_port = ((parsed_url.protocol == "https:") ? 443 : 80);
-                            var options = {
+                        return (resolve, reject) => {
+                            let nm_http = require("http");
+                            let nm_https = require("https");
+                            let nm_url = require("url");
+                            let parsed_url = nm_url.parse(path, false, true);
+                            let client = (parsed_url.protocol == "https:") ? nm_https : nm_http;
+                            let default_port = ((parsed_url.protocol == "https:") ? 443 : 80);
+                            let options = {
                                 hostname: parsed_url.hostname,
                                 port: parsed_url.port || default_port,
                                 path: parsed_url.path,
                                 method: "GET"
                             };
-                            var req = client.request(options, function (res) {
-                                var data = ""; // @todo
-                                res.on("data", function (chunk) {
+                            let req = client.request(options, (res) => {
+                                let data = ""; // @todo
+                                res.on("data", (chunk) => {
                                     data += chunk;
                                 });
-                                res.on("end", function () {
+                                res.on("end", () => {
                                     resolve(data);
                                 });
                             });
                             req.end();
-                            req.on("error", function (error) {
+                            req.on("error", (error) => {
                                 reject(error);
                             });
                         };
                     }
                     break;
                 default: {
-                    return (function (resolve, reject) { return reject(new Error("unhandled protocol")); });
+                    return ((resolve, reject) => reject(new Error("unhandled protocol")));
                 }
             }
-        };
+        }
         /**
          * @override
          * @author fenris
          */
-        class_file_node.prototype.write = function (path, content) {
-            var nm_fs = require("fs");
-            return (function (resolve, reject) {
+        write(path, content) {
+            let nm_fs = require("fs");
+            return ((resolve, reject) => {
                 nm_fs.writeFile(path, content, {
                     "encoding": "utf8",
                     "flag": "w",
-                }, function (error) {
+                }, (error) => {
                     if (error == null) {
                         resolve(undefined);
                     }
@@ -3923,9 +4959,8 @@ var lib_file;
                     }
                 });
             });
-        };
-        return class_file_node;
-    }(lib_file.class_file_abstract));
+        }
+    }
     lib_file.class_file_node = class_file_node;
 })(lib_file || (lib_file = {}));
 ///<reference path="../../call/build/logic-decl.d.ts"/>
@@ -3935,14 +4970,13 @@ var lib_file;
      * @author fenris
      * @todo move to a dedicated lib (e.g. "http", "transport", etc.)
      */
-    function ajax(_a) {
-        var target = _a["target"] /*: string*/, _b = _a["data"], data /*: {[key : string] : string}*/ = _b === void 0 ? null : _b, _c = _a["method"], method /* : string*/ = _c === void 0 ? "GET" : _c;
+    function ajax({ "target": target /*: string*/, "data": data /*: {[key : string] : string}*/ = null, "method": method /* : string*/ = "GET" }) {
         method = method.toLowerCase();
-        return (function (resolve, reject) {
-            var datastring = ((data == null) ? null : Object.keys(data).map(function (key) { return key + "=" + data[key]; }).join("&"));
-            var suffix = ((method == "get") ? ("?" + datastring) : "");
-            var sending = ((method == "get") ? null : datastring);
-            var request = new XMLHttpRequest();
+        return ((resolve, reject) => {
+            let datastring = ((data == null) ? null : Object.keys(data).map(key => `${key}=${data[key]}`).join("&"));
+            let suffix = ((method == "get") ? ("?" + datastring) : "");
+            let sending = ((method == "get") ? null : datastring);
+            let request = new XMLHttpRequest();
             request.open(method.toUpperCase(), target + suffix, true);
             request.onreadystatechange = function () {
                 if (request.readyState === 4) {
@@ -3960,35 +4994,29 @@ var lib_file;
     /**
      * @author fenris
      */
-    var class_file_web = (function (_super) {
-        __extends(class_file_web, _super);
-        function class_file_web() {
-            return _super !== null && _super.apply(this, arguments) || this;
+    class class_file_web extends lib_file.class_file_abstract {
+        /**
+         * @override
+         * @author fenris
+         */
+        read(path, skip_error = false) {
+            return ((resolve, reject) => {
+                ajax({
+                    "target": path,
+                    "method": "GET",
+                })(resolve, reason => (skip_error ? resolve(null) : reject(reason)));
+            });
         }
         /**
          * @override
          * @author fenris
          */
-        class_file_web.prototype.read = function (path, skip_error) {
-            if (skip_error === void 0) { skip_error = false; }
-            return (function (resolve, reject) {
-                ajax({
-                    "target": path,
-                    "method": "GET",
-                })(resolve, function (reason) { return (skip_error ? resolve(null) : reject(reason)); });
-            });
-        };
-        /**
-         * @override
-         * @author fenris
-         */
-        class_file_web.prototype.write = function (path, content) {
-            return (function (resolve, reject) {
+        write(path, content) {
+            return ((resolve, reject) => {
                 reject(new Error("not implemented / not possible"));
             });
-        };
-        return class_file_web;
-    }(lib_file.class_file_abstract));
+        }
+    }
     lib_file.class_file_web = class_file_web;
 })(lib_file || (lib_file = {}));
 ///<reference path="../../base/build/logic-decl.d.ts"/>
@@ -4000,7 +5028,7 @@ var lib_file;
      * @author fenris
      */
     function auto() {
-        var environment = lib_base.environment();
+        let environment = lib_base.environment();
         switch (environment) {
             case "node": {
                 return (new lib_file.class_file_node());
@@ -4011,7 +5039,7 @@ var lib_file;
                 break;
             }
             default: {
-                throw (new Error("no implementation for environment '" + environment + "'"));
+                throw (new Error(`no implementation for environment '${environment}'`));
                 break;
             }
         }
@@ -4020,33 +5048,29 @@ var lib_file;
     /**
      * @author fenris
      */
-    var class_file = (function (_super) {
-        __extends(class_file, _super);
+    class class_file extends lib_file.class_file_abstract {
         /**
          * @author fenris
          */
-        function class_file() {
-            var _this = _super.call(this) || this;
-            _this.core = auto();
-            return _this;
+        constructor() {
+            super();
+            this.core = auto();
         }
         /**
          * @override
          * @author fenris
          */
-        class_file.prototype.read = function (path, skip_error) {
-            if (skip_error === void 0) { skip_error = false; }
+        read(path, skip_error = false) {
             return this.core.read(path, skip_error);
-        };
+        }
         /**
          * @override
          * @author fenris
          */
-        class_file.prototype.write = function (path, content) {
+        write(path, content) {
             return this.core.write(path, content);
-        };
-        return class_file;
-    }(lib_file.class_file_abstract));
+        }
+    }
     lib_file.class_file = class_file;
     /**
      * @author fenris
@@ -4055,8 +5079,7 @@ var lib_file;
     /**
      * @author fenris
      */
-    function read(path, skip_error) {
-        if (skip_error === void 0) { skip_error = false; }
+    function read(path, skip_error = false) {
         return instance.read(path, skip_error);
     }
     lib_file.read = read;
@@ -4359,7 +5382,10 @@ var lib_args;
                                         pattern_to += settings["environment"][environment]["symbols"]["delimiter"];
                                         pattern_to += settings["environment"][environment]["symbols"]["prefix"];
                                         pattern_to += argument.indicator_main();
-                                        if (argument.type_get() != "boolean") {
+                                        if (argument.type_get() == "boolean") {
+                                            pattern_to += settings["environment"][environment]["symbols"]["delimiter"];
+                                        }
+                                        else {
                                             pattern_to += settings["environment"][environment]["symbols"]["assignment"];
                                         }
                                     }

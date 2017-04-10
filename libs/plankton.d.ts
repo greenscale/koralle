@@ -32,6 +32,20 @@ interface interface_collatable<type_value> {
  */
 declare function instance_collate<type_value>(value1: type_value, value2: type_value): boolean;
 /**
+ * @desc the ability to compare with another element of the same domain for determining if the first is "smaller than or equal to" the latter
+ * @author fenris
+ */
+interface interface_comparable<type_value> {
+    /**
+     * @author fenris
+     */
+    _compare(value: type_value): boolean;
+}
+/**
+ * @author fenris
+ */
+declare function instance_compare<type_value>(value1: type_value, value2: type_value): boolean;
+/**
  * @desc the ability to create an exact copy
  * @author fenris
  */
@@ -73,6 +87,27 @@ interface interface_showable {
  * @author fenris
  */
 declare function instance_show<type_value>(value: type_value): string;
+/**
+ * @todo outsource to dedicated plankton-lib
+ */
+declare module lib_log {
+    /**
+     * @author fenris
+     */
+    function log(...args: Array<any>): void;
+    /**
+     * @author fenris
+     */
+    function info(...args: Array<any>): void;
+    /**
+     * @author fenris
+     */
+    function warn(...args: Array<any>): void;
+    /**
+     * @author fenris
+     */
+    function error(...args: Array<any>): void;
+}
 /**
  * @author frac
  */
@@ -363,6 +398,10 @@ declare module lib_call {
 }
 declare module lib_call {
     /**
+     * @author fenris
+     */
+    function timeout(function_: () => void, delay: int, ...params: Array<any>): int;
+    /**
      * @desc a definition for a value being "defined"
      * @author neuc
      */
@@ -374,48 +413,48 @@ declare module lib_call {
     function def_val(value: any, default_value: any, type?: string, null_is_valid?: boolean): any;
     /**
      * @desc just the empty function; useful for some callbacks etc.
-     * @author frac
+     * @author fenris
      */
     function nothing(): void;
     /**
      * @desc just the identity; useful for some callbacks etc.
-     * @author frac
+     * @author fenris
      */
     function id<type_value>(x: type_value): type_value;
     /**
-     * @author frac
+     * @author fenris
      */
     function use<type_input, type_output>(input: type_input, function_: (input: type_input) => type_output): type_output;
     /**
      * @desc outputs
-     * @author frac
+     * @author fenris
      */
-    function output(x: any): void;
+    function output(...args: Array<any>): void;
     /**
      * @desc converts the "arguments"-map into an array
      * @param {Object} args
-     * @author frac
+     * @author fenris
      */
     function args2list(args: any): Array<any>;
     /**
      * @desc provides the call for an attribute of a class as a regular function
      * @param {string} name the name of the attribute
      * @return {*}
-     * @author frac
+     * @author fenris
      */
     function attribute<type_object, type_attribute>(name: string): (object: type_object) => type_attribute;
     /**
      * @desc provides a method of a class as a regular function
      * @param {string} name the name of the method
      * @return {function}
-     * @author frac
+     * @author fenris
      */
     function method<type_object, type_output>(name: string): (object: type_object) => type_output;
     /**
      * @desc composes two functions (i.e. returns a function that return the result of the successive execution of both input-functions)
      * @param {function} function_f
      * @param {function} function_g
-     * @author frac
+     * @author fenris
      */
     function compose<type_x, type_y, type_z>(function_f: (type_x) => type_y, function_g: (type_y) => type_z): (value: type_x) => type_z;
     /**
@@ -423,12 +462,12 @@ declare module lib_call {
      * @param {function} f
      * @param {int} n (don't set manually)
      * @return {function} the currified version of the in put function
-     * @author frac
+     * @author fenris
      */
     function curryfy(f: Function, n?: int): Function;
     /**
      * @desc adapter for old syntax
-     * @author frac
+     * @author fenris
      */
     function wait(dependencies: Array<(ready: () => void) => void>, action?: () => void, parallel?: boolean): void;
     /**
@@ -446,7 +485,7 @@ declare module lib_call {
     /**
      * @author fenris
      */
-    type type_executor<type_result, type_reason> = ((resolve: (result?: type_result) => void, reject?: (reason?: type_reason) => void) => void);
+    type type_executor<type_result, type_reason> = ((resolve: (result?: type_result) => any, reject?: (reason?: type_reason) => void) => void);
     /**
      * @author fenris
      */
@@ -568,6 +607,7 @@ declare module lib_call {
      */
     function knot_repeat<type_input, type_output, type_error>(knot: type_knot<type_input, type_output, type_error>, attempts?: int, delay?: (attempt: int) => int): type_knot<type_input, type_output, Array<type_error>>;
     /**
+     * @desc useful for e.g. asynchronous singletons
      * @author fenris
      */
     class class_knot_initializer<type_input, type_output, type_error> {
@@ -610,9 +650,275 @@ declare module lib_call {
         /**
          * @author fenris
          */
+        reset(): void;
+        /**
+         * @author fenris
+         */
         get(input: type_input): type_knot<void, type_output, type_error>;
     }
 }
+declare module lib_call {
+    /**
+     * @author fenris
+     */
+    type type_promise<type_result, type_reason> = Promise<type_result>;
+    /**
+     * @author fenris
+     */
+    function promise_reject<type_result, type_reason>(reason: type_reason): type_promise<type_result, type_reason>;
+    /**
+     * @author fenris
+     */
+    function promise_resolve<type_result, type_reason>(result: type_result): type_promise<type_result, type_reason>;
+    /**
+     * @author fenris
+     */
+    function promise_make<type_result, type_reason>(executor: (resolve: (result?: type_result) => void, reject: (reason?: type_reason) => void) => void): type_promise<type_result, type_reason>;
+    /**
+     * @author fenris
+     */
+    function promise_all<type_result, type_reason>(promises: Array<type_promise<type_result, type_reason>>): type_promise<Array<type_result>, type_reason>;
+}
+
+declare module lib_call {
+	
+	function promise_log<type_state>(state : type_state) : Promise<type_state>;
+	
+	function promise_attach<type_value, type_reason>(
+		state : {[key : string] : any},
+		promise : Promise<type_value>,
+		name : string
+	) : Promise<{[key : string] : any}>;
+	
+}
+
+/// <reference path="../../base/build/logic-decl.d.ts" />
+declare module lib_object {
+    /**
+     * @author fenris
+     */
+    function fetch<type_value>(object: Object, fieldname: string, fallback?: type_value, escalation?: int): type_value;
+    /**
+     * @author fenris
+     */
+    function map<type_from, type_to>(object_from: {
+        [key: string]: type_from;
+    }, transformator: (value_from: type_from, key?: string) => type_to): {
+        [key: string]: type_to;
+    };
+    /**
+     * @author fenris
+     */
+    function filter<type_value>(object_from: {
+        [key: string]: type_value;
+    }, predicate: (value_from: type_value, key?: string) => boolean): {
+        [key: string]: type_value;
+    };
+    /**
+     * @author fenris
+     */
+    function from_array<type_value>(array: Array<{
+        key: string;
+        value: type_value;
+    }>): {
+        [key: string]: type_value;
+    };
+    /**
+     * @author fenris
+     */
+    function to_array<type_value>(object: {
+        [key: string]: type_value;
+    }): Array<{
+        key: string;
+        value: type_value;
+    }>;
+    /**
+     * @author fenris
+     */
+    function keys(object: {
+        [key: string]: any;
+    }): Array<string>;
+    /**
+     * @author fenris
+     */
+    function values<type_value>(object: {
+        [key: string]: type_value;
+    }): Array<type_value>;
+    /**
+     * @author fenris
+     */
+    function path_read<type_value>(object: Object, path: string, fallback?: type_value, escalation?: int): type_value;
+    /**
+     * @author fenris
+     */
+    function path_write<type_value>(object: Object, path: string, value: type_value, construct?: boolean): void;
+    /**
+     * @author fenris
+     */
+    function matches(object: Object, pattern: Object, collate?: typeof instance_collate): boolean;
+    /**
+     * @author fenris
+     */
+    function flatten(value: any): Object;
+    /**
+     * @author fenris
+     */
+    function clash(x: {
+        [key: string]: any;
+    }, y: {
+        [key: string]: any;
+    }, {"overwrite": overwrite, "hooks": {"existing": hook_existing}}?: {
+        overwrite?: boolean;
+        hooks?: {
+            existing?: (key?: string, value_old?: any, value_new?: any) => void;
+        };
+    }): {
+        [key: string]: any;
+    };
+    /**
+     * @author fenris
+     */
+    function patch(core: Object, mantle: Object, deep?: boolean, path?: string): void;
+    /**
+     * @author fenris
+     */
+    function patched(core: Object, mantle: Object, deep?: boolean): Object;
+    /**
+     * @author fenris
+     */
+    function attached(object: Object, key: string, value: any): Object;
+    /**
+     * @author fenris
+     */
+    function copy(object: Object): Object;
+}
+/**
+ * @desc adapters for old syntax
+ * @author fenris
+ */
+declare var object_fetch: typeof lib_object.fetch;
+declare var object_map: typeof lib_object.map;
+declare var object_a2o: typeof lib_object.from_array;
+declare var object_o2a: typeof lib_object.to_array;
+declare var object_matches: typeof lib_object.matches;
+declare var object_clash: typeof lib_object.clash;
+declare var Mapper: any;
+/**
+ * @param {Object} map
+ * @return {string}
+ * @author frac
+ */
+declare var object_map2string: (map: Object) => string;
+/**
+ * @param {Array} array
+ * @return {string}
+ * @author frac
+ */
+declare var object_array2string: (array: any[]) => string;
+/**
+ * @desc follows a path in an object-tree
+ * @param {Object} object the object in which the path lies
+ * @param {string} path the steps
+ * @param {boolean} [create] whether to create not yet existing branches
+ * @return {Object} {'successful': successful, 'position': position} where the branch or leaf at the end of the path
+ * @author frac
+ */
+declare var object_path_walk: (object: Object, path: string, create?: boolean, null_on_missing?: boolean) => any;
+/**
+ * @desc reads a branch/leaf from an object-tree
+ * @author frac
+ */
+declare var object_path_read: (object: Object, path: string, null_on_missing?: boolean) => any;
+/**
+ * @desc writes a branch/leaf to an object-tree
+ * @author frac
+ */
+declare var object_path_write: (object: Object, path: string, value: any) => void;
+declare var object_object_path_write_ex: (obj: Object, path: string, val: any) => void;
+/**
+ * @desc filters branches from an object
+ * @param {Object} object the object to read from
+ * @param {Array} paths a list of string-lists, that are the paths to be propagated
+ * @return {Object} the object with only the selected branches
+ * @author frac
+ */
+declare var object_path_filter: (object: any, paths: any) => {};
+/**
+ * @desc dunno… returns a list of object-paths?
+ * @param {Object} object
+ * @param {string} p
+ * @todo can probably be merged with getLeafg
+ */
+declare var object_path_list: (object: Object, path?: string, visited?: any[]) => any[];
+/**
+ * theroreticaly loop prof walk through all elements and subelements of an object
+ * and call a callback for each entry
+ * @param {object} obj object to iterate through
+ * @param {function} callback
+ */
+declare var object_iterate: (obj: any, callback: any, leafs_only: boolean, path: any, visited?: any[]) => void;
+/**
+ * @desc get the leaf-nodes of an object
+ * @param {object} object
+ * @return {Array<string>} a list containing all leaf-nodes
+ * @author frac
+ */
+declare var getLeafs: (object: any) => any;
+/**
+ *
+ * @desc merges two arrays by probing
+ * @param {Array} core
+ * @param {Array} mantle
+ * @param {function} match
+ */
+declare var merge_array: (core: any, mantle: any, match?: (x: any, y: any) => boolean) => any;
+/**
+ * @desc merges two objects recursivly
+ * @param {Object} object1 core
+ * @param {Object} object2 mantle
+ * @param {Array} [ignore_keys]
+ * @param [do_not_overwrite_existing_values]
+ * @returns {Object} a clone of object1 will be returned
+ */
+declare var object_merge_objects: (object1?: any, object2?: any, ignore_keys?: string[], do_not_overwrite_existing_values?: boolean, ignore_null?: boolean, path?: any[]) => any;
+declare var flatten_object: (obj: any, recipie: any, drop_key?: (k: any) => boolean) => {};
+/**
+ * use the complete path of an objects entry as key to make an one dimensional object
+ * @param {object} object the object which should be moade flat
+ * @param {string} [path] for the recursive call the current path
+ */
+declare var object_make_flat: (object: any, path?: any, filter?: string[], split_char?: string, objects?: any[]) => any;
+/**
+ * splits a flat oject into an array of objects if there are paths containing numbers, which indicates
+ * that there might be an array
+ * used for normalisation of imports
+ * @param entry
+ * @param number_replace_string
+ * @param {function} [match_function] how to test key if it causes a split
+ * @returns {Array}
+ */
+declare var object_split_flat_object: (entry: any, number_replace_string: any, fab_function: any, match_function: any) => any[];
+declare var object_make_flat_async: (data: any, callback: any, on_progress: any) => void;
+/**
+ */
+declare type key_value_list = {
+    [key: string]: any;
+};
+declare var object_flatten: (object: any, paths: string[], prefix?: string) => key_value_list;
+/**
+ * parse
+ * @param {String} value
+ * @returns {Object}
+ */
+declare var object_parse: (value: string) => Object;
+/**
+ * stringify
+ *
+ * @description stringify object as JSON
+ */
+declare var object_stringify: (object: Object, readable?: boolean) => string;
+/// <reference path="../../base/build/logic-decl.d.ts" />
+/// <reference path="../../object/build/logic-decl.d.ts" />
 declare module lib_meta {
     /**
      * @author frac
@@ -682,14 +988,520 @@ declare module lib_meta {
      */
     function transform_description_groups(label: string, description_model: Object, description_groups: Array<Object>): type_class_grouped;
 }
+declare module lib_meta {
+    /**
+     * @author fenris
+     */
+    var _logprefix: string;
+    /**
+     * @author fenris
+     */
+    var _verbosity: int;
+}
+declare module lib_meta {
+    /**
+     * @author fenris
+     */
+    type type_shape_raw = {
+        id: string;
+        parameters?: Object;
+    };
+    /**
+     * @author fenris
+     */
+    abstract class class_shape implements interface_showable {
+        /**
+         * @author fenris
+         */
+        protected primitive: boolean;
+        /**
+         * @desc whether 'undefined' is a valid value
+         * @author fenris
+         */
+        protected soft: boolean;
+        /**
+         * @author fenris
+         */
+        protected defaultvalue: any;
+        /**
+         * @desc [constructor]
+         * @author fenris
+         */
+        constructor({"primitive": primitive, "soft": soft, "defaultvalue": defaultvalue}: {
+            primitive?: boolean;
+            soft?: boolean;
+            defaultvalue?: any;
+        });
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        primitive_get(): boolean;
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        soft_get(): boolean;
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        defaultvalue_get(): any;
+        /**
+         * @desc [accessor]
+         * @author fenris
+         */
+        inspect(value: any): Array<string>;
+        /**
+         * @desc [accessor]
+         * @author fenris
+         */
+        check(value: any): boolean;
+        /**
+         * @desc [accessor]
+         * @author fenris
+         */
+        abstract to_raw(): type_shape_raw;
+        /**
+         * @desc [accessor] [implementation]
+         * @author fenris
+         */
+        abstract _show(): string;
+    }
+    /**
+     * @author fenris
+     */
+    abstract class class_shape_buildin extends class_shape {
+        /**
+         * @author fenris
+         */
+        protected typename: string;
+        /**
+         * @author fenris
+         */
+        constructor({"typename": typename, "primitive": primitive, "soft": soft, "defaultvalue": defaultvalue}: {
+            typename: string;
+            primitive?: boolean;
+            soft?: boolean;
+            defaultvalue?: any;
+        });
+        /**
+         * @override
+         * @author fenris
+         */
+        inspect(value: any): Array<string>;
+        /**
+         * @desc [implementation]
+         * @author fenris
+         */
+        _show(): string;
+    }
+    /**
+     * @author fenris
+     */
+    function register(id: string, factory: (parameters: Object) => class_shape): void;
+    /**
+     * @author fenris
+     */
+    function construct(id: string, parameters?: Object): class_shape;
+    /**
+     * @author fenris
+     */
+    function from_raw(shape_raw: type_shape_raw): class_shape;
+    /**
+     * @author fenris
+     */
+    function define(id: string, shape_raw: type_shape_raw): void;
+    /**
+     * @author fenris
+     */
+    function retrieve(id: string): class_shape;
+}
+declare module lib_meta {
+    /**
+     * @author fenris
+     */
+    class class_shape_boolean extends class_shape_buildin {
+        /**
+         * @author fenris
+         */
+        constructor({"soft": soft, "defaultvalue": defaultvalue}: {
+            soft?: boolean;
+            defaultvalue?: any;
+        });
+        /**
+         * @override
+         * @author fenris
+         */
+        to_raw(): type_shape_raw;
+    }
+}
+declare module lib_meta {
+    /**
+     * @author fenris
+     */
+    class class_shape_integer extends class_shape_buildin {
+        /**
+         * @author fenris
+         */
+        protected min: int;
+        /**
+         * @author fenris
+         */
+        protected max: int;
+        /**
+         * @author fenris
+         */
+        constructor({"soft": soft, "defaultvalue": defaultvalue, "min": min, "max": max}: {
+            soft?: boolean;
+            defaultvalue?: any;
+            min?: int;
+            max?: int;
+        });
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        min_get(): int;
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        max_get(): int;
+        /**
+         * @override
+         * @author fenris
+         */
+        inspect(value: any): Array<string>;
+        /**
+         * @override
+         * @author fenris
+         */
+        to_raw(): type_shape_raw;
+    }
+}
+declare module lib_meta {
+    /**
+     * @author fenris
+     */
+    class class_shape_float extends class_shape_buildin {
+        /**
+         * @author fenris
+         */
+        protected min: float;
+        /**
+         * @author fenris
+         */
+        protected max: float;
+        /**
+         * @author fenris
+         */
+        constructor({"soft": soft, "defaultvalue": defaultvalue, "min": min, "max": max}: {
+            soft?: boolean;
+            defaultvalue?: any;
+            min?: float;
+            max?: float;
+        });
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        min_get(): float;
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        max_get(): float;
+        /**
+         * @override
+         * @author fenris
+         */
+        inspect(value: any): Array<string>;
+        /**
+         * @override
+         * @author fenris
+         */
+        to_raw(): type_shape_raw;
+    }
+}
+declare module lib_meta {
+    /**
+     * @author fenris
+     */
+    class class_shape_string extends class_shape_buildin {
+        /**
+         * @author fenris
+         */
+        constructor({"soft": soft, "defaultvalue": defaultvalue}: {
+            soft?: boolean;
+            defaultvalue?: string;
+        });
+        /**
+         * @override
+         * @author fenris
+         */
+        to_raw(): type_shape_raw;
+    }
+}
+declare module lib_meta {
+    /**
+     * @author fenris
+     */
+    class class_shape_email extends class_shape {
+        /**
+         * @author fenris
+         */
+        constructor({"soft": soft, "defaultvalue": defaultvalue}: {
+            soft?: boolean;
+            defaultvalue?: string;
+        });
+        /**
+         * @override
+         * @author fenris
+         */
+        to_raw(): type_shape_raw;
+        /**
+         * @desc [implementation]
+         * @author fenris
+         */
+        _show(): string;
+    }
+}
+declare module lib_meta {
+    /**
+     * @author fenris
+     */
+    class class_shape_array extends class_shape {
+        /**
+         * @author fenris
+         */
+        protected shape_element: class_shape;
+        /**
+         * @author fenris
+         */
+        constructor({"shape_element": shape_element, "soft": soft, "defaultvalue": defaultvalue}: {
+            shape_element: class_shape;
+            soft?: boolean;
+            defaultvalue?: any;
+        });
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        shape_element_get(): class_shape;
+        /**
+         * @override
+         * @author fenris
+         */
+        inspect(value: any): Array<string>;
+        /**
+         * @override
+         * @author fenris
+         */
+        to_raw(): type_shape_raw;
+        /**
+         * @desc [implementation]
+         * @author fenris
+         */
+        _show(): string;
+    }
+}
+declare module lib_meta {
+    /**
+     * @author fenris
+     */
+    type type_objectfield = {
+        name: string;
+        shape: class_shape;
+        label: string;
+    };
+    /**
+     * @author fenris
+     */
+    class class_shape_object extends class_shape_buildin {
+        /**
+         * @author fenris
+         */
+        protected fields: Array<type_objectfield>;
+        /**
+         * @author fenris
+         */
+        constructor({"fields": fields, "soft": soft, "defaultvalue": defaultvalue}: {
+            fields: Array<type_objectfield>;
+            soft?: boolean;
+            defaultvalue?: any;
+        });
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        fields_get(): Array<type_objectfield>;
+        /**
+         * @override
+         * @author fenris
+         * @todo check for superfluous fields?
+         */
+        inspect(value: any): Array<string>;
+        /**
+         * @override
+         * @author fenris
+         */
+        to_raw(): type_shape_raw;
+        /**
+         * @desc [implementation]
+         * @author fenris
+         */
+        _show(): string;
+    }
+}
+declare module lib_meta {
+    /**
+     * @author fenris
+     */
+    class class_shape_date extends class_shape {
+        /**
+         * @author fenris
+         */
+        constructor({"soft": soft, "defaultvalue": defaultvalue}: {
+            soft?: boolean;
+            defaultvalue?: any;
+        });
+        /**
+         * @override
+         * @author fenris
+         */
+        inspect(value: any): Array<string>;
+        /**
+         * @override
+         * @author fenris
+         */
+        to_raw(): type_shape_raw;
+        /**
+         * @desc [implementation]
+         * @author fenris
+         */
+        _show(): string;
+    }
+}
+declare module lib_meta {
+    /**
+     * @author fenris
+     */
+    type type_enumerationoption = {
+        value: any;
+        label: string;
+    };
+    /**
+     * @author fenris
+     */
+    class class_shape_enumeration extends class_shape {
+        /**
+         * @author fenris
+         */
+        protected shape_option: class_shape;
+        /**
+         * @author fenris
+         */
+        protected options: Array<type_enumerationoption>;
+        /**
+         * @author fenris
+         */
+        constructor({"shape_option": shape_option, "options": options, "soft": soft, "defaultvalue": defaultvalue}: {
+            shape_option: class_shape;
+            options: Array<type_enumerationoption>;
+            soft?: boolean;
+            defaultvalue?: any;
+        });
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        shape_option_get(): class_shape;
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        options_get(): Array<type_enumerationoption>;
+        /**
+         * @override
+         * @author fenris
+         */
+        inspect(value: any): Array<string>;
+        /**
+         * @override
+         * @author fenris
+         */
+        to_raw(): type_shape_raw;
+        /**
+         * @desc [implementation]
+         * @author fenris
+         */
+        _show(): string;
+    }
+}
+declare module lib_meta {
+    /**
+     * @author fenris
+     */
+    class class_shape_map extends class_shape {
+        /**
+         * @author fenris
+         */
+        protected shape_key: class_shape;
+        /**
+         * @author fenris
+         */
+        protected shape_value: class_shape;
+        /**
+         * @author fenris
+         */
+        constructor({"shape_key": shape_key, "shape_value": shape_value, "soft": soft, "defaultvalue": defaultvalue}: {
+            shape_key: class_shape;
+            shape_value: class_shape;
+            soft?: boolean;
+            defaultvalue?: any;
+        });
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        shape_key_get(): class_shape;
+        /**
+         * @desc [accessor] [getter]
+         * @author fenris
+         */
+        shape_value_get(): class_shape;
+        /**
+         * @override
+         * @author fenris
+         */
+        inspect(value: any): Array<string>;
+        /**
+         * @override
+         * @author fenris
+         */
+        to_raw(): type_shape_raw;
+        /**
+         * @desc [implementation]
+         * @author fenris
+         */
+        _show(): string;
+    }
+}
+declare module lib_meta {
+    /**
+     * @author fenris
+     * @todo use a treemap-function (but first make one :P)
+     */
+    function adjust_labels(shape: class_shape, transformator: (label_old: string) => string): class_shape;
+}
 /// <reference path="../../base/build/logic-decl.d.ts" />
-/// <reference path="../../call/build/logic-decl.d.ts" />
 declare var plain_text_to_html: (text: string) => string;
 /**
  * @desc makes a valid
  */
 declare var format_sentence: (str: string, rtl?: boolean, caseSense?: boolean) => string;
-declare var fill_string_template: (template_string: string, object: any, fabric?: Function, delimiter?: string, default_string?: string) => string;
+declare var fill_string_template: (template_string: string, object: any, fabric: Function, delimiter: string, default_string: string, sloppy: boolean) => string;
 declare var make_string_template: (_template: string, _fabrics?: Object) => (object: {
     [key: string]: string;
 }) => string;
@@ -893,369 +1705,6 @@ declare module lib_xml {
          * @author fenris
          */
         compile(depth?: int): string;
-    }
-}
-/// <reference path="../../base/build/logic-decl.d.ts" />
-/// <reference path="../../string/build/logic-decl.d.ts" />
-declare module lib_object {
-    /**
-     * @author fenris
-     */
-    function fetch<type_value>(object: Object, fieldname: string, fallback?: type_value, escalation?: int): type_value;
-    /**
-     * @author fenris
-     */
-    function map<type_from, type_to>(object_from: {
-        [key: string]: type_from;
-    }, transformator: (value_from: type_from, key?: string) => type_to): {
-        [key: string]: type_to;
-    };
-    /**
-     * @author fenris
-     */
-    function filter<type_value>(object_from: {
-        [key: string]: type_value;
-    }, predicate: (value_from: type_value, key?: string) => boolean): {
-        [key: string]: type_value;
-    };
-    /**
-     * @author fenris
-     */
-    function from_array<type_value>(array: Array<{
-        key: string;
-        value: type_value;
-    }>): {
-        [key: string]: type_value;
-    };
-    /**
-     * @author fenris
-     */
-    function to_array<type_value>(object: {
-        [key: string]: type_value;
-    }): Array<{
-        key: string;
-        value: type_value;
-    }>;
-    /**
-     * @author fenris
-     */
-    function values<type_value>(object: {
-        [key: string]: type_value;
-    }): Array<type_value>;
-    /**
-     * @author fenris
-     */
-    function path_read<type_value>(object: Object, path: string, fallback?: type_value, escalation?: int): type_value;
-    /**
-     * @author fenris
-     */
-    function path_write<type_value>(object: Object, path: string, value: type_value, construct?: boolean): void;
-    /**
-     * @author fenris
-     */
-    function matches(object: Object, pattern: Object): boolean;
-    /**
-     * @author fenris
-     */
-    function flatten(value: any): Object;
-    /**
-     * @author fenris
-     */
-    function clash(x: {
-        [key: string]: any;
-    }, y: {
-        [key: string]: any;
-    }, {"overwrite": overwrite, "hooks": {"existing": hook_existing}}?: {
-        overwrite?: boolean;
-        hooks?: {
-            existing?: (key?: string, value_old?: any, value_new?: any) => void;
-        };
-    }): {
-        [key: string]: any;
-    };
-    /**
-     * @author fenris
-     */
-    function patch(core: Object, mantle: Object, deep?: boolean, path?: string): void;
-    /**
-     * @author fenris
-     */
-    function patched(core: Object, mantle: Object, deep?: boolean): Object;
-    /**
-     * @author fenris
-     */
-    function attached(object: Object, key: string, value: any): Object;
-    /**
-     * @author fenris
-     */
-    function copy(object: Object): Object;
-}
-/**
- * @desc adapters for old syntax
- * @author fenris
- */
-declare var object_fetch: typeof lib_object.fetch;
-declare var object_map: typeof lib_object.map;
-declare var object_a2o: typeof lib_object.from_array;
-declare var object_o2a: typeof lib_object.to_array;
-declare var object_matches: typeof lib_object.matches;
-declare var object_clash: typeof lib_object.clash;
-declare var Mapper: any;
-/**
- * @param {Object} map
- * @return {string}
- * @author frac
- */
-declare var object_map2string: (map: Object) => string;
-/**
- * @param {Array} array
- * @return {string}
- * @author frac
- */
-declare var object_array2string: (array: any[]) => string;
-/**
- * @desc follows a path in an object-tree
- * @param {Object} object the object in which the path lies
- * @param {string} path the steps
- * @param {boolean} [create] whether to create not yet existing branches
- * @return {Object} {'successful': successful, 'position': position} where the branch or leaf at the end of the path
- * @author frac
- */
-declare var object_path_walk: (object: Object, path: string, create?: boolean, null_on_missing?: boolean) => any;
-/**
- * @desc reads a branch/leaf from an object-tree
- * @author frac
- */
-declare var object_path_read: (object: Object, path: string, null_on_missing?: boolean) => any;
-/**
- * @desc writes a branch/leaf to an object-tree
- * @author frac
- */
-declare var object_path_write: (object: Object, path: string, value: any) => void;
-declare var object_object_path_write_ex: (obj: Object, path: string, val: any) => void;
-/**
- * @desc filters branches from an object
- * @param {Object} object the object to read from
- * @param {Array} paths a list of string-lists, that are the paths to be propagated
- * @return {Object} the object with only the selected branches
- * @author frac
- */
-declare var object_path_filter: (object: any, paths: any) => {};
-/**
- * @desc dunno… returns a list of object-paths?
- * @param {Object} object
- * @param {string} p
- * @todo can probably be merged with getLeafg
- */
-declare var object_path_list: (object: Object, path?: string, visited?: any[]) => any[];
-/**
- * theroreticaly loop prof walk through all elements and subelements of an object
- * and call a callback for each entry
- * @param {object} obj object to iterate through
- * @param {function} callback
- */
-declare var object_iterate: (obj: any, callback: any, leafs_only: boolean, path: any, visited?: any[]) => void;
-/**
- * @desc get the leaf-nodes of an object
- * @param {object} object
- * @return {Array<string>} a list containing all leaf-nodes
- * @author frac
- */
-declare var getLeafs: (object: any) => any;
-/**
- *
- * @desc merges two arrays by probing
- * @param {Array} core
- * @param {Array} mantle
- * @param {function} match
- */
-declare var merge_array: (core: any, mantle: any, match?: (x: any, y: any) => boolean) => any;
-/**
- * @desc merges two objects recursivly
- * @param {Object} object1 core
- * @param {Object} object2 mantle
- * @param {Array} [ignore_keys]
- * @param [do_not_overwrite_existing_values]
- * @returns {Object} a clone of object1 will be returned
- */
-declare var object_merge_objects: (object1?: any, object2?: any, ignore_keys?: string[], do_not_overwrite_existing_values?: boolean, ignore_null?: boolean, path?: any[]) => any;
-declare var flatten_object: (obj: any, recipie: any, drop_key?: (k: any) => boolean) => {};
-/**
- * use the complete path of an objects entry as key to make an one dimensional object
- * @param {object} object the object which should be moade flat
- * @param {string} [path] for the recursive call the current path
- */
-declare var object_make_flat: (object: any, path?: any, filter?: string[], split_char?: string, objects?: any[]) => any;
-/**
- * splits a flat oject into an array of objects if there are paths containing numbers, which indicates
- * that there might be an array
- * used for normalisation of imports
- * @param entry
- * @param number_replace_string
- * @param {function} [match_function] how to test key if it causes a split
- * @returns {Array}
- */
-declare var object_split_flat_object: (entry: any, number_replace_string: any, fab_function: any, match_function: any) => any[];
-declare var object_make_flat_async: (data: any, callback: any, on_progress: any) => void;
-/**
- */
-declare type key_value_list = {
-    [key: string]: any;
-};
-declare var object_flatten: (object: any, paths: string[], prefix?: string) => key_value_list;
-/**
- * parse
- * @param {String} value
- * @returns {Object}
- */
-declare var object_parse: (value: string) => Object;
-/**
- * stringify
- *
- * @description stringify object as JSON
- */
-declare var object_stringify: (object: Object, readable?: boolean) => string;
-declare module lib_object {
-    /**
-     * @author fenris
-     */
-    type type_relationparameters<type_value> = {
-        symbol?: string;
-        name?: string;
-        predicate?: (value: type_value, reference: type_value) => boolean;
-    };
-    /**
-     * @author fenris
-     */
-    class class_relation<type_value> implements interface_showable {
-        /**
-         * @author fenris
-         */
-        protected id: string;
-        /**
-         * @author fenris
-         */
-        protected symbol: string;
-        /**
-         * @author fenris
-         */
-        protected name: string;
-        /**
-         * @author fenris
-         */
-        protected predicate: (value: type_value, reference: type_value) => boolean;
-        /**
-         * @author fenris
-         */
-        check(value: type_value, reference: type_value): boolean;
-        /**
-         * @author fenris
-         */
-        constructor(id: string, parameters: type_relationparameters<type_value>);
-        /**
-         * @author fenris
-         */
-        id_get(): string;
-        /**
-         * @author fenris
-         */
-        symbol_get(): string;
-        /**
-         * @author fenris
-         */
-        name_get(): string;
-        /**
-         * @desc [implementation]
-         * @author fenris
-         */
-        _show(): string;
-        /**
-         * @author fenris
-         */
-        toString(): string;
-        /**
-         * @author fenris
-         */
-        protected static pool<type_value>(): {
-            [id: string]: type_relationparameters<type_value>;
-        };
-        /**
-         * @author fenris
-         */
-        static get<type_value>(id: string): class_relation<type_value>;
-        /**
-         * @author fenris
-         */
-        static available(): Array<string>;
-    }
-    /**
-     * @author fenris
-     */
-    class class_filtrationitem<type_value> implements interface_showable {
-        /**
-         * @author fenris
-         */
-        protected extract: (dataset: Object) => type_value;
-        /**
-         * @author fenris
-         */
-        protected relation: class_relation<type_value>;
-        /**
-         * @author fenris
-         */
-        protected reference: type_value;
-        /**
-         * @author fenris
-         */
-        constructor(parameters: {
-            extract?: (dataset: Object) => type_value;
-            relation?: class_relation<type_value>;
-            reference?: type_value;
-        });
-        /**
-         * @author fenris
-         */
-        check(dataset: Object): boolean;
-        /**
-         * @desc [implementation]
-         * @author fenris
-         */
-        _show(): string;
-        /**
-         * @author fenris
-         */
-        toString(): string;
-    }
-    /**
-     * @desc disjunctive normal form
-     * @author fenris
-     */
-    class class_filtration implements interface_showable {
-        /**
-         * @author fenris
-         */
-        protected clauses: Array<Array<class_filtrationitem<any>>>;
-        /**
-         * @author fenris
-         */
-        constructor(clauses: Array<Array<class_filtrationitem<any>>>);
-        /**
-         * @author fenris
-         */
-        check(dataset: Object): boolean;
-        /**
-         * @author fenris
-         */
-        use(datasets: Array<Object>): Array<Object>;
-        /**
-         * @desc [implementation]
-         * @author fenris
-         */
-        _show(): string;
-        /**
-         * @author fenris
-         */
-        toString(): string;
     }
 }
 /// <reference path="../../object/build/logic-decl.d.ts" />
