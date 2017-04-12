@@ -13,8 +13,9 @@ class class_task_group extends class_task {
 			"sub": sub,
 			"active": active,
 			"parameters": {
-			},
-		} : {
+			} = {},
+		}
+		: {
 			name ?: string;
 			sub ?: Array<class_task>;
 			active ?: boolean;

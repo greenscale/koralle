@@ -24,7 +24,7 @@
 						"name": "build",
 						"type": "typescript",
 						"parameters": {
-							"target": "ES5",
+							"target": "ES6",
 							"allowUnreachableCode": true,
 							"inputs": [
 								"libs/plankton.d.ts",
