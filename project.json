@@ -63,6 +63,7 @@
 								"source/tasks/schwamm.ts",
 								"source/tasks/schwamm-create.ts",
 								"source/tasks/schwamm-apply.ts",
+								"source/tasks/each.ts",
 								"source/outputs/_output.ts",
 								"source/outputs/regular.ts",
 								"source/outputs/ant.ts",

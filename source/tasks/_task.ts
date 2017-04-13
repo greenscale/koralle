@@ -25,25 +25,19 @@ class class_taskparameter<type_raw, type_ready> {
 	/**
 	 * @author fenris
 	 */
-	protected type : lib_meta.type_type;
-	
-	
-	/**
-	 * @author fenris
-	 */
 	protected name : string;
 	
 	
 	/**
 	 * @author fenris
 	 */
-	protected extraction : (raw : type_raw)=>type_ready;
+	protected extraction : (raw : type_raw)=>class_maybe<type_ready>;
 	
 	
 	/**
 	 * @author fenris
 	 */
-	protected key : string;
+	protected shape : lib_meta.class_shape;
 	
 	
 	/**
@@ -69,24 +63,25 @@ class class_taskparameter<type_raw, type_ready> {
 	 */
 	public constructor(
 		{
-			"type": type,
 			"name": name,
-			"key": key,
-			"mandatory": mandatory,
-			"default": default_,
-			"description": description,
-		} : {
-			type : lib_meta.type_type;
+			"extraction": extraction,
+			"shape": shape,
+			"mandatory": mandatory = false,
+			"default": default_ = null,
+			"description": description = null,
+		}
+		: {
 			name : string;
-			key : string;
-			mandatory : boolean;
-			default : type_raw;
-			description : string;
+			extraction : (raw : type_raw)=>class_maybe<type_ready>;
+			shape : lib_meta.class_shape;
+			mandatory ?: boolean;
+			default ?: type_raw;
+			description ?: string;
 		}
 	) {
-		this.type = type;
 		this.name = name;
-		this.key = key;
+		this.extraction = extraction;
+		this.shape = shape;
 		this.mandatory = mandatory;
 		this.default_ = default_;
 		this.description = description;
@@ -102,16 +97,16 @@ class class_taskparameter<type_raw, type_ready> {
 		{
 			str = `${this.name}`;
 		}
-		// type
+		// shape
 		{
-			str = `${str} : ${this.type.toString()}`;
+			str = `${str} : ${instance_show(this.shape)}`;
 		}
 		// mandatory & default
 		{
 			if (this.mandatory) {
 			}
 			else {
-				str = `[${str} = ${String(this.default_)}]`;
+				str = `[${str} = ${instance_show(this.default_)}]`;
 			}
 		}
 		// description
@@ -200,7 +195,6 @@ abstract class class_task {
 		_inputs : Array<lib_path.class_filepointer> = [],
 		_outputs : Array<lib_path.class_filepointer> = [],
 		_actions : Array<class_action> = [],
-		// parameters : Array<class_taskparameter<any>> = null,
 	) {
 		this.identifier = lib_string.generate("task_");
 		this.name = ((name != null) ? name : this.identifier);
@@ -209,7 +203,6 @@ abstract class class_task {
 		this._inputs = _inputs;
 		this._outputs = _outputs;
 		this._actions = _actions;
-		// this.parameters = parameters;
 		this.context = null;
 	}
 	
@@ -383,6 +376,83 @@ abstract class class_task {
 	 */
 	protected static errormessage_mandatoryparamater(type : string, name : string, fieldname : string) : string {
 		return `mandatory paramater '${fieldname}' missing in ${type}-task '${name}'`;
+	}
+	
+}
+
+
+/**
+ * @author fenris
+ */
+class class_task_new
+	extends class_task
+{
+	
+	/**
+	 * @author fenris
+	 */
+	protected parameters : Array<class_taskparameter<any>>;
+	
+	
+	/**
+	 * @author fenris
+	 */
+	public constructor(
+		{
+			"name": name,
+			"active": active = true,
+			"sub": sub = [],
+			"parameters": parameters,
+			"inputs": inputs,
+			"outputs": output,
+			"actions": actions,
+		}
+		: {
+			name : string,
+			sub : Array<class_task> = [],
+			active : boolean = true,
+			parameters : Array<class_taskparameter<any>>
+			_inputs : Array<lib_path.class_filepointer> = [],
+			_outputs : Array<lib_path.class_filepointer> = [],
+			_actions : Array<class_action> = [],
+		}
+	) {
+		super(
+			name,
+			active,
+			sub,
+			inputs,
+			outputs,
+			actions,
+		);
+		this.parameters = parameters;
+	}
+	
+	
+	/**
+	 * @author fenris
+	 */
+	protected convert(object : {[name : string] : any}) : {[name : string] : any} {
+		let result : {[name : string] : any} = {};
+		this.parameters.forEach(
+			parameter => {
+				let raw : any;
+				if (parameter.name in object) {
+					raw = object[parameter.name];
+				}
+				else {
+					if (parameter.mandatory) {
+						throw (new Error(`the mandatory parameter '${parameter.name}' is missing in the task '${this.name}'`));
+					}
+					else {
+						raw = parameter.default;
+					}
+				}
+				let value : any = parameter.extract(raw);
+				result[parameter.name] = value;
+			}
+		);
+		return result;
 	}
 	
 }
