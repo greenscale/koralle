@@ -2,12 +2,6 @@
 /**
  * @author fenris
  */
-type type_taskfactory = (name : string, sub : Array<class_task>, active : boolean, parameters : Object)=>class_task;
-
-
-/**
- * @author fenris
- */
 type type_rawtask = {
 	type ?: string;
 	name ?: string;
@@ -20,116 +14,60 @@ type type_rawtask = {
 /**
  * @author fenris
  */
-class class_taskparameter<type_raw, type_ready> {
+type type_taskparameter<type_raw, type_ready> = {
+	name : string;
+	extraction : (raw : type_raw)=>class_maybe<type_ready>;
+	shape : lib_meta.class_shape;
+	mandatory ?: boolean;
+	default ?: type_raw;
+	description ?: string;
+};
+
 	
-	/**
-	 * @author fenris
-	 */
-	protected name : string;
-	
-	
-	/**
-	 * @author fenris
-	 */
-	protected extraction : (raw : type_raw)=>class_maybe<type_ready>;
-	
-	
-	/**
-	 * @author fenris
-	 */
-	protected shape : lib_meta.class_shape;
-	
-	
-	/**
-	 * @author fenris
-	 */
-	protected mandatory : boolean;
-		
-	
-	/**
-	 * @author fenris
-	 */
-	protected default_ : type_raw;
-	
-	
-	/**
-	 * @author fenris
-	 */
-	protected description : string;
-	
-	
-	/**
-	 * @author fenris
-	 */
-	public constructor(
-		{
-			"name": name,
-			"extraction": extraction,
-			"shape": shape,
-			"mandatory": mandatory = false,
-			"default": default_ = null,
-			"description": description = null,
-		}
-		: {
-			name : string;
-			extraction : (raw : type_raw)=>class_maybe<type_ready>;
-			shape : lib_meta.class_shape;
-			mandatory ?: boolean;
-			default ?: type_raw;
-			description ?: string;
-		}
-	) {
-		this.name = name;
-		this.extraction = extraction;
-		this.shape = shape;
-		this.mandatory = mandatory;
-		this.default_ = default_;
-		this.description = description;
+/**
+ * @author fenris
+ */
+function taskparameter_toString(taskparameter : type_taskparameter<any, any>) : string {
+	let str : string = "";
+	// name
+	{
+		str = `${taskparameter.name}`;
 	}
-	
-	
-	/**
-	 * @author fenris
-	 */
-	public toString() : string {
-		let str : string = "";
-		// name
-		{
-			str = `${this.name}`;
-		}
-		// shape
-		{
-			str = `${str} : ${instance_show(this.shape)}`;
-		}
-		// mandatory & default
-		{
-			if (this.mandatory) {
-			}
-			else {
-				str = `[${str} = ${instance_show(this.default_)}]`;
-			}
-		}
-		// description
-		{
-			str = `${str} -- ${this.description}`;
-		}
-		return str;
+	// shape
+	{
+		str = `${str} : ${instance_show(taskparameter.shape)}`;
 	}
-	
+	// mandatory & default
+	{
+		if (taskparameter.mandatory) {
+		}
+		else {
+			str = `[${str} = ${instance_show(taskparameter.default)}]`;
+		}
+	}
+	// description
+	{
+		str = `${str} -- ${taskparameter.description}`;
+	}
+	return str;
 }
 
 
 /**
  * @author fenris
  */
-abstract class class_task {
-	
-	/**
-	 * @desc a unique identifier for the task; sometimes used as a fallback-value
-	 * @author fenris
-	 */
-	protected identifier : string;
-	
+type type_tasktemplate = {
+	parameters : Array<type_taskparameter<any, any>>;
+	inputs : (data : {[name : string] : any})=>Array<lib_path.class_filepointer>;
+	outputs : (data : {[name : string] : any})=>Array<lib_path.class_filepointer>;
+	actions : (data : {[name : string] : any})=>Array<class_action>;
+}
+
+
+/**
+ * @author fenris
+ */
+class class_task {
 	
 	/**
 	 * @desc a string identifiyng the task (so it should be unique, but it is given by the user); used for addressing tasks (e.g. "make foobar")
@@ -150,12 +88,6 @@ abstract class class_task {
 	 * @author fenris
 	 */
 	protected active : boolean;
-	
-	
-	/**
-	 * @author fenris
-	 */
-	// protected parameters : Array<class_taskparameter<any, any>>;
 	
 	
 	/**
@@ -189,30 +121,30 @@ abstract class class_task {
 	 * @author fenris
 	 */
 	public constructor(
-		name : string,
-		sub : Array<class_task> = [],
-		active : boolean = true,
-		_inputs : Array<lib_path.class_filepointer> = [],
-		_outputs : Array<lib_path.class_filepointer> = [],
-		_actions : Array<class_action> = [],
+		{
+			"name": name = null,
+			"sub": sub = [],
+			"active": active = true,
+			"inputs": _inputs = [],
+			"outputs": _outputs = [],
+			"actions": _actions = [],
+		}
+		: {
+			name ?: string;
+			sub ?: Array<class_task>;
+			active ?: boolean;
+			inputs ?: Array<lib_path.class_filepointer>;
+			outputs ?: Array<lib_path.class_filepointer>;
+			actions ?: Array<class_action>;
+		}
 	) {
-		this.identifier = lib_string.generate("task_");
-		this.name = ((name != null) ? name : this.identifier);
+		this.name = name;
 		this.sub = sub;
 		this.active = active;
 		this._inputs = _inputs;
 		this._outputs = _outputs;
 		this._actions = _actions;
 		this.context = null;
-	}
-	
-	
-	/**
-	 * @desc [accessor] [getter]
-	 * @author fenris
-	 */
-	public identifier_get() : string {
-		return this.identifier;
 	}
 	
 	
@@ -315,50 +247,26 @@ abstract class class_task {
 	/**
 	 * @author fenris
 	 */
-	public static create(
-		{
-			"name": name = null,
-			"type": type = null,
-			"sub": sub = [],
-			"active": active = true,
-			"parameters": parameters = {},
-		} : type_rawtask,
-		nameprefix : string = null
-	) : class_task {
-		return (
-			class_task.get(type)(
-				((nameprefix == null) ? `${name}` : `${nameprefix}-${name}`),
-				sub.map(rawtask => class_task.create(rawtask, nameprefix)),
-				active,
-				parameters
-			)
-		);
+	protected static pool : {[id : string] : type_tasktemplate} = {};
+	
+	
+	/**
+	 * @author fenris
+	 */
+	public static register(id : string, tasktemplate : type_tasktemplate) : void {
+		this.pool[id] = tasktemplate;
 	}
 	
 	
 	/**
 	 * @author fenris
 	 */
-	protected static pool : {[id : string] : type_taskfactory} = {};
-	
-	
-	/**
-	 * @author fenris
-	 */
-	public static register(id : string, factory : type_taskfactory) : void {
-		this.pool[id] = factory;
-	}
-	
-	
-	/**
-	 * @author fenris
-	 */
-	public static get(id : string) : type_taskfactory {
+	public static get(id : string) : type_tasktemplate {
 		if (id in this.pool) {
 			return this.pool[id];
 		}
 		else {
-			throw (new Error(`no task registered with id '${id}'`));
+			throw (new Error(`no task registered with name '${id}'`));
 		}
 	}
 	
@@ -367,74 +275,38 @@ abstract class class_task {
 	 * @author fenris
 	 */
 	public static list() : Array<string> {
-		return Object.keys(this.pool);
-	}
-	
-	
-	/**
-	 * @author fenris
-	 */
-	protected static errormessage_mandatoryparamater(type : string, name : string, fieldname : string) : string {
-		return `mandatory paramater '${fieldname}' missing in ${type}-task '${name}'`;
-	}
-	
-}
-
-
-/**
- * @author fenris
- */
-class class_task_new
-	extends class_task
-{
-	
-	/**
-	 * @author fenris
-	 */
-	protected parameters : Array<class_taskparameter<any>>;
-	
-	
-	/**
-	 * @author fenris
-	 */
-	public constructor(
-		{
-			"name": name,
-			"active": active = true,
-			"sub": sub = [],
-			"parameters": parameters,
-			"inputs": inputs,
-			"outputs": output,
-			"actions": actions,
-		}
-		: {
-			name : string,
-			sub : Array<class_task> = [],
-			active : boolean = true,
-			parameters : Array<class_taskparameter<any>>
-			_inputs : Array<lib_path.class_filepointer> = [],
-			_outputs : Array<lib_path.class_filepointer> = [],
-			_actions : Array<class_action> = [],
-		}
-	) {
-		super(
-			name,
-			active,
-			sub,
-			inputs,
-			outputs,
-			actions,
+		return (
+			lib_object.to_array(this.pool)
+			.map(
+				({"key": id, "value": taskfactory}) => {
+					return (
+						`${id}\n`
+						+
+						(
+							taskfactory.parameters
+							.map(
+								parameter => taskparameter_toString(parameter)
+							)
+							.map(
+								x => `\t\t* ${x}\n`
+							)
+							.join("")
+						)
+						+
+						"\n"
+					);
+				}
+			)
 		);
-		this.parameters = parameters;
 	}
 	
 	
 	/**
 	 * @author fenris
 	 */
-	protected convert(object : {[name : string] : any}) : {[name : string] : any} {
+	protected static convert(tasktemplate : type_tasktemplate, object : {[name : string] : any}) : {[name : string] : any} {
 		let result : {[name : string] : any} = {};
-		this.parameters.forEach(
+		tasktemplate.parameters.forEach(
 			parameter => {
 				let raw : any;
 				if (parameter.name in object) {
@@ -448,11 +320,41 @@ class class_task_new
 						raw = parameter.default;
 					}
 				}
-				let value : any = parameter.extract(raw);
+				let value : any = parameter.extraction(raw);
 				result[parameter.name] = value;
 			}
 		);
 		return result;
+	}
+	
+	
+	/**
+	 * @author fenris
+	 */
+	public static create(
+		{
+			"name": name = null,
+			"type": type = null,
+			"sub": sub = [],
+			"active": active = true,
+			"parameters": parameters = {},
+		} : type_rawtask,
+		nameprefix : string = null
+	) : class_task {
+		let tasktemplate : type_tasktemplate = this.get(type);
+		let data : {[name : string] : any} = this.convert(tasktemplate, parameters);
+		return (
+			new class_task(
+				{
+					"name": ((nameprefix == null) ? `${name}` : `${nameprefix}-${name}`),
+					"active": active,
+					"sub": sub.map(rawtask => class_task.create(rawtask, nameprefix)),
+					"inputs": tasktemplate.inputs(data),
+					"outputs": tasktemplate.outputs(data),
+					"actions": tasktemplate.actions(data),
+				}
+			)
+		);
 	}
 	
 }

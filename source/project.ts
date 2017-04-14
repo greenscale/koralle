@@ -225,17 +225,17 @@ class class_project {
 								}
 							);
 							log("creating root task", 3);
-							let task : class_task = new class_task_group(
+							let task : class_task = new class_task(
 								{
 									"name": name_mark("root"),
 									"sub": [
-										new class_task_group(
+										new class_task(
 											{
 												"name": name_mark("dependencies"),
 												"sub": dependencies,
 											}
 										),
-										new class_task_group(
+										new class_task(
 											{
 												"name": name_mark("core"),
 												"sub": [core],
