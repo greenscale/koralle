@@ -196,42 +196,42 @@ class class_task {
 /**
  * @author fenris
  */
-class class_taskparameter<type_raw, type_ready> = {
+class class_taskparameter<type_raw, type_ready> {
 	
 	/**
 	 * @author fenris
 	 */
-	protected name : string;
-	
-	
-	/**
-	 * @author fenris
-	 */
-	protected extraction : (raw : type_raw)=>type_ready;
+	public name : string;
 	
 	
 	/**
 	 * @author fenris
 	 */
-	protected shape : lib_meta.class_shape;
+	public extraction : (raw : type_raw)=>type_ready;
 	
 	
 	/**
 	 * @author fenris
 	 */
-	protected mandatory : boolean;
+	public shape : lib_meta.class_shape;
 	
 	
 	/**
 	 * @author fenris
 	 */
-	protected default_ : type_raw;
+	public mandatory : boolean;
 	
 	
 	/**
 	 * @author fenris
 	 */
-	protected description : string;
+	public default_ : type_raw;
+	
+	
+	/**
+	 * @author fenris
+	 */
+	public description : string;
 	
 	
 	/**
@@ -241,7 +241,7 @@ class class_taskparameter<type_raw, type_ready> = {
 		{
 			"name": name,
 			"extraction": extraction = lib_call.id,
-			"shape": shape = lib_meta.from_raw("any"),
+			"shape": shape = lib_meta.from_raw({"id": "any"}),
 			"mandatory": mandatory = false,
 			"default": default_ = null,
 			"description": description = null,
@@ -300,6 +300,17 @@ class class_taskparameter<type_raw, type_ready> = {
 /**
  * @author fenris
  */
+type type_taskfactory = (data : {[name : string] : any}, rawtask ?: type_rawtask)=>{
+	sub ?: Array<class_task>;
+	inputs ?: Array<lib_path.class_filepointer>;
+	outputs ?: Array<lib_path.class_filepointer>;
+	actions ?: Array<class_action>;
+};
+
+
+/**
+ * @author fenris
+ */
 class class_tasktemplate {
 	
 	/**
@@ -317,7 +328,7 @@ class class_tasktemplate {
 	/**
 	 * @author fenris
 	 */
-	protected factory : (rawtask : type_rawtask, data : {[name : string] : any})=>class_task;
+	protected factory : type_taskfactory;
 	
 	
 	/**
@@ -331,8 +342,8 @@ class class_tasktemplate {
 		}
 		: {
 			description ?: string;
-			parameters ?: Array<type_taskparameter<any, any>>;
-			factory : (rawtask : type_rawtask, data : {[name : string] : any})=>class_task;
+			parameters ?: Array<class_taskparameter<any, any>>;
+			factory : type_taskfactory;
 		}
 	) {
 		this.description = description;
@@ -345,7 +356,7 @@ class class_tasktemplate {
 	 * @desc converts raw parameter values to real ones
 	 * @author fenris
 	 */
-	protected convert(object_raw : {[name : string] : any}) : {[name : string] : any} {
+	protected convert(object_raw : {[name : string] : any}, name ?: string) : {[name : string] : any} {
 		let object_ready : {[name : string] : any} = {};
 		this.parameters.forEach(
 			parameter => {
@@ -355,10 +366,10 @@ class class_tasktemplate {
 				}
 				else {
 					if (parameter.mandatory) {
-						throw (new Error(`the mandatory parameter '${parameter.name}' is missing in the task '${this.name}'`));
+						throw (new Error(`the mandatory parameter '${parameter.name}' is missing in the task description for task '${name}'`));
 					}
 					else {
-						value_raw = parameter.default;
+						value_raw = parameter.default_;
 					}
 				}
 				let messages : Array<string> = parameter.shape.inspect(value_raw);
@@ -378,27 +389,28 @@ class class_tasktemplate {
 	/**
 	 * @author fenris
 	 */
-	public create(
+	protected create(
 		rawtask : type_rawtask,
-		data : {[name : string] : any},
 		nameprefix : string = null
 	) : class_task {
-		let data : {[name : string] : any} = this.convert(rawtask.parameters);
-		return this.factory(rawtask, data);
-		/*
+		let data : {[name : string] : any} = this.convert(rawtask.parameters, rawtask.name);
+		let stuff : any = this.factory(data, rawtask);
+		let sub : Array<class_task> = (stuff["sub"] || []);
+		let inputs : Array<lib_path.class_filepointer> = (stuff["inputs"] || []);
+		let outputs : Array<lib_path.class_filepointer> = (stuff["outputs"] || []);
+		let actions : Array<class_action> = (stuff["actions"] || []);
 		return (
 			new class_task(
 				{
 					"name": ((nameprefix == null) ? `${rawtask.name}` : `${nameprefix}-${rawtask.name}`),
 					"active": rawtask.active,
-					"sub": rawtask.sub.map(rawtask_ => class_tasktemplate.create(rawtask_, nameprefix)),
-					"inputs": this.inputs(data),
-					"outputs": tasktemplate.outputs(data),
-					"actions": tasktemplate.actions(data),
+					"sub": (rawtask.sub || []).map(rawtask_ => class_tasktemplate.create(rawtask_, nameprefix)).concat(sub),
+					"inputs": inputs,
+					"outputs": outputs,
+					"actions": actions,
 				}
 			)
 		);
-		 */
 	}
 	
 	
@@ -434,11 +446,10 @@ class class_tasktemplate {
 	 */
 	public static create(
 		rawtask : type_rawtask,
-		data : {[name : string] : any},
 		nameprefix : string = null
 	) : class_task {
-		let tasktemplate : class_tasktemplate = this.get(type);
-		return tasktemplate.create(rawtask, data, nameprefix);
+		let tasktemplate : class_tasktemplate = this.get(rawtask.type);
+		return tasktemplate.create(rawtask, nameprefix);
 	}
 	
 	
@@ -449,26 +460,26 @@ class class_tasktemplate {
 	public static list() : string {
 		let str : string = "";
 		lib_object.to_array(this.pool).forEach(
-			({"key": id, "value": taskfactory}) => {
+			({"key": id, "value": tasktemplate}) => {
 				str += lib_markdown.section(2, id);
 				{
 					str += lib_markdown.section(3, "Description");
-					str += (((taskfactory.description != null) ? taskfactory.description : "(missing)") + "\n");
-					str += "\n";
+					str += lib_markdown.paragraph(((tasktemplate.description != null) ? tasktemplate.description : "(missing)"));
+					str += lib_markdown.paragraph();
 				}
 				{
 					str += lib_markdown.section(3, "Parameters");
-					taskfactory.parameters.forEach(
+					tasktemplate.parameters.forEach(
 						taskparameter => {
 							let str_ : string = "";
 							{
 								// name
 								{
-									str_ += (lib_markdown.code(taskparameter.name) + "\n");
+									str_ += lib_markdown.paragraph(lib_markdown.code(taskparameter.name));
 								}
 								// shape
 								{
-									str_ += (lib_markdown.listitem(2, "type: " + lib_markdown.italic(instance_show(taskparameter.shape))) + "\n")
+									str_ += lib_markdown.listitem(2, "type: " + lib_markdown.italic(instance_show(taskparameter.shape)));
 								}
 								// kind
 								{
@@ -477,19 +488,19 @@ class class_tasktemplate {
 										content = "mandatory";
 									}
 									else {
-										content = "optional (default: " + instance_show(taskparameter.default) + ")");
+										content = ("optional (default: " + instance_show(taskparameter.default_) + ")");
 									}
-									str_ += (lib_markdown.listitem(2, "kind: " + content + "\n")
+									str_ += lib_markdown.listitem(2, "kind: " + content);
 								}
 								// description
 								{
-									str_ += (lib_markdown.listitem(2, "description: " + taskparameter.description + "\n")
+									str_ += lib_markdown.listitem(2, "description: " + taskparameter.description);
 								}
 							}
-							str += (lib_markdown.listitem(1, str_) + "\n");
+							str += lib_markdown.listitem(1, str_);
 						}
 					);
-					str += "\n";
+					str += lib_markdown.paragraph();
 				}
 			}
 		);
@@ -517,8 +528,8 @@ class class_tasktemplate_transductor
 		}
 		: {
 			description ?: string;
-			parameters_additional ?: Array<type_taskparameter<any, any>>;
-			factory : (rawtask : type_rawtask, data : {[name : string] : any})=>class_task;
+			parameters_additional ?: Array<class_taskparameter<any, any>>;
+			factory : type_taskfactory;
 		}
 	) {
 		super(
@@ -526,30 +537,34 @@ class class_tasktemplate_transductor
 				"description": description,
 				"parameters": (
 					[
-						{
-							"name": "input",
-							"extraction": raw => lib_path.filepointer_read(raw),
-							"shape": lib_meta.from_raw(
-								{
-									"id": "string"
-								}
-							),
-							"mandatory": true,
-							"default": null,
-							"description": "the path to the input file",
-						},
-						{
-							"name": "output",
-							"extraction": raw => lib_path.filepointer_read(raw),
-							"shape": lib_meta.from_raw(
-								{
-									"id": "string"
-								}
-							),
-							"mandatory": true,
-							"default": null,
-							"description": "the path to the output file"
-						},
+						new class_taskparameter<string, lib_path.class_filepointer>(
+							{
+								"name": "input",
+								"extraction": raw => lib_path.filepointer_read(raw),
+								"shape": lib_meta.from_raw(
+									{
+										"id": "string"
+									}
+								),
+								"mandatory": true,
+								"default": null,
+								"description": "the path to the input file",
+							}
+						),
+						new class_taskparameter<string, lib_path.class_filepointer>(
+							{
+								"name": "output",
+								"extraction": raw => lib_path.filepointer_read(raw),
+								"shape": lib_meta.from_raw(
+									{
+										"id": "string"
+									}
+								),
+								"mandatory": true,
+								"default": null,
+								"description": "the path to the output file"
+							}
+						),
 					]
 					.concat(parameters_additional)
 				),
@@ -579,8 +594,8 @@ class class_tasktemplate_aggregator
 		}
 		: {
 			description ?: string;
-			parameters_additional ?: Array<type_taskparameter<any, any>>;
-			factory : (rawtask : type_rawtask, data : {[name : string] : any})=>class_task;
+			parameters_additional ?: Array<class_taskparameter<any, any>>;
+			factory : type_taskfactory;
 		}
 	) {
 		super(
@@ -588,35 +603,39 @@ class class_tasktemplate_aggregator
 				"description": description,
 				"parameters": (
 					[
-						{
-							"name": "inputs",
-							"extraction": raw => raw.map(x => lib_path.filepointer_read(x)),
-							"shape": lib_meta.from_raw(
-								{
-									"id": "array",
-									"parameters": {
-										"shape_element": {
-											"id": "string"
+						new class_taskparameter<Array<string>, Array<lib_path.class_filepointer>>(
+							{
+								"name": "inputs",
+								"extraction": raw => raw.map(x => lib_path.filepointer_read(x)),
+								"shape": lib_meta.from_raw(
+									{
+										"id": "array",
+										"parameters": {
+											"shape_element": {
+												"id": "string"
+											}
 										}
 									}
-								}
-							),
-							"mandatory": true,
-							"default": null,
-							"description": "the list of paths to the input files",
-						},
-						{
-							"name": "output",
-							"extraction": raw => lib_path.filepointer_read(raw),
-							"shape": lib_meta.from_raw(
-								{
-									"id": "string"
-								}
-							),
-							"mandatory": true,
-							"default": null,
-							"description": "the path to the output file"
-						},
+								),
+								"mandatory": true,
+								"default": null,
+								"description": "the list of paths to the input files",
+							}
+						),
+						new class_taskparameter<string, lib_path.class_filepointer>(
+							{
+								"name": "output",
+								"extraction": raw => lib_path.filepointer_read(raw),
+								"shape": lib_meta.from_raw(
+									{
+										"id": "string"
+									}
+								),
+								"mandatory": true,
+								"default": null,
+								"description": "the path to the output file"
+							}
+						),
 					]
 					.concat(parameters_additional)
 				),

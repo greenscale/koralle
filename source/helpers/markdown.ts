@@ -36,6 +36,14 @@ module lib_markdown {
 	/**
 	 * @author fenris
 	 */
+	export function paragraph(content : string = "") : string {
+		return (content + "\n");
+	}
+	
+	
+	/**
+	 * @author fenris
+	 */
 	export function listitem(level : int, content : string) : string {
 		return ("    ".repeat(level-1) + "* " + content + "\n");
 	}

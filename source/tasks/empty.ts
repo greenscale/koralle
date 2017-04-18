@@ -2,7 +2,7 @@
 /**
  * @author fenris
  */
-class_task.register(
+class_tasktemplate.register(
 	"empty",
 	new class_tasktemplate(
 		{
@@ -11,7 +11,7 @@ class_task.register(
 				new class_taskparameter<string, lib_path.class_filepointer>(
 					{
 						"name": "output",
-						"extraction": raw => lib_path.filepointer_read(raw)
+						"extraction": raw => lib_path.filepointer_read(raw),
 						"shape": lib_meta.from_raw(
 							{
 								"id": "string"
@@ -22,24 +22,18 @@ class_task.register(
 					}
 				)
 			],
-			"factory": (rawtask : type_rawtask, data : {[name : string] : any}) => {
-				return (
-					new class_task(
-						{
-							"name": rawtask.name,
-							"active": rawtask.active,
-							"outputs": [data["output"]],
-							"actions": [
-								new class_action_mkdir(
-									data["output"].location
-								),
-								new class_action_touch(
-									data["output"]
-								),
-							],
-						}
-					)
-				);
+			"factory": (data) => {
+				return {
+					"outputs": [data["output"]],
+					"actions": [
+						new class_action_mkdir(
+							data["output"].location
+						),
+						new class_action_touch(
+							data["output"]
+						),
+					],
+				};
 			}
 		}
 	)

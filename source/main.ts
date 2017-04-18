@@ -182,7 +182,7 @@ function main(args : Array<string>) : void {
 		procede = false;
 	}
 	else if (argdata["tasklist"]) {
-		new class_message(class_task.list()).stdout();
+		new class_message(class_tasktemplate.list()).stdout();
 		procede = false;
 	}
 	else {

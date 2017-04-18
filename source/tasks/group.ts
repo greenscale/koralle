@@ -2,20 +2,16 @@
 /**
  * @author fenris
  */
-class_task.register(
+class_tasktemplate.register(
 	"group",
-	{
-		"parameters": [
-		],
-		"inputs": data => {
-			return [];
-		},
-		"outputs": data => {
-			return [];
-		},
-		"actions": data => {
-			return [];
-		},
-	}
+	new class_tasktemplate(
+		{
+			"description": "does nothing but executing the sub tasks",
+			"factory": (data) => {
+				return {
+				};
+			}
+		}
+	)
 );
 

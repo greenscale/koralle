@@ -212,11 +212,11 @@ class class_project {
 						}
 						if (error == null) {
 							log("creating core task", 3);
-							let core : class_task = class_task.create(node.rawproject.roottask);
+							let core : class_task = class_tasktemplate.create(node.rawproject.roottask);
 							log("creating dependency tasks", 3);
 							let dependencies : Array<class_task> = dependencynodes.map(
 								(node, index) => {
-									let task : class_task = class_task.create(
+									let task : class_task = class_tasktemplate.create(
 										node.rawproject.roottask,
 										name_mark("dependency_" + (node.rawproject.name || lib_string.generate()))
 									);
