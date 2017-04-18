@@ -11,13 +11,22 @@ type type_output_description = {
 /**
  * @author fenris
  */
-function task_each_generate_output(output_description : type_output_description, input_raw : string) : string {
+function task_each_generate_output(input_raw : string, output_description : type_output_description, index : int) : string {
 	switch (output_description.kind) {
 		case "replace": {
+			let regexp : RegExp = new RegExp(output_description.parameters["from"]);
 			let output_raw : string = input_raw.replace(
-				new RegExp(output_description.parameters["from"]),
+				regexp,
 				output_description.parameters["to"]
 			);
+			return output_raw;
+			break;
+		}
+		case "enumerate": {
+			let folder : string = (output_description["parameters"]["folder"] || "build/");
+			let prefix : string = (output_description["parameters"]["prefix"] || "output_");
+			let suffix : string = (output_description["parameters"]["suffix"]);
+			let output_raw : string = (folder + "/" + prefix + index.toString() + ((suffix == null) ? "" : ("." + suffix)));
 			return output_raw;
 			break;
 		}
@@ -38,6 +47,8 @@ class_tasktemplate.register(
 		{
 			"description": "executes a specific task for a list of inputs",
 			"parameters": [
+				class_taskparameter.input_list(),
+				class_taskparameter.input_schwamm(),
 				new class_taskparameter<string, string>(
 					{
 						"name": "element_type",
@@ -64,21 +75,28 @@ class_tasktemplate.register(
 				),
 			],
 			"factory": (data, rawtask) => {
+				let inputs : Array<lib_path.class_filepointer> = data["inputs"].concat(data["input_from_schwamm"]);
 				return {
-					"sub": rawtask.parameters["inputs"].map(
-						(input_raw, index) => class_tasktemplate.create(
-							{
-								"name": ((rawtask["name"] == null) ? null : (rawtask["name"] + "_" + index.toString())),
-								"type": data["element_type"],
-								"parameters": lib_object.patched(
-									data["element_parameters"],
+					"sub": inputs.map(
+						(input, index) => {
+							let input_raw : string = input.as_string();
+							return (
+								class_tasktemplate.create(
 									{
-										"input": input_raw,
-										"output": task_each_generate_output(data["output_description"], input_raw),
-									}
+										"name": index.toString(),
+										"type": data["element_type"],
+										"parameters": lib_object.patched(
+											data["element_parameters"],
+											{
+												"input": input_raw,
+												"output": task_each_generate_output(input_raw, data["output_description"], index),
+											}
+										)
+									},
+									rawtask["name"]
 								)
-							}
-						)
+							);
+						}
 					),
 				};
 			}
