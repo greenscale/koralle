@@ -534,7 +534,7 @@ class class_tasktemplate {
 					}
 				}
 				let messages : Array<string> = parameter.shape.inspect(value_raw);
-				if (false && (messages.length > 0)) {
+				if (messages.length > 0) {
 					let message : string = "";
 					message += `given value '${instance_show(value_raw)}'`;
 					message += ` for parameter '${parameter.name}'`;

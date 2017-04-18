@@ -1,5 +1,19 @@
+/**
+ * @author fenris
+ */
 declare type int = number;
+/**
+ * @author fenris
+ */
 declare type float = number;
+/**
+ * @author fenris
+ */
+declare type type_time = {
+    hours: int;
+    minutes: int;
+    seconds: int;
+};
 declare var process: any;
 declare var require: any;
 declare class Buffer {
@@ -1410,6 +1424,48 @@ declare module lib_meta {
          * @author fenris
          */
         _show(): string;
+    }
+}
+declare module lib_meta {
+    /**
+     * @desc represented as milliseconds of day
+     * @author fenris
+     */
+    class class_shape_time extends class_shape {
+        /**
+         * @author fenris
+         */
+        constructor({"soft": soft, "defaultvalue": defaultvalue}: {
+            soft?: boolean;
+            defaultvalue?: any;
+        });
+        /**
+         * @override
+         * @author fenris
+         */
+        inspect(value: any): Array<string>;
+        /**
+         * @override
+         * @author fenris
+         */
+        to_raw(): type_shape_raw;
+        /**
+         * @desc [implementation]
+         * @author fenris
+         */
+        _show(): string;
+        /**
+         * @author fenris
+         */
+        static from_date(date: Date): type_time;
+        /**
+         * @author fenris
+         */
+        static from_timestamp(timestamp: int): type_time;
+        /**
+         * @author fenris
+         */
+        static now(): type_time;
     }
 }
 declare module lib_meta {

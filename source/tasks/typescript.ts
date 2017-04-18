@@ -20,7 +20,7 @@ class_tasktemplate.register(
 				new class_taskparameter<string, string>(
 					{
 						"name": "target",
-						"shape": lib_meta.from_raw({"id": "string"}),
+						"shape": lib_meta.from_raw({"id": "string", "parameters": {"soft": true}}),
 						"default": new class_just<string>(null),
 						"description": "the tsc-switch 'target'; value NULL means 'don't specify'",
 					}
@@ -28,7 +28,7 @@ class_tasktemplate.register(
 				new class_taskparameter<boolean, boolean>(
 					{
 						"name": "allowUnreachableCode",
-						"shape": lib_meta.from_raw({"id": "boolean"}),
+						"shape": lib_meta.from_raw({"id": "boolean", "parameters": {"soft": true}}),
 						"default": new class_just<boolean>(null),
 						"description": "the tsc-switch 'allowUnreachableCode'; value NULL means 'don't specify'",
 					}

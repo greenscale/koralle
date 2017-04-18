@@ -1,13 +1,8 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 // module lib_base {
 // }
 // Web
@@ -753,17 +748,14 @@ var lib_call;
         switch (n) {
             case 0: {
                 throw (new Error("[curryfy] impossible"));
-                // break;
             }
             case 1: {
                 return f;
-                // break;
             }
             default: {
                 return (function (x) {
                     return (curryfy(function () { return f.apply(f, [x].concat(args2list(arguments))); }, n - 1));
                 });
-                // break;
             }
         }
     }
@@ -1168,11 +1160,9 @@ var lib_call;
                         resolve(master_output);
                     }
                     else {
-                        // nothing to do
                     }
                 }
                 else {
-                    // nothing to do
                 }
             };
             let master_reject = (id, error) => {
@@ -1181,7 +1171,6 @@ var lib_call;
                     reject(error);
                 }
                 else {
-                    // nothing to do
                 }
             };
             Object.keys(knots).forEach(id => {
@@ -1737,7 +1726,6 @@ var lib_object;
                         var message = "objects have different shapes at path '" + path_ + "'; core has type '" + typeof (value_core) + "' and mantle has type '" + typeof (value_mantle) + "'";
                         console.warn(message);
                         core[key] = value_mantle;
-                        // throw (new Error(message));
                     }
                 }
             });
@@ -2128,7 +2116,6 @@ var object_path_walk = function (object, path, create, null_on_missing) {
         if (ignore_keys.some(function (k) {
             return key == k;
         })) {
-            //
         }
         else if (object2[key] === null) {
             if (!ignore_null)
@@ -2208,7 +2195,6 @@ var flatten_object = function (obj, recipie, drop_key) {
                         ret = object_merge_objects(ret, object_make_flat(obj_ref[key], newkey, filter, split_char, objects.concat(object)));
                     }
                     else if (typeof obj_ref[key] === "function") {
-                        // o.O a function ... doing nothing might be the best choice
                     }
                     else {
                         var value = obj_ref[key];
@@ -2228,7 +2214,6 @@ var flatten_object = function (obj, recipie, drop_key) {
             }
         }
         else {
-            //console.warn("something went wrong with that object: ", object, "on this path:", path);
         }
         return ret;
     }
@@ -2364,16 +2349,11 @@ var object_stringify = function (object, readable) {
         return value;
     }, readable ? 1 : 0));
 };
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var lib_meta;
 (function (lib_meta) {
     /**
@@ -3237,6 +3217,103 @@ var lib_meta;
 var lib_meta;
 (function (lib_meta) {
     /**
+     * @desc represented as milliseconds of day
+     * @author fenris
+     */
+    var class_shape_time = (function (_super) {
+        __extends(class_shape_time, _super);
+        /**
+         * @author fenris
+         */
+        function class_shape_time(_a) {
+            var _b = _a["soft"], soft = _b === void 0 ? false : _b, _c = _a["defaultvalue"], defaultvalue = _c === void 0 ? class_shape_time.from_timestamp(Date.now()) : _c;
+            return _super.call(this, {
+                "primitive": true,
+                "soft": soft,
+                "defaultvalue": defaultvalue
+            }) || this;
+        }
+        /**
+         * @override
+         * @author fenris
+         */
+        class_shape_time.prototype.inspect = function (value) {
+            var messages = _super.prototype.inspect.call(this, value);
+            if (value != null) {
+                if (!(typeof (value) == "object")) {
+                    messages.push("value is not a time");
+                }
+                else {
+                    if (!("hours" in value)) {
+                        messages.push("hour is missing");
+                    }
+                    if (!("minutes" in value)) {
+                        messages.push("minutes is missing");
+                    }
+                    if (!("seconds" in value)) {
+                        messages.push("seconds is missing");
+                    }
+                }
+            }
+            return messages;
+        };
+        /**
+         * @override
+         * @author fenris
+         */
+        class_shape_time.prototype.to_raw = function () {
+            return {
+                "id": "time",
+                "parameters": {
+                    "soft": this.soft
+                }
+            };
+        };
+        /**
+         * @desc [implementation]
+         * @author fenris
+         */
+        class_shape_time.prototype._show = function () {
+            var str = "time";
+            return str;
+        };
+        /**
+         * @author fenris
+         */
+        class_shape_time.from_date = function (date) {
+            var hours = date.getHours();
+            var minutes = date.getMinutes();
+            var seconds = date.getSeconds();
+            return { "hours": hours, "minutes": minutes, "seconds": seconds };
+        };
+        /**
+         * @author fenris
+         */
+        class_shape_time.from_timestamp = function (timestamp) {
+            var date = new Date(timestamp);
+            return this.from_date(date);
+        };
+        /**
+         * @author fenris
+         */
+        class_shape_time.now = function () {
+            return this.from_timestamp(Date.now());
+        };
+        return class_shape_time;
+    }(lib_meta.class_shape));
+    lib_meta.class_shape_time = class_shape_time;
+    /**
+     * @author fenris
+     */
+    lib_meta.register("time", function (parameters) {
+        return (new class_shape_time({
+            "soft": parameters["soft"]
+        }));
+    });
+})(lib_meta || (lib_meta = {}));
+var lib_meta;
+(function (lib_meta) {
+    /**
      * @author fenris
      */
     var class_shape_enumeration = (function (_super) {
@@ -3400,7 +3477,7 @@ var lib_meta;
                     Object.keys(value).forEach(function (key, index) {
                         var value_ = value[key];
                         messages = messages.concat(_this.shape_key.inspect(key).map(function (message) { return "map entry #" + index.toString() + " key: " + message; }));
-                        messages = messages.concat(_this.shape_value.inspect(value).map(function (message) { return "map entry #" + index.toString() + " value: " + message; }));
+                        messages = messages.concat(_this.shape_value.inspect(value_).map(function (message) { return "map entry #" + index.toString() + " value: " + message; }));
                     });
                 }
             }
@@ -4312,50 +4389,15 @@ var make_logger = (function () {
             console["_error"] = console.error;
             console["_warn"] = console.warn;
             console["_info"] = console.info;
-            /*
-            console["log"] = _log_all(__log, 0);
-            console["error"] = _log_all(__error, 2);
-            console["warn"] = _log_all(__warn, 2);
-            console["info"] = _log_all(__info, 0);
-             */
         }
-        /*
-        {
-            make_logger["send_log"] = function(){
-                eml_log(
-                    function () {
-                        alert("fehlerbericht wurde gesendet!");
-                    }
-                );
-            };
-            var error_log = make_logger("global.error", 99);
-            window.onerror = _log_all(
-                error_log,
-                1,
-                function(){
-                    if (global_config == undefined) {
-                        return false;
-                    }
-                    if (global_config.report_error) {
-                        make_logger["send_log"]();
-                    }
-                }
-            );
-        }
-         */
     }
     return make_logger;
 })();
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 ///<reference path="../../base/build/logic-decl.d.ts"/>
 ///<reference path="../../string/build/logic-decl.d.ts"/>
 /**
