@@ -1,0 +1,9 @@
+{
+	"foos": [
+		"source/foo.txt",
+		"source/bar.txt",
+		"source/baz.txt",
+		"source/qux.txt"
+	]
+}
+

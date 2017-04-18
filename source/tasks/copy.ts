@@ -11,10 +11,9 @@ class_tasktemplate.register(
 				new class_taskparameter<boolean, boolean>(
 					{
 						"name": "folder",
-						"mandatory": false,
-						"default": false,
+						"default": new class_just<boolean>(false),
 					}
-				)
+				),
 			],
 			"factory": (data) => {
 				return {

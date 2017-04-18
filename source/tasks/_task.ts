@@ -3,7 +3,7 @@
  * @author fenris
  */
 type type_rawtask = {
-	type ?: string;
+	type : string;
 	name ?: string;
 	active ?: boolean;
 	parameters ?: Object;
@@ -219,13 +219,7 @@ class class_taskparameter<type_raw, type_ready> {
 	/**
 	 * @author fenris
 	 */
-	public mandatory : boolean;
-	
-	
-	/**
-	 * @author fenris
-	 */
-	public default_ : type_raw;
+	public default_ : class_maybe<type_raw>;
 	
 	
 	/**
@@ -242,23 +236,20 @@ class class_taskparameter<type_raw, type_ready> {
 			"name": name,
 			"extraction": extraction = lib_call.id,
 			"shape": shape = lib_meta.from_raw({"id": "any"}),
-			"mandatory": mandatory = false,
-			"default": default_ = null,
+			"default": default_ = new class_just<type_raw>(null),
 			"description": description = null,
 		}
 		: {
 			name : string;
 			extraction ?: (raw : type_raw)=>type_ready;
 			shape ?: lib_meta.class_shape;
-			mandatory ?: boolean;
-			default ?: type_raw;
+			default ?: class_maybe<type_raw>;
 			description ?: string;
 		}
 	) {
 		this.name = name;
 		this.extraction = extraction;
 		this.shape = shape;
-		this.mandatory = mandatory;
 		this.default_ = default_;
 		this.description = description;
 	}
@@ -266,32 +257,163 @@ class class_taskparameter<type_raw, type_ready> {
 	
 	/**
 	 * @author fenris
-	 * @deprecated
-	 * @todo make markdown replacement
 	 */
-	public toString() : string {
-		let str : string = "";
-		// name
+	public static input_single(
 		{
-			str = `${this.name}`;
+			"description": description = "the list of paths to the input files",
+			"default": default_ = new class_nothing<string>(),
 		}
-		// shape
+		: {
+			description ?: string;
+			default ?: class_maybe<string>;
+		}
+		= {
+		}
+	) : class_taskparameter<string, lib_path.class_filepointer> {
+		return (
+			new class_taskparameter<string, lib_path.class_filepointer>(
+				{
+					"name": "input",
+					"extraction": raw => lib_path.filepointer_read(raw),
+					"shape": lib_meta.from_raw(
+						{
+							"id": "string"
+						}
+					),
+					"default": default_,
+					"description": description,
+				}
+			)
+		);
+	}
+	
+	
+	/**
+	 * @author fenris
+	 */
+	public static input_list(
 		{
-			str = `${str} : ${instance_show(this.shape)}`;
+			"description": description = "the list of paths to the input files",
+			"default": default_ = new class_just<Array<string>>([]),
 		}
-		// mandatory & default
+		: {
+			description ?: string;
+			default ?: class_maybe<Array<string>>;
+		}
+		= {
+		}
+	) : class_taskparameter<Array<string>, Array<lib_path.class_filepointer>> {
+		return (
+			new class_taskparameter<Array<string>, Array<lib_path.class_filepointer>>(
+				{
+					"name": "inputs",
+					"extraction": raw => raw.map(x => lib_path.filepointer_read(x)),
+					"shape": lib_meta.from_raw(
+						{
+							"id": "array",
+							"parameters": {
+								"shape_element": {
+									"id": "string"
+								}
+							}
+						}
+					),
+					"default": default_,
+					"description": description,
+				}
+			)
+		);
+	}
+	
+	
+	/**
+	 * @author fenris
+	 */
+	public static input_schwamm(
 		{
-			if (this.mandatory) {
-			}
-			else {
-				str = `[${str} = ${instance_show(this.default_)}]`;
-			}
+			"description": description = "parameters for a schwamm which holds a list of files in a group",
+			"default": default_ = new class_just<{path : string; group : string;}>(null),
 		}
-		// description
+		: {
+			description ?: string;
+			default ?: class_maybe<{path : string; group : string;}>;
+		}
+		= {
+		}
+	) : class_taskparameter<{path : string; group : string;}, Array<lib_path.class_filepointer>> {
+		return (
+			new class_taskparameter<{path : string; group : string;}, Array<lib_path.class_filepointer>>(
+				{
+					"name": "input_from_schwamm",
+					"extraction": raw => {
+						if (raw == null) {
+							return [];
+						}
+						else {
+							let command : string = `schwamm --include=${raw["path"]} --output=list:${raw["group"]}`;
+							let result : Buffer = nm_child_process.execSync(command);
+							let output : string = result.toString();
+							let paths : Array<string> = output.split("\n");
+							return paths.filter(path => (path.trim().length > 0)).map(path => lib_path.filepointer_read(path));
+						}
+					},
+					"shape": lib_meta.from_raw(
+						{
+							"id": "object",
+							"parameters": {
+								"fields": [
+									{
+										"name": "path",
+										"shape": {
+											"id": "string"
+										}
+									},
+									{
+										"name": "group",
+										"shape": {
+											"id": "string"
+										}
+									},
+								]
+							}
+						}
+					),
+					"default": default_,
+					"description": description,
+				}
+			)
+		);
+	}
+	
+	
+	/**
+	 * @author fenris
+	 */
+	public static output_single(
 		{
-			str = `${str} -- ${this.description}`;
+			"description": description = "the list of paths to the input files",
 		}
-		return str;
+		: {
+			description ?: string;
+		}
+		= {
+		}
+	) : class_taskparameter<string, lib_path.class_filepointer> {
+		return (
+			new class_taskparameter<string, lib_path.class_filepointer>(
+				{
+					"name": "output",
+					"extraction": raw => lib_path.filepointer_read(raw),
+					"shape": lib_meta.from_raw(
+						{
+							"id": "string"
+						}
+					),
+					"default": new class_nothing<string>(),
+					"description": description,
+				}
+			)
+		);
 	}
 	
 }
@@ -309,6 +431,7 @@ type type_taskfactory = (data : {[name : string] : any}, rawtask ?: type_rawtask
 
 
 /**
+ * @desc defines how a raw task is converted into a real task and provides information to the user how to form the raw task
  * @author fenris
  */
 class class_tasktemplate {
@@ -365,16 +488,22 @@ class class_tasktemplate {
 					value_raw = object_raw[parameter.name];
 				}
 				else {
-					if (parameter.mandatory) {
+					if (parameter.default_.is_nothing()) {
 						throw (new Error(`the mandatory parameter '${parameter.name}' is missing in the task description for task '${name}'`));
 					}
 					else {
-						value_raw = parameter.default_;
+						value_raw = parameter.default_.cull();
 					}
 				}
 				let messages : Array<string> = parameter.shape.inspect(value_raw);
 				if (messages.length > 0) {
-					throw (new Error(`given value '${instance_show(value_raw)}' for parameter '${parameter.name}' with shape '${instance_show(parameter.shape)}' is malformed: ${messages.join("; ")}`));
+					let message : string = "";
+					message += `given value '${instance_show(value_raw)}'`;
+					message += ` for parameter '${parameter.name}'`;
+					message += ` with shape '${instance_show(parameter.shape)}'`;
+					message += ` is malformed`;
+					message += `: ${messages.join("; ")}`;
+					throw (new Error(message));
 				}
 				else {
 					let value_ready : any = parameter.extraction(value_raw);
@@ -387,6 +516,7 @@ class class_tasktemplate {
 	
 	
 	/**
+	 * @desc does the actual conversion to a real task
 	 * @author fenris
 	 */
 	protected create(
@@ -395,16 +525,35 @@ class class_tasktemplate {
 	) : class_task {
 		let data : {[name : string] : any} = this.convert(rawtask.parameters, rawtask.name);
 		let stuff : any = this.factory(data, rawtask);
-		let sub : Array<class_task> = (stuff["sub"] || []);
+		let name : string = "";
+		{
+			name = ((rawtask.name != undefined) ? rawtask.name : lib_string.generate("task_"));
+			if (nameprefix != null) {
+				name = `${nameprefix}-${name}`;
+			}
+		}
+		let active : boolean;
+		{
+			active = ((rawtask.active != undefined) ? rawtask.active : true);
+		}
+		let sub : Array<class_task> = [];
+		{
+			if (rawtask["sub"] != undefined) {
+				sub = sub.concat(rawtask.sub.map(rawtask_ => class_tasktemplate.create(rawtask_, nameprefix)));
+			}
+			if (stuff["sub"] != undefined) {
+				sub = sub.concat(stuff["sub"]);
+			}
+		}
 		let inputs : Array<lib_path.class_filepointer> = (stuff["inputs"] || []);
 		let outputs : Array<lib_path.class_filepointer> = (stuff["outputs"] || []);
 		let actions : Array<class_action> = (stuff["actions"] || []);
 		return (
 			new class_task(
 				{
-					"name": ((nameprefix == null) ? `${rawtask.name}` : `${nameprefix}-${rawtask.name}`),
-					"active": rawtask.active,
-					"sub": (rawtask.sub || []).map(rawtask_ => class_tasktemplate.create(rawtask_, nameprefix)).concat(sub),
+					"name": name,
+					"active": active,
+					"sub": sub,
 					"inputs": inputs,
 					"outputs": outputs,
 					"actions": actions,
@@ -415,12 +564,14 @@ class class_tasktemplate {
 	
 	
 	/**
+	 * @desc holds the registered tasktemplates
 	 * @author fenris
 	 */
 	protected static pool : {[id : string] : class_tasktemplate} = {};
 	
 	
 	/**
+	 * @desc adds a tasktemplate to the pool
 	 * @author fenris
 	 */
 	public static register(id : string, tasktemplate : class_tasktemplate) : void {
@@ -429,6 +580,7 @@ class class_tasktemplate {
 	
 	
 	/**
+	 * @desc retrieves a registered tasktemplate from the pool
 	 * @author fenris
 	 */
 	public static get(id : string) : class_tasktemplate {
@@ -442,6 +594,7 @@ class class_tasktemplate {
 	
 	
 	/**
+	 * @desc searches for the corresponding registered tasktemplate and creates a real task
 	 * @author fenris
 	 */
 	public static create(
@@ -461,7 +614,7 @@ class class_tasktemplate {
 		let str : string = "";
 		lib_object.to_array(this.pool).forEach(
 			({"key": id, "value": tasktemplate}) => {
-				str += lib_markdown.section(2, id);
+				str += lib_markdown.section(2, "Task '" + lib_markdown.code(id) + "'");
 				{
 					str += lib_markdown.section(3, "Description");
 					str += lib_markdown.paragraph(((tasktemplate.description != null) ? tasktemplate.description : "(missing)"));
@@ -484,11 +637,11 @@ class class_tasktemplate {
 								// kind
 								{
 									let content : string;
-									if (taskparameter.mandatory) {
+									if (taskparameter.default_.is_nothing()) {
 										content = "mandatory";
 									}
 									else {
-										content = ("optional (default: " + instance_show(taskparameter.default_) + ")");
+										content = ("optional (default: " + lib_markdown.code(instance_show(taskparameter.default_.cull())) + ")");
 									}
 									str_ += lib_markdown.listitem(2, "kind: " + content);
 								}
@@ -511,6 +664,7 @@ class class_tasktemplate {
 
 
 /**
+ * @desc a tasktemplate for tasks which have a single input and a single output
  * @author fenris
  */
 class class_tasktemplate_transductor
@@ -537,34 +691,8 @@ class class_tasktemplate_transductor
 				"description": description,
 				"parameters": (
 					[
-						new class_taskparameter<string, lib_path.class_filepointer>(
-							{
-								"name": "input",
-								"extraction": raw => lib_path.filepointer_read(raw),
-								"shape": lib_meta.from_raw(
-									{
-										"id": "string"
-									}
-								),
-								"mandatory": true,
-								"default": null,
-								"description": "the path to the input file",
-							}
-						),
-						new class_taskparameter<string, lib_path.class_filepointer>(
-							{
-								"name": "output",
-								"extraction": raw => lib_path.filepointer_read(raw),
-								"shape": lib_meta.from_raw(
-									{
-										"id": "string"
-									}
-								),
-								"mandatory": true,
-								"default": null,
-								"description": "the path to the output file"
-							}
-						),
+						class_taskparameter.input_single(),
+						class_taskparameter.output_single(),
 					]
 					.concat(parameters_additional)
 				),
@@ -577,6 +705,7 @@ class class_tasktemplate_transductor
 
 
 /**
+ * @desc a tasktemplate for tasks which have a list of inputs and a single output
  * @author fenris
  */
 class class_tasktemplate_aggregator
@@ -603,39 +732,9 @@ class class_tasktemplate_aggregator
 				"description": description,
 				"parameters": (
 					[
-						new class_taskparameter<Array<string>, Array<lib_path.class_filepointer>>(
-							{
-								"name": "inputs",
-								"extraction": raw => raw.map(x => lib_path.filepointer_read(x)),
-								"shape": lib_meta.from_raw(
-									{
-										"id": "array",
-										"parameters": {
-											"shape_element": {
-												"id": "string"
-											}
-										}
-									}
-								),
-								"mandatory": true,
-								"default": null,
-								"description": "the list of paths to the input files",
-							}
-						),
-						new class_taskparameter<string, lib_path.class_filepointer>(
-							{
-								"name": "output",
-								"extraction": raw => lib_path.filepointer_read(raw),
-								"shape": lib_meta.from_raw(
-									{
-										"id": "string"
-									}
-								),
-								"mandatory": true,
-								"default": null,
-								"description": "the path to the output file"
-							}
-						),
+						class_taskparameter.input_list(),
+						class_taskparameter.input_schwamm(),
+						class_taskparameter.output_single(),
 					]
 					.concat(parameters_additional)
 				),

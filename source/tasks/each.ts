@@ -41,37 +41,24 @@ class_tasktemplate.register(
 				new class_taskparameter<string, string>(
 					{
 						"name": "element_type",
-						"shape": lib_meta.from_raw(
-							{
-								"id": "string"
-							}
-						),
-						"mandatory": true,
+						"shape": lib_meta.from_raw({"id": "string"}),
+						"default": new class_nothing<string>(),
 						"description": "the type of the inner task"
 					}
 				),
 				new class_taskparameter<Object, Object>(
 					{
 						"name": "element_parameters",
-						"shape": lib_meta.from_raw(
-							{
-								"id": "any"
-							}
-						),
-						"mandatory": false,
-						"default": {},
+						"shape": lib_meta.from_raw({"id": "any"}),
+						"default": new class_just<Object>({}),
 						"description": "the parameters for the inner task"
 					}
 				),
 				new class_taskparameter<type_output_description, type_output_description>(
 					{
 						"name": "output_description",
-						"shape": lib_meta.from_raw(
-							{
-								"id": "any"
-							}
-						),
-						"mandatory": true,
+						"shape": lib_meta.from_raw({"id": "any"}),
+						"default": new class_nothing<type_output_description>(),
 						"description": "how the output paths are generated"
 					}
 				),

@@ -60,7 +60,7 @@ class class_action_concat extends class_action_adhoc {
 						lib_gnumake.macro_command(
 							{
 								"path": "touch",
-								"output": this.destination.as_string(globalvars.configuration.system),
+								"args": [this.destination.as_string(globalvars.configuration.system)],
 							}
 						)
 					);

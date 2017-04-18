@@ -12,12 +12,8 @@ class_tasktemplate.register(
 					{
 						"name": "output",
 						"extraction": raw => lib_path.filepointer_read(raw),
-						"shape": lib_meta.from_raw(
-							{
-								"id": "string"
-							}
-						),
-						"mandatory": true,
+						"shape": lib_meta.from_raw({"id": "string"}),
+						"default": new class_nothing<string>(),
 						"description": "the path to the output file"
 					}
 				)

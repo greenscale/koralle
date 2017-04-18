@@ -1,23 +1,14 @@
 {
 	"name": "test",
 	"roottask": {
-		"name": "each",
-		"type": "each",
+		"name": "concat",
+		"type": "concat",
 		"parameters": {
-			"element_type": "copy",
-			"inputs": [
-				"source/foo.txt",
-				"source/bar.txt",
-				"source/baz.txt",
-				"source/qux.txt"
-			],
-			"output_description": {
-				"kind": "replace",
-				"parameters": {
-					"from": "source",
-					"to": "build"
-				}
-			}
+			"input_from_schwamm": {
+				"path": "schwamm.json",
+				"group": "foos"
+			},
+			"output": "build/foo.txt"
 		}
 	}
 }

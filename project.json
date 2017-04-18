@@ -53,10 +53,11 @@
 								"source/actions/schwamm-apply.ts",
 								"source/tasks/_task.ts",
 								"source/tasks/group.ts",
+								"source/tasks/each.ts",
 								"source/tasks/empty.ts",
 								"source/tasks/copy.ts",
 								"source/tasks/concat.ts",
-								"source/tasks/each.ts",
+								"source/tasks/typescript.ts",
 								"source/outputs/_output.ts",
 								"source/outputs/regular.ts",
 								"source/outputs/ant.ts",
@@ -65,43 +66,6 @@
 								"source/main.ts"
 							],
 							"output": "temp/unlinked.js"
-						}
-					}
-				]
-			},
-			{
-				"active": false,
-				"name": "documentation",
-				"type": "group",
-				"sub": [
-					{
-						"active": true,
-						"name": "jsdoc",
-						"type": "script",
-						"parameters": {
-							"inputs": [
-								"build/koralle.js"
-							],
-							"outputs": [
-								"documentation/generated"
-							],
-							"interpreter": "/bin/sh",
-							"path": "tools/jsdoc.sh"
-						}
-					},
-					{
-						"active": true,
-						"name": "diagram",
-						"type": "script",
-						"parameters": {
-							"inputs": [
-								"documentation/structure/structure.gv"
-							],
-							"outputs": [
-								"documentation/structure/structure.svg"
-							],
-							"interpreter": "/bin/sh",
-							"path": "tools/graphviz.sh"
 						}
 					}
 				]
