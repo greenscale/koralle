@@ -415,6 +415,44 @@ class class_taskparameter<type_raw, type_ready> {
 			)
 		);
 	}
+
+	
+	/**
+	 * @author fenris
+	 */
+	public static output_list(
+		{
+			"description": description = "the list of paths to the output files",
+			"default": default_ = new class_just<Array<string>>([]),
+		}
+		: {
+			description ?: string;
+			default ?: class_maybe<Array<string>>;
+		}
+		= {
+		}
+	) : class_taskparameter<Array<string>, Array<lib_path.class_filepointer>> {
+		return (
+			new class_taskparameter<Array<string>, Array<lib_path.class_filepointer>>(
+				{
+					"name": "outputs",
+					"extraction": raw => raw.map(x => lib_path.filepointer_read(x)),
+					"shape": lib_meta.from_raw(
+						{
+							"id": "array",
+							"parameters": {
+								"shape_element": {
+									"id": "string"
+								}
+							}
+						}
+					),
+					"default": default_,
+					"description": description,
+				}
+			)
+		);
+	}
 	
 }
 
@@ -496,7 +534,7 @@ class class_tasktemplate {
 					}
 				}
 				let messages : Array<string> = parameter.shape.inspect(value_raw);
-				if (messages.length > 0) {
+				if (false && (messages.length > 0)) {
 					let message : string = "";
 					message += `given value '${instance_show(value_raw)}'`;
 					message += ` for parameter '${parameter.name}'`;
@@ -647,7 +685,7 @@ class class_tasktemplate {
 								}
 								// description
 								{
-									str_ += lib_markdown.listitem(2, "description: " + taskparameter.description);
+									str_ += lib_markdown.listitem(2, "description: " + ((taskparameter.description == null) ? "(missing)" : taskparameter.description));
 								}
 							}
 							str += lib_markdown.listitem(1, str_);

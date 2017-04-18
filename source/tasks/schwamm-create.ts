@@ -2,79 +2,99 @@
 /**
  * @author fenris
  */
-class class_task_schwamm_create extends class_task {
-	
-	/**
-	 * @author fenris
-	 */
-	public constructor(
-		{
-			"name": name,
-			"sub": sub,
-			"active": active,
-			"parameters": {
-				"includes": includes_raw = [],
-				"adhoc": adhoc_raw = {},
-				"output": output_raw = null,
-				"dir": dir_raw = null,
-			},
-		} : {
-			name ?: string,
-			sub ?: Array<class_task>,
-			active ?: boolean,
-			parameters ?: {
-				includes ?: Array<string>,
-				adhoc ?: {[group : string] : Array<string>},
-				output ?: string,
-				dir ?: string;
-			}
-		}
-	) {
-		let includes : Array<lib_path.class_filepointer> = lib_call.use(
-			includes_raw,
-			x => x.map(y => lib_path.filepointer_read(y))
-		);
-		let adhoc : {[group : string] : Array<lib_path.class_filepointer>} = lib_call.use(
-			adhoc_raw,
-			x => lib_object.map<Array<string>, Array<lib_path.class_filepointer>>(x, members => members.map(member => lib_path.filepointer_read(member)))
-		);
-		if (output_raw == undefined) {
-			throw (new Error(class_task.errormessage_mandatoryparamater("schamm-create", name, "output")));
-		}
-		let output : lib_path.class_filepointer = lib_call.use(
-			output_raw,
-			x => lib_path.filepointer_read(x)
-		);
-		let dir : lib_path.class_location = lib_call.use(
-			dir_raw,
-			x => ((x == null) ? null : lib_path.location_read(x))
-		);
-		super(
-			name, sub, active,
-			includes.concat(lib_object.values<Array<lib_path.class_filepointer>>(adhoc).reduce((x, y) => x.concat(y), [])),
-			[output],
-			[
-				new class_action_mkdir(
-					output.location
-				),
-				new class_action_schwamm_create(
-					includes,
-					adhoc,
-					output,
-					dir
-				),
-			]
-		);
-	}
-		
-}
-
-class_task.register(
+class_tasktemplate.register(
 	"schwamm-create",
-	(name, sub, active, parameters) => new class_task_schwamm_create(
+	new class_tasktemplate(
 		{
-			"name": name, "sub": sub, "active": active,
-			"parameters": parameters,
+			"description": null,
+			"parameters": [
+				new class_taskparameter<Array<string>, Array<lib_path.class_filepointer>>(
+					{
+						"name": "includes",
+						"extraction": raw => raw.map(path => lib_path.filepointer_read(path)),
+						"shape": lib_meta.from_raw(
+							{
+								"id": "array",
+								"parameters": {
+									"shape_element": {
+										"id": "string"
+									}
+								}
+							}
+						),
+						"default": new class_just<Array<string>>([]),
+					}
+				),
+				new class_taskparameter<{[group : string] : Array<string>}, {[group : string] : Array<lib_path.class_filepointer>}>(
+					{
+						"name": "adhoc",
+						"extraction": raw => lib_object.map<Array<string>, Array<lib_path.class_filepointer>>(
+							raw,
+							paths => paths.map(path => lib_path.filepointer_read(path))
+						),
+						"shape": lib_meta.from_raw(
+							{
+								"id": "map",
+								"parameters": {
+									"shape_key": {
+										"id": "string"
+									},
+									"shape_value": {
+										"id": "array",
+										"parameters": {
+											"shape_element": {
+												"id": "string"
+											}
+										}
+									}
+								}
+							}
+						),
+						"default": new class_just<{[group : string] : Array<string>}>({}),
+					}
+				),
+				class_taskparameter.output_single(),
+			],
+			"factory": (data) => {
+				let inputs : Array<lib_path.class_filepointer> = [];
+				let outputs : Array<lib_path.class_filepointer> = [];
+				let actions : Array<class_action> = [];
+				// includes
+				{
+					inputs = inputs.concat(
+						data["includes"]
+					);
+				}
+				// adhoc
+				{
+					inputs = inputs.concat(
+						lib_object.values<Array<lib_path.class_filepointer>>(data["adhoc"]).reduce((x, y) => x.concat(y), [])
+					);
+				}
+				// output
+				{
+					outputs = outputs.concat(
+						[data["output"]]
+					);
+					actions = actions.concat(
+						[
+							new class_action_mkdir(
+								data["output"].location
+							),
+							new class_action_schwamm(
+								data["includes"],
+								data["adhoc"],
+								data["output"]
+							),
+						]
+					);
+				}
+				return {
+					"inputs": inputs,
+					"outputs": outputs,
+					"actions": actions,
+				};
+			},
 		}
 	)
 );

@@ -2,98 +2,73 @@
 /**
  * @author fenris
  */
-class class_task_script extends class_task {
-	
-	/**
-	 * @author fenris
-	 */
-	public constructor(
-		{
-			"name": name,
-			"sub": sub,
-			"active": active,
-			"parameters": {
-				"path": path_raw = undefined,
-				"interpreter": interpreter_raw = null,
-				"workdir": workdir_raw = null,
-				"inputs": inputs_raw = [],
-				"outputs": outputs_raw = [],
-			},
-		} : {
-			name ?: string;
-			sub ?: Array<class_task>;
-			active ?: boolean;
-			parameters : {
-				path ?: string;
-				interpreter ?: string;
-				workdir ?: string;
-				inputs ?: Array<string>;
-				outputs ?: Array<string>;
-			};
-		}
-	) {
-		if (path_raw == undefined) {
-			throw (new Error(class_task.errormessage_mandatoryparamater("script", name, "path")));
-		}
-		let path : lib_path.class_filepointer = lib_call.use(
-			path_raw,
-			x => lib_path.filepointer_read(x)
-		);
-		let workdir : lib_path.class_location = lib_call.use(
-			workdir_raw,
-			x => ((x == null) ? null : lib_path.location_read(x))
-		);
-		let interpreter : lib_path.class_filepointer = lib_call.use(
-			interpreter_raw,
-			x => ((x == null) ? null : lib_path.filepointer_read(x))
-		);
-		let inputs : Array<lib_path.class_filepointer> = lib_call.use(
-			inputs_raw,
-			x => x.map(y => lib_path.filepointer_read(y))
-		);
-		let outputs : Array<lib_path.class_filepointer> = lib_call.use(
-			outputs_raw,
-			x => x.map(y => lib_path.filepointer_read(y))
-		);
-		super(
-			name, sub, active,
-			inputs,
-			outputs,
-			(
-				[]
-				.concat(
-					outputs.map(
-						output => new class_action_mkdir(
-							output.location
-						),
-					)
-				)
-				.concat(
-					[
-						new class_action_exec(
-							{
-								"inputs": inputs,
-								"outputs": outputs,
-								"path": path,
-								"interpreter": interpreter,
-								"workdir": workdir,
-							}
-						),
-					]
-				)
-			)
-		);
-	}
-	
-}
-
-class_task.register(
+class_tasktemplate.register(
 	"script",
-	(name, sub, active, parameters) => new class_task_script(
+	new class_tasktemplate(
 		{
-			"name": name, "sub": sub, "active": active,
-			"parameters": parameters,
+			"description": "executes an external script",
+			"parameters": [
+				class_taskparameter.input_list({"default": new class_just<Array<string>>([])}),
+				class_taskparameter.output_list({"default": new class_just<Array<string>>([])}),
+				new class_taskparameter<string, lib_path.class_filepointer>(
+					{
+						"name": "path",
+						"extraction": raw => lib_path.filepointer_read(raw),
+						"shape": lib_meta.from_raw({"id": "string"}),
+						"default": new class_nothing<string>(),
+						"description": "the path to the script",
+					}
+				),
+				new class_taskparameter<string, lib_path.class_filepointer>(
+					{
+						"name": "interpreter",
+						"extraction": raw => ((raw == null) ? null : lib_path.filepointer_read(raw)),
+						"shape": lib_meta.from_raw({"id": "string", "parameters": {"soft": true}}),
+						"default": new class_just<string>(null),
+						"description": "the path to the interpreter to use; if value NULL is given, it is assumed that the script is self-executable",
+					}
+				),
+				new class_taskparameter<string, lib_path.class_location>(
+					{
+						"name": "workdir",
+						"extraction": raw => ((raw == null) ? null : lib_path.location_read(raw)),
+						"shape": lib_meta.from_raw({"id": "string", "parameters": {"soft": true}}),
+						"default": new class_just<string>(null),
+						"description": "the path to the directory from where the script shall be executed; if value NULL is given, the workdir is the location of the script",
+					}
+				),
+			],
+			"factory": (data) => {
+				return {
+					"inputs": data["inputs"],
+					"outputs": data["outputs"],
+					"actions": (
+						[]
+						.concat(
+							data["outputs"].map(
+								output => new class_action_mkdir(
+									output.location
+								),
+							)
+						)
+						.concat(
+							[
+								new class_action_exec(
+									{
+										"inputs": data["inputs"],
+										"outputs": data["outputs"],
+										"path": data["path"],
+										"interpreter": data["interpreter"],
+										"workdir": data["workdir"],
+									}
+								),
+							]
+						)
+					),
+				};
+			},
 		}
 	)
 );
+
 

@@ -77,7 +77,7 @@ class_tasktemplate.register(
 					"outputs": outputs,
 					"actions": actions,
 				};
-			}
+			},
 		}
 	)
 );

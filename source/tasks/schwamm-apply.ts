@@ -2,75 +2,90 @@
 /**
  * @author fenris
  */
-class class_task_schwamm_apply extends class_task {
-	
-	/**
-	 * @author fenris
-	 */
-	public constructor(
-		{
-			"name": name,
-			"sub": sub,
-			"active": active,
-			"parameters": {
-				"path" : path_raw,
-				"outputs" : outputs_raw = null,
-			}
-		} : {
-			name ?: string;
-			sub ?: Array<class_task>;
-			active ?: boolean;
-			parameters ?: {
-				path ?: string;
-				outputs ?: {[group : string] : string};
-			}
-		}
-	) {
-		if (path_raw == undefined) {
-			throw (new Error(class_task.errormessage_mandatoryparamater("schamm-apply", name, "path")));
-		}
-		let path : lib_path.class_filepointer = lib_call.use(
-			path_raw,
-			x => lib_path.filepointer_read(x)
-		);
-		if (outputs_raw == undefined) {
-			throw (new Error(class_task.errormessage_mandatoryparamater("schamm-apply", name, "outputs")));
-		}
-		let outputs : {[group : string] : lib_path.class_filepointer} = lib_call.use(
-			outputs_raw,
-			x => lib_object.map<string, lib_path.class_filepointer>(x, output => lib_path.filepointer_read(output))
-		);
-		super(
-			name, sub, active,
-			[path],
-			lib_object.to_array(outputs).map(x => x.value),
-			(
-				lib_object.to_array(outputs).map(
-					pair => [
-						new class_action_mkdir(
-							pair.value.location
-						),
-						new class_action_schwamm_apply(
-							path,
-							pair.key,
-							pair.value
-						),
-					]
-				)
-				.reduce((x, y) => x.concat(y), [])
-			)
-		);
-	}	
-	
-}
-
-class_task.register(
+class_tasktemplate.register(
 	"schwamm-apply",
-	(name, sub, active, parameters) => new class_task_schwamm_apply(
+	new class_tasktemplate(
 		{
-			"name": name, "sub": sub, "active": active,
-			"parameters": parameters,
+			"description": null,
+			"parameters": [
+				new class_taskparameter<string, lib_path.class_filepointer>(
+					{
+						"name": "path",
+						"extraction": raw => lib_path.filepointer_read(raw),
+						"shape": lib_meta.from_raw({"id": "string"}),
+					}
+				),
+				new class_taskparameter<{[group : string] : Array<string>}, {[group : string] : Array<lib_path.class_filepointer>}>(
+					{
+						"name": "outputs",
+						"extraction": raw => lib_object.map<Array<string>, Array<lib_path.class_filepointer>>(
+							raw,
+							paths => paths.map(path => lib_path.filepointer_read(path))
+						),
+						"shape": lib_meta.from_raw(
+							{
+								"id": "map",
+								"parameters": {
+									"shape_key": {
+										"id": "string"
+									},
+									"shape_value": {
+										"id": "array",
+										"parameters": {
+											"shape_element": {
+												"id": "string"
+											}
+										}
+									}
+								}
+							}
+						),
+						"default": new class_just<{[group : string] : Array<string>}>({}),
+					}
+				),
+			],
+			"factory": (data) => {
+				let inputs : Array<lib_path.class_filepointer> = [];
+				let outputs : Array<lib_path.class_filepointer> = [];
+				let actions : Array<class_action> = [];
+				// path
+				{
+					inputs = inputs.concat(
+						[data["path"]]
+					);
+				}
+				// output
+				{
+					outputs = outputs.concat(
+						lib_object.values<lib_path.class_filepointer>(data["output"]).reduce((x, y) => x.concat(y), [])
+					);
+					actions = actions.concat(
+						lib_object.to_array<lib_path.class_filepointer>(data["output"])
+						.map(
+							({"key": key, "value": value}) => [
+								new class_action_mkdir(
+									value.location
+								),
+								new class_action_schwamm(
+									[data["path"]],
+									{},
+									undefined,
+									key,
+									value
+								),
+							]
+						)
+						.reduce((x, y) => x.concat(y), [])
+					);
+				}
+				return {
+					"inputs": inputs,
+					"outputs": outputs,
+					"actions": actions,
+				};
+			},
 		}
 	)
 );
+
 

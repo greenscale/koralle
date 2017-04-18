@@ -2,161 +2,173 @@
 /**
  * @author fenris
  */
-class class_task_schwamm extends class_task {
-	
-	/**
-	 * @author fenris
-	 */
-	public constructor(
+class_tasktemplate.register(
+	"schwamm",
+	new class_tasktemplate(
 		{
-			"name": name,
-			"sub": sub,
-			"active": active,
-			"parameters": {
-				"includes": includes_raw = [],
-				"inputs": inputs_raw = {},
-				"output": {
-					"save": save_raw = null,
-					"dump": dump_raw = {},
-					"locmerge": locmerge_raw = {},
-				},
-			}
-		} : {
-			name ?: string;
-			sub ?: Array<class_task>;
-			active ?: boolean;
-			parameters ?: {
-				includes ?: Array<string>;
-				inputs ?: {[domain : string] : Array<string>};
-				output ?: {
-					save ?: string;
-					dump ?: {[domain : string] : string};
-					locmerge ?: {[domain : string] : {[identifier : string] : string}};
-				};
-			}
-		}
-	) {
-		let includes : Array<lib_path.class_filepointer> = lib_call.use(
-			includes_raw,
-			x => x.map(y => lib_path.filepointer_read(y))
-		);
-		let inputs : {[domain : string] : Array<lib_path.class_filepointer>} = lib_call.use(
-			inputs_raw,
-			x => lib_object.map<Array<string>, Array<lib_path.class_filepointer>>(x, members => members.map(member => lib_path.filepointer_read(member)))
-		);
-		let save : lib_path.class_filepointer = lib_call.use(
-			save_raw,
-			y => ((y == null) ? null : lib_path.filepointer_read(y))
-		);
-		let dump : {[domain : string] : lib_path.class_filepointer} = lib_call.use(
-			dump_raw,
-			x => lib_object.map<string, lib_path.class_filepointer>(x, y => lib_path.filepointer_read(y))
-		);
-		let locmerge : {[domain : string] : {[identifier : string] : lib_path.class_filepointer}} = lib_call.use(
-			locmerge_raw,
-			x => lib_object.map<{[identifier : string] : string}, {[identifier : string] : lib_path.class_filepointer}>(
-				x,
-				y => lib_object.map<string, lib_path.class_filepointer>(y, z => lib_path.filepointer_read(z))
-			)
-		);
-		super(
-			name, sub, active,
-			(
-				[]
-				.concat(includes)
-				.concat(lib_object.values(inputs).reduce((x, y) => x.concat(y), []))
-			),
-			(
-				[]
-				.concat(
-					(save == null)
-					? []
-					: [save]
-				)
-				.concat(
-					lib_object.values(dump).reduce((x, y) => x.concat(y), [])
-				)
-				.concat(
-					lib_object.values(locmerge)
-					.map(
-						z => lib_object.values(z).reduce((x, y) => x.concat(y), [])
-					)
-					.reduce((x, y) => x.concat(y), [])
-				)
-			),
-			(
-				[]
-				.concat(
-					(save == null)
-					? [
-					]
-					: [
-						new class_action_mkdir(
-							save.location
+			"description": null,
+			"parameters": [
+				new class_taskparameter<Array<string>, Array<lib_path.class_filepointer>>(
+					{
+						"name": "includes",
+						"extraction": raw => raw.map(path => lib_path.filepointer_read(path)),
+						"shape": lib_meta.from_raw(
+							{
+								"id": "array",
+								"parameters": {
+									"shape_element": {
+										"id": "string"
+									}
+								}
+							}
 						),
-						new class_action_schwamm(
-							includes,
-							inputs,
-							save
+						"default": new class_just<Array<string>>([]),
+					}
+				),
+				new class_taskparameter<{[group : string] : Array<string>}, {[group : string] : Array<lib_path.class_filepointer>}>(
+					{
+						"name": "inputs",
+						"extraction": raw => lib_object.map<Array<string>, Array<lib_path.class_filepointer>>(
+							raw,
+							paths => paths.map(path => lib_path.filepointer_read(path))
 						),
-					]
-				)
-				.concat(
-					lib_object.to_array(dump)
-					.map(
-						pair => [
-							new class_action_mkdir(
-								pair.value.location
-							),
-							new class_action_schwamm(
-								includes,
-								inputs,
-								undefined,
-								pair.key,
-								pair.value
-							),
-						]
-					)
-					.reduce((x, y) => x.concat(y), [])
-				)
-				.concat(
-					lib_object.to_array(locmerge)
-					.map(
-						pair => lib_object.to_array(pair.value)
-						.map(
-							pair_ => [
+						"shape": lib_meta.from_raw(
+							{
+								"id": "map",
+								"parameters": {
+									"shape_key": {
+										"id": "string"
+									},
+									"shape_value": {
+										"id": "array",
+										"parameters": {
+											"shape_element": {
+												"id": "string"
+											}
+										}
+									}
+								}
+							}
+						),
+						"default": new class_just<{[group : string] : Array<string>}>({}),
+					}
+				),
+				new class_taskparameter<any, any>(
+					{
+						"name": "output",
+						"extraction": raw => {
+							let result = {};
+							if ("save" in raw) {
+								result["save"] = lib_path.filepointer_read(raw["save"]);
+							}
+							if ("dump" in raw) {
+								result["dump"] = lib_object.map<string, lib_path.class_filepointer>(raw["dump"], path => lib_path.filepointer_read(path));
+							}
+							return result;
+						},
+						"shape": lib_meta.from_raw(
+							{
+								"id": "object",
+								"parameters": {
+									"fields": [
+										{
+											"name": "save",
+											"shape": {
+												"id": "string",
+												"parameters": {
+													"soft": true
+												}
+											}
+										},
+										{
+											"name": "dump",
+											"shape": {
+												"id": "map",
+												"parameters": {
+													"shape_key": {
+														"id": "string"
+													},
+													"shape_value": {
+														"id": "string"
+													},
+													"soft": true
+												}
+											}
+										}
+									]
+								}
+							}
+						),
+					}
+				),
+			],
+			"factory": (data) => {
+				let inputs : Array<lib_path.class_filepointer> = [];
+				let outputs : Array<lib_path.class_filepointer> = [];
+				let actions : Array<class_action> = [];
+				// includes
+				{
+					inputs = inputs.concat(
+						data["includes"]
+					);
+				}
+				// inputs
+				{
+					inputs = inputs.concat(
+						lib_object.values<Array<lib_path.class_filepointer>>(data["inputs"]).reduce((x, y) => x.concat(y), [])
+					);
+				}
+				// output
+				{
+					if ("save" in data["output"]) {
+						outputs = outputs.concat(
+							data["output"]["save"]
+						);
+						actions = actions.concat(
+							[
 								new class_action_mkdir(
-									pair_.value.location
+									data["output"]["save"].location
 								),
 								new class_action_schwamm(
-									includes,
-									inputs,
-									undefined,
-									undefined,
-									undefined,
-									pair.key,
-									pair_.key,
-									pair_.value,
+									data["includes"],
+									data["inputs"],
+									data["output"]["save"]
 								),
 							]
-						)
-						.reduce((x, y) => x.concat(y), [])
-					)
-					.reduce((x, y) => x.concat(y), [])
-				)
-			)
-		);
-	}	
-	
-}
-
-class_task.register(
-	"schwamm",
-	(name, sub, active, parameters) => new class_task_schwamm(
-		{
-			"name": name, "sub": sub, "active": active,
-			"parameters": parameters,
+						);
+					}
+					if ("dump" in data["output"]) {
+						outputs = outputs.concat(
+							lib_object.values<lib_path.class_filepointer>(data["output"]["dump"]).reduce((x, y) => x.concat(y), [])
+						);
+						actions = actions.concat(
+							lib_object.to_array<lib_path.class_filepointer>(data["output"]["dump"])
+							.map(
+								({"key": key, "value": value}) => [
+									new class_action_mkdir(
+										value.location
+									),
+									new class_action_schwamm(
+										data["includes"],
+										data["inputs"],
+										undefined,
+										key,
+										value
+									),
+								]
+							)
+							.reduce((x, y) => x.concat(y), [])
+						);
+					}
+				}
+				return {
+					"inputs": inputs,
+					"outputs": outputs,
+					"actions": actions,
+				};
+			},
 		}
 	)
 );
+
 

@@ -58,6 +58,13 @@
 								"source/tasks/copy.ts",
 								"source/tasks/concat.ts",
 								"source/tasks/typescript.ts",
+								"source/tasks/lesscss.ts",
+								"source/tasks/php.ts",
+								"source/tasks/babel.ts",
+								"source/tasks/schwamm.ts",
+								"source/tasks/schwamm-create.ts",
+								"source/tasks/schwamm-apply.ts",
+								"source/tasks/script.ts",
 								"source/outputs/_output.ts",
 								"source/outputs/regular.ts",
 								"source/outputs/ant.ts",
@@ -66,6 +73,43 @@
 								"source/main.ts"
 							],
 							"output": "temp/unlinked.js"
+						}
+					}
+				]
+			},
+			{
+				"active": false,
+				"name": "documentation",
+				"type": "group",
+				"sub": [
+					{
+						"active": true,
+						"name": "jsdoc",
+						"type": "script",
+						"parameters": {
+							"inputs": [
+								"build/koralle.js"
+							],
+							"outputs": [
+								"documentation/generated"
+							],
+							"interpreter": "/bin/sh",
+							"path": "tools/jsdoc.sh"
+						}
+					},
+					{
+						"active": true,
+						"name": "diagram",
+						"type": "script",
+						"parameters": {
+							"inputs": [
+								"documentation/structure/structure.gv"
+							],
+							"outputs": [
+								"documentation/structure/structure.svg"
+							],
+							"interpreter": "/bin/sh",
+							"path": "tools/graphviz.sh"
 						}
 					}
 				]
