@@ -1121,6 +1121,35 @@ declare module lib_meta {
     /**
      * @author fenris
      */
+    class class_shape_any extends class_shape {
+        /**
+         * @author fenris
+         */
+        constructor({"soft": soft, "defaultvalue": defaultvalue}: {
+            soft?: boolean;
+            defaultvalue?: any;
+        });
+        /**
+         * @override
+         * @author fenris
+         */
+        inspect(value: any): Array<string>;
+        /**
+         * @override
+         * @author fenris
+         */
+        to_raw(): type_shape_raw;
+        /**
+         * @desc [implementation]
+         * @author fenris
+         */
+        _show(): string;
+    }
+}
+declare module lib_meta {
+    /**
+     * @author fenris
+     */
     class class_shape_boolean extends class_shape_buildin {
         /**
          * @author fenris

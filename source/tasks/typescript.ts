@@ -2,191 +2,163 @@
 /**
  * @author fenris
  */
-class class_task_typescript extends class_task {
-	
-	/**
-	 * @author fenris
-	 */
-	public constructor(
-		{
-			"name": name,
-			"sub": sub,
-			"active": active,
-			"parameters": {
-				"inputs": inputs_raw = [],
-				"output": output_raw = null,
-				"target": target = null,
-				"allowUnreachableCode": allowUnreachableCode = null,
-				"declaration": declaration_raw = null,
-			}
-		} : {
-			name ?: string;
-			sub ?: Array<class_task>;
-			active ?: boolean;
-			parameters : {
-				inputs ?: Array<string>;
-				output ?: string;
-				target ?: string;
-				allowUnreachableCode ?: boolean;
-				declaration ?: string;
-			}
-		}
-	) {
-		/*
-		[
-			new class_taskparameter<Array<string>, Array<lib_path.class_filepointer>>(
-				{
-					"name": "inputs",
-					"type": {
+class_task.register(
+	"typescript",
+	{
+		"description": "compiles a list of typescript input files to a single javascript output file",
+		"parameters": [
+			{
+				"name": "inputs",
+				"extraction": raw => {
+					return (
+						new class_just<Array<lib_path.class_filepointer>>(
+							raw.map(
+								path => lib_path.filepointer_read(path)
+							)
+						)
+					);
+				},
+				"shape": lib_meta.from_raw(
+					{
 						"id": "array",
 						"parameters": {
-							"type_element": {
-								"id": "string",
-							},
-						},
-					},
-					"mandatory": false,
-					"default": [],
-					"key": "inputs",
-					"extraction": raw => lib_call.use(
-						raw,
-						x => x.map(y => lib_path.filepointer_read(y))
-					),
-					"description": "the paths of the source files",
-				}
-			),
-			new class_taskparameter<string>(
-				{
-					"type": {
+							"shape_element": {
+								"id": "string"
+							}
+						}
+					}
+				),
+				"mandatory": true,
+				"default": [],
+				"description": "the paths of the source files"
+			},
+			{
+				"name": "output",
+				"extraction": raw => {
+					return (
+						new class_just<lib_path.class_filepointer>(
+							lib_path.filepointer_read(raw)
+						)
+					);
+				},
+				"shape": lib_meta.from_raw(
+					{
+						"id": "string"
+					}
+				),
+				"mandatory": true,
+				"default": null,
+				"description": "the path to the output file"
+			},
+			{
+				"name": "declaration",
+				"extraction": raw => {
+					return (
+						(raw == null)
+						? null
+						: new class_just<lib_path.class_filepointer>(
+							lib_path.filepointer_read(raw)
+						)
+					);
+				},
+				"shape": lib_meta.from_raw(
+					{
 						"id": "string",
-					},
-					"name": "output",
-					"key": "output",
-					"mandatory": true,
-					"default": null,
-					"description": "the path of the file in which to write the compilation",
-				}
-			),
-			new class_taskparameter<string>(
-				{
-					"type": {
+					}
+				),
+				"mandatory": false,
+				"default": null,
+				"description": "the path of the file in which to write the declaration; if not set, no declaration-script will be created",
+			},
+			{
+				"name": "target",
+				"extraction": raw => {
+					return (
+						(raw == null)
+						? null
+						: new class_just<string>(
+							raw
+						)
+					);
+				},
+				"shape": lib_meta.from_raw(
+					{
 						"id": "string",
-					},
-					"name": "declaration",
-					"key": "declaration",
-					"mandatory": false,
-					"default": null,
-					"description": "the path of the file in which to write the declaration; if not set, no declaration-script will be created",
-				}
-			),
-			new class_taskparameter<string>(
-				{
-					"type": {
-						"id": "string",
-					},
-					"name": "target",
-					"key": "target",
-					"mandatory": false,
-					"default": null,
-					"description": "the tsc-switch 'target'; default: don't specify",
-				}
-			),
-			new class_taskparameter<boolean>(
-				{
-					"type": {
+					}
+				),
+				"mandatory": false,
+				"default": null,
+				"description": "the tsc-switch 'target'; default: don't specify",
+			},
+			{
+				"name": "allow_unreachable_code",
+				"extraction": raw => {
+					return (
+						(raw == null)
+						? null
+						: new class_just<boolean>(
+							raw
+						)
+					);
+				},
+				"shape": lib_meta.from_raw(
+					{
 						"id": "boolean",
-					},
-					"name": "allowUnreachableCode",
-					"key": "allow_unreachable_code",
-					"mandatory": false,
-					"default": null,
-					"description": "the tsc-switch 'allowUnreachableCode'; default: don't specify",
-				}
-			),
-		]
-		 */
-		let inputs : Array<lib_path.class_filepointer> = lib_call.use(
-			inputs_raw,
-			x => x.map(y => lib_path.filepointer_read(y))
-		);
-		if (output_raw == undefined) {
-			throw (new Error(class_task.errormessage_mandatoryparamater("typescript", name, "output")));
-		}
-		let output : lib_path.class_filepointer = lib_call.use(
-			output_raw,
-			x => lib_path.filepointer_read(x)
-		);
-		let declaration : lib_path.class_filepointer = lib_call.use(
-			declaration_raw,
-			x => ((x == null) ? null : lib_path.filepointer_read(x))
-		);
-		let original : lib_path.class_filepointer = lib_call.use(
-			output_raw,
-			lib_call.compose(
-				x => x.replace(new RegExp(".js$"), ".d.ts"),
-				x => lib_path.filepointer_read(x)
+					}
+				),
+				"mandatory": false,
+				"default": null,
+				"description": "the tsc-switch 'allowUnreachableCode'; default: don't specify",
+			},
+		],
+		"inputs": data => {
+			return data["inputs"];
+		},
+		"outputs": data => {
+			let outputs : Array<lib_path.class_filepointer> = [];
+			outputs.push(data["output"]);
+			if (data["declaration"] != null) {
+				outputs.push(data["declaration"]);
+			}
+			return outputs;
+		},
+		"actions": data => {
+			let actions : Array<class_action> = [];
+			actions = actions.concat(
+				[
+					new class_action_mkdir(
+						data["output"].location
+					),
+					new class_action_tsc(
+						data["inputs"],
+						data["output"],
+						data["target"],
+						data["allow_unreachable_code"],
+						data["declaration"]
+					),
+				]
 			)
-		);
-		super(
-			name, sub, active,
-			inputs,
-			(
-				[]
-				.concat(
-					[output]
-				)
-				.concat(
-					(declaration == null)
-					? []
-					: [declaration]
-				)
-			),
-			(
-				[]
-				.concat(
+			if (data["declaration"] != null) {
+				let from = new lib_path.class_filepointer(
+					data["output"].location,
+					data["output"].filename.replace(new RegExp(".js$"), ".d.ts")
+				);
+				actions = actions.concat(
 					[
 						new class_action_mkdir(
-							output.location
-						),
-						new class_action_tsc(
-							inputs,
-							output,
-							target,
-							allowUnreachableCode,
-							declaration
-						),
-					]
-				)
-				.concat(
-					(declaration == null)
-					?
-					[]
-					:
-					[
-						new class_action_mkdir(
-							declaration.location
+							data["declaration"].location
 						),
 						new class_action_move(
 							{
-								"from": original,
-								"to": declaration,
+								"from": from,
+								"to": data["declaration"],
 							}
 						),
 					]
-				)
-			)
-		);
+				);
+			}
+			return actions;
+		},
 	}
-	
-}
-
-class_task.register(
-	"typescript",
-	(name, sub, active, parameters) => new class_task_typescript(
-		{
-			"name": name, "sub": sub, "active": active,
-			"parameters": parameters,
-		}
-	)
 );
 

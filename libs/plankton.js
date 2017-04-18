@@ -2589,7 +2589,7 @@ var lib_meta;
         class_shape_buildin.prototype._show = function () {
             var str = "";
             str = this.typename;
-            if (!this.soft) {
+            if (this.soft) {
                 str = str + "_or_null";
             }
             return str;
@@ -2649,6 +2649,60 @@ var lib_meta;
         return construct(id, {});
     }
     lib_meta.retrieve = retrieve;
+})(lib_meta || (lib_meta = {}));
+var lib_meta;
+(function (lib_meta) {
+    /**
+     * @author fenris
+     */
+    var class_shape_any = (function (_super) {
+        __extends(class_shape_any, _super);
+        /**
+         * @author fenris
+         */
+        function class_shape_any(_a) {
+            var _b = _a["soft"], soft = _b === void 0 ? false : _b, _c = _a["defaultvalue"], defaultvalue = _c === void 0 ? 0 : _c;
+            return _super.call(this, {
+                "soft": soft,
+                "defaultvalue": defaultvalue
+            }) || this;
+        }
+        /**
+         * @override
+         * @author fenris
+         */
+        class_shape_any.prototype.inspect = function (value) {
+            var messages = _super.prototype.inspect.call(this, value);
+            return messages;
+        };
+        /**
+         * @override
+         * @author fenris
+         */
+        class_shape_any.prototype.to_raw = function () {
+            return {
+                "id": "any",
+                "parameters": {
+                    "soft": this.soft
+                }
+            };
+        };
+        /**
+         * @desc [implementation]
+         * @author fenris
+         */
+        class_shape_any.prototype._show = function () {
+            var str = "any";
+            return str;
+        };
+        return class_shape_any;
+    }(lib_meta.class_shape));
+    lib_meta.class_shape_any = class_shape_any;
+    lib_meta.register("any", function (parameters) {
+        return (new class_shape_any({
+            "soft": parameters["soft"]
+        }));
+    });
 })(lib_meta || (lib_meta = {}));
 var lib_meta;
 (function (lib_meta) {
@@ -2880,6 +2934,9 @@ var lib_meta;
         return class_shape_string;
     }(lib_meta.class_shape_buildin));
     lib_meta.class_shape_string = class_shape_string;
+    /**
+     * @author fenris
+     */
     lib_meta.register("string", function (parameters) {
         return (new class_shape_string({
             "soft": parameters["soft"]
