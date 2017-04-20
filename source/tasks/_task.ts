@@ -236,7 +236,7 @@ class class_taskparameter<type_raw, type_ready> {
 			"name": name,
 			"extraction": extraction = lib_call.id,
 			"shape": shape = lib_meta.from_raw({"id": "any"}),
-			"default": default_ = new class_just<type_raw>(null),
+			"default": default_ = new class_nothing<type_raw>(),
 			"description": description = null,
 		}
 		: {
@@ -517,17 +517,17 @@ class class_tasktemplate {
 	 * @desc converts raw parameter values to real ones
 	 * @author fenris
 	 */
-	protected convert(object_raw : {[name : string] : any}, name ?: string) : {[name : string] : any} {
+	protected convert(object_raw : {[name : string] : any}, task_name ?: string) : {[name : string] : any} {
 		let object_ready : {[name : string] : any} = {};
 		this.parameters.forEach(
 			parameter => {
 				let value_raw : any;
-				if (parameter.name in object_raw) {
+				if ((object_raw != null) && (parameter.name in object_raw)) {
 					value_raw = object_raw[parameter.name];
 				}
 				else {
 					if (parameter.default_.is_nothing()) {
-						throw (new Error(`the mandatory parameter '${parameter.name}' is missing in the task description for task '${name}'`));
+						throw (new Error(`mandatory parameter '${parameter.name}' is missing in task '${task_name}'`));
 					}
 					else {
 						value_raw = parameter.default_.cull();
@@ -549,6 +549,18 @@ class class_tasktemplate {
 				}
 			}
 		);
+		if (object_raw != null) {
+			Object.keys(object_raw)
+				.filter(
+					key => (! this.parameters.some(parameter => (parameter.name == key)))
+				)
+				.forEach(
+					key => {
+						(new class_message(`unrecognized parameter '${key}' in task '${task_name}'`, {"type": "warning", "prefix": "koralle"})).stderr();
+					}
+				)
+			;
+		}
 		return object_ready;
 	}
 	
@@ -780,6 +792,18 @@ class class_tasktemplate_aggregator
 			}
 		);
 	}
-		
+	
+	
+	/**
+	 * @author fenris
+	 */
+	protected inputs_all(data : {[name : string] : any}) : Array<lib_path.class_filepointer> {
+		return (
+			[]
+			.concat(data["inputs"])
+			.concat(data["input_from_schwamm"])
+		);
+	}
+	
 }
 
