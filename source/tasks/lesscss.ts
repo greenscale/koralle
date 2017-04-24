@@ -13,14 +13,14 @@ class_tasktemplate.register(
 					"_.less"
 				);
 				return {
-					"inputs": this.inputs_all(data),
+					"inputs": class_tasktemplate_aggregator.inputs_all(data),
 					"outputs": data["outputs"],
 					"actions": [
 						new class_action_mkdir(
 							data["output"].location
 						),
 						new class_action_concat(
-							this.inputs_all(data),
+							class_tasktemplate_aggregator.inputs_all(data),
 							filepointer_temp
 						),
 						new class_action_lessc(

@@ -797,7 +797,7 @@ class class_tasktemplate_aggregator
 	/**
 	 * @author fenris
 	 */
-	protected inputs_all(data : {[name : string] : any}) : Array<lib_path.class_filepointer> {
+	public static inputs_all(data : {[name : string] : any}) : Array<lib_path.class_filepointer> {
 		return (
 			[]
 			.concat(data["inputs"])

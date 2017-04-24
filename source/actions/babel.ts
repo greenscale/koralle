@@ -17,9 +17,15 @@ class class_action_babel extends class_action_adhoc {
 	
 	
 	/**
-	 * @author neu3no
+	 * @author neu3no,fenris
 	 */
-	protected preset : string;
+	protected presets : Array<string>;
+	
+	
+	/**
+	 * @author fenris
+	 */
+	protected plugins : Array<string>;
 	
 	
 	/**
@@ -34,13 +40,15 @@ class class_action_babel extends class_action_adhoc {
 	public constructor(
 		filepointers_from : Array<lib_path.class_filepointer>,
 		filepointer_to : lib_path.class_filepointer,
-		preset : string,
-		minify : boolean
+		presets : Array<string>,
+		plugins : Array<string>,
+		minify : boolean,
 	) {
 		super();
 		this.filepointers_from = filepointers_from;
 		this.filepointer_to = filepointer_to;
-		this.preset = preset;
+		this.presets = presets;
+		this.plugins = plugins;
 		this.minify = minify;
 	}
 	
@@ -63,16 +71,22 @@ class class_action_babel extends class_action_adhoc {
 		}
 		// presets
 		{
-			let presets : Array<string> = [];
-			if (this.preset !== null) {
-				presets.push(this.preset);
+			if ((this.presets !== null) && (this.presets.length > 0)) {
+				args.push("--presets");
+				args.push(this.presets.join(","));
 			}
+		}
+		// plugins
+		{
+			if ((this.plugins != null) && (this.plugins.length > 0)) {
+				args.push("--plugins");
+				args.push(this.plugins.join(","));
+			}
+		}
+		// minify
+		{
 			if (this.minify) {
 				args.push("--minified")
-			}
-			if (presets.length > 0) {
-				args.push("--presets");
-				args.push(presets.join(","));
 			}
 		}
 		let cmdparams : type_cmdparams = {
