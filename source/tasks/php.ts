@@ -26,15 +26,16 @@ class_tasktemplate.register(
 				),
 			],
 			"factory": (data) => {
+				let inputs : Array<lib_path.class_filepointer> = class_tasktemplate_aggregator.inputs_all(data);
 				return {
-					"inputs": data["inputs"],
+					"inputs": inputs,
 					"outputs": data["outputs"],
 					"actions": [
 						new class_action_mkdir(
 							data["output"].location
 						),
 						new class_action_php(
-							data["inputs"],
+							inputs,
 							data["output"],
 							data["only_first"],
 							data["only_last"]

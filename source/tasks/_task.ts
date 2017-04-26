@@ -294,7 +294,7 @@ class class_taskparameter<type_raw, type_ready> {
 	public static input_list(
 		{
 			"description": description = "the list of paths to the input files",
-			"default": default_ = new class_just<Array<string>>([]),
+			"default": default_ = new class_nothing<Array<string>>(),
 		}
 		: {
 			description ?: string;
@@ -332,7 +332,7 @@ class class_taskparameter<type_raw, type_ready> {
 	public static input_schwamm(
 		{
 			"description": description = "parameters for a schwamm which holds a list of files in a group",
-			"default": default_ = new class_just<{path : string; group : string;}>(null),
+			"default": default_ = new class_nothing<{path : string; group : string;}>(),
 		}
 		: {
 			description ?: string;
@@ -782,8 +782,9 @@ class class_tasktemplate_aggregator
 				"description": description,
 				"parameters": (
 					[
-						class_taskparameter.input_list(),
-						class_taskparameter.input_schwamm(),
+						class_taskparameter.input_single({"default": new class_just<string>("DUMMY")}),
+						class_taskparameter.input_list({"default": new class_just<Array<string>>([])}),
+						class_taskparameter.input_schwamm({"default": new class_just<any>(null)}),
 						class_taskparameter.output_single(),
 					]
 					.concat(parameters_additional)
@@ -800,8 +801,19 @@ class class_tasktemplate_aggregator
 	public static inputs_all(data : {[name : string] : any}) : Array<lib_path.class_filepointer> {
 		return (
 			[]
-			.concat(data["inputs"])
-			.concat(data["input_from_schwamm"])
+			.concat(
+				(data["input"].as_string().includes("DUMMY"))
+				? []
+				: [data["input"]]
+			)
+			.concat(
+				data["inputs"]
+			)
+			.concat(
+				(data["input_from_schwamm"] == null)
+				? []
+				: data["input_from_schwamm"]
+			)
 		);
 	}
 	

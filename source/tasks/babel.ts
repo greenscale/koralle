@@ -42,15 +42,16 @@ class_tasktemplate.register(
 				),
 			],
 			"factory": (data) => {
+				let inputs : Array<lib_path.class_filepointer> = class_tasktemplate_aggregator.inputs_all(data);
 				return {
-					"inputs": data["inputs"],
+					"inputs": inputs,
 					"outputs": [data["output"]],
 					"actions": [
 						new class_action_mkdir(
 							data["output"].location
 						),
 						new class_action_babel(
-							data["inputs"],
+							inputs,
 							data["output"],
 							data["presets"].concat((data["preset"] == null) ? [] : [data["preset"]]),
 							data["plugins"],

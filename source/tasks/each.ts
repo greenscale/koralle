@@ -47,8 +47,8 @@ class_tasktemplate.register(
 		{
 			"description": "executes a specific task for a list of inputs",
 			"parameters": [
-				class_taskparameter.input_list(),
-				class_taskparameter.input_schwamm(),
+				class_taskparameter.input_list({"default": new class_just<Array<any>>([])}),
+				class_taskparameter.input_schwamm({"default": new class_just<any>(null)}),
 				new class_taskparameter<string, string>(
 					{
 						"name": "element_type",

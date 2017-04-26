@@ -35,14 +35,14 @@ class_tasktemplate.register(
 				),
 			],
 			"factory": (data) => {
-				let inputs : Array<lib_path.class_filepointer> = data["inputs"];
+				let inputs : Array<lib_path.class_filepointer> = class_tasktemplate_aggregator.inputs_all(data);
 				let outputs : Array<lib_path.class_filepointer> = [data["output"]];
 				let actions : Array<class_action> = [
 					new class_action_mkdir(
 						data["output"].location
 					),
 					new class_action_tsc(
-						data["inputs"],
+						inputs,
 						data["output"],
 						data["target"],
 						data["allowUnreachableCode"],
