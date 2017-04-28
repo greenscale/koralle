@@ -18,7 +18,7 @@ class_tasktemplate.register(
 			"factory": (data) => {
 				return {
 					"inputs": [data["input"]],
-					"outputs": [data["output"]],
+					"outputs": /*[data["output"]]*/[],
 					"actions": [
 						new class_action_mkdir(
 							data["output"].location

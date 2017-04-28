@@ -8,8 +8,9 @@ class_tasktemplate.register(
 		{
 			"description": "executes a locmerge command",
 			"parameters": [
-				class_taskparameter.input_list(),
-				class_taskparameter.input_schwamm(),
+				class_taskparameter.input_single({"default": new class_just<string>("DUMMY")}),
+				class_taskparameter.input_list({"default": new class_just<Array<string>>([])}),
+				class_taskparameter.input_schwamm({"default": new class_just<any>(null)}),
 				new class_taskparameter<string, lib_path.class_location>(
 					{
 						"name": "output_folder",
@@ -20,7 +21,7 @@ class_tasktemplate.register(
 				),
 			],
 			"factory": (data) => {
-				let inputs : Array<lib_path.class_filepointer> = [].concat(data["inputs"]).concat(data["input_from_schwamm"]);
+				let inputs : Array<lib_path.class_filepointer> = class_tasktemplate_aggregator.inputs_all(data);
 				return {
 					"inputs": inputs,
 					"outputs": [],

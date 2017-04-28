@@ -48,7 +48,8 @@ class class_target_gnumake extends class_target_regular<string> {
 			"depth": depth = 0,
 			"context": context = null,
 			"prefix": prefix = null
-		} : {
+		}
+		: {
 			task : class_task;
 			branch ?: Array<string>;
 			depth ?: int;
