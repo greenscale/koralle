@@ -13,7 +13,7 @@ class class_action_locmerge extends class_action_adhoc {
 	/**
 	 * @author fenris
 	 */
-	protected output_folder : lib_path.class_location;
+	protected output : lib_path.class_filepointer;
 	
 	
 	/**
@@ -21,11 +21,11 @@ class class_action_locmerge extends class_action_adhoc {
 	 */
 	public constructor(
 		inputs : Array<lib_path.class_filepointer>,
-		output_folder : lib_path.class_location
+		output : lib_path.class_filepointer
 	) {
 		super();
 		this.inputs = inputs;
-		this.output_folder = output_folder;
+		this.output = output;
 	}
 	
 	
@@ -37,7 +37,7 @@ class class_action_locmerge extends class_action_adhoc {
 		let args : Array<string> = [];
 		// output
 		{
-			args.push(this.output_folder.as_string(globalvars.configuration.system));
+			args.push(this.output.as_string(globalvars.configuration.system));
 		}
 		// inputs
 		{
