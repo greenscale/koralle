@@ -350,11 +350,23 @@ class class_taskparameter<type_raw, type_ready> {
 							return [];
 						}
 						else {
+							let regexp : RegExp;
+							if (raw["filter"] != null) {
+								regexp = new RegExp(raw["filter"]);
+							}
+							else {
+								regexp = null;
+							}
 							let command : string = `schwamm --include=${raw["path"]} --output=list:${raw["group"]}`;
 							let result : Buffer = nm_child_process.execSync(command);
 							let output : string = result.toString();
 							let paths : Array<string> = output.split("\n");
-							return paths.filter(path => (path.trim().length > 0)).map(path => lib_path.filepointer_read(path));
+							return (
+								paths
+								.filter(path => (path.trim().length > 0))
+								.filter(path => ((regexp == null) ? true : regexp.test(path)))
+								.map(path => lib_path.filepointer_read(path))
+							);
 						}
 					},
 					"shape": lib_meta.from_raw(
@@ -372,6 +384,15 @@ class class_taskparameter<type_raw, type_ready> {
 										"name": "group",
 										"shape": {
 											"id": "string"
+										}
+									},
+									{
+										"name": "filter",
+										"shape": {
+											"id": "string",
+											"parameters": {
+												"soft": true
+											}
 										}
 									},
 								]

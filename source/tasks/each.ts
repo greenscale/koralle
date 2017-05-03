@@ -15,11 +15,29 @@ function task_each_generate_output(input_raw : string, output_description : type
 	switch (output_description.kind) {
 		case "replace": {
 			let regexp : RegExp = new RegExp(output_description.parameters["from"]);
-			let output_raw : string = input_raw.replace(
-				regexp,
-				output_description.parameters["to"]
-			);
-			return output_raw;
+			// let filter : boolean = ((output_description.parameters["filter"] == undefined) || (output_description.parameters["from"] == true));
+			let execute : boolean = /*((! filter) || regexp.test(input_raw))*/true;
+			if (execute) {
+				let output_raw : string = input_raw.replace(
+					regexp,
+					output_description.parameters["to"]
+				);
+				if (input_raw == output_raw) {
+					(
+						new class_message(
+							`replacement for input '${input_raw}' resulted in the same string`,
+							{
+								"type": "warning",
+								"prefix": "koralle"
+							}
+						)
+					).stderr();
+				}
+				return output_raw;
+			}
+			else {
+				return null;
+			}
 			break;
 		}
 		case "enumerate": {
@@ -80,24 +98,30 @@ class_tasktemplate.register(
 					"sub": inputs.map(
 						(input, index) => {
 							let input_raw : string = input.as_string();
-							return (
-								class_tasktemplate.create(
-									{
-										"name": index.toString(),
-										"type": data["element_type"],
-										"parameters": lib_object.patched(
-											data["element_parameters"],
-											{
-												"input": input_raw,
-												"output": task_each_generate_output(input_raw, data["output_description"], index),
-											}
-										)
-									},
-									rawtask["name"]
-								)
-							);
+							let output_raw : string = task_each_generate_output(input_raw, data["output_description"], index);
+							if (output_raw == null) {
+								return null;
+							}
+							else {
+								return (
+									class_tasktemplate.create(
+										{
+											"name": index.toString(),
+											"type": data["element_type"],
+											"parameters": lib_object.patched(
+												data["element_parameters"],
+												{
+													"input": input_raw,
+													"output": output_raw,
+												}
+											)
+										},
+										rawtask["name"]
+									)
+								);
+							}
 						}
-					),
+					).filter(x => (x != null)),
 				};
 			}
 		}
