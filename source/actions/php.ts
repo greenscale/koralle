@@ -19,23 +19,16 @@ class class_action_php extends class_action_adhoc {
 	/**
 	 * @author fenris
 	 */
-	protected only_first : boolean;
-	
-	
-	/**
-	 * @author fenris
-	 */
 	protected only_last : boolean;
 	
 	
 	/**
 	 * @author fenris
 	 */
-	public constructor(filepointers_from : Array<lib_path.class_filepointer>, filepointer_to : lib_path.class_filepointer, only_first : boolean, only_last : boolean) {
+	public constructor(filepointers_from : Array<lib_path.class_filepointer>, filepointer_to : lib_path.class_filepointer, only_last : boolean) {
 		super();
 		this.filepointers_from = filepointers_from;
 		this.filepointer_to = filepointer_to;
-		this.only_first = only_first;
 		this.only_last = only_last;
 	}
 	
@@ -56,12 +49,7 @@ class class_action_php extends class_action_adhoc {
 							parts.push(this.filepointers_from.slice(-1)[0].toString());
 						}
 						else {
-							if (this.only_first) {
-								parts.push(this.filepointers_from[0].toString());
-							}
-							else {
-								this.filepointers_from.forEach(filepointer => parts.push(filepointer.toString()));
-							}
+							this.filepointers_from.forEach(filepointer => parts.push(filepointer.toString()));
 						}
 						parts.push(">");
 						parts.push(this.filepointer_to.toString());
